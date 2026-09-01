@@ -315,9 +315,15 @@
                         <span class="text-[10px] font-label-sm text-outline uppercase tracking-wider block">Continuous Autofocus &amp; Hardware Barcode Detection</span>
                     </div>
                 </div>
-                <button id="close-scanner-btn" class="text-outline hover:text-primary p-1 cursor-pointer transition-colors" title="Close Scanner">
-                    <span class="material-symbols-outlined text-2xl">close</span>
-                </button>
+                <div class="flex items-center gap-2">
+                    <button id="tts-toggle-btn" title="Toggle voice announcements" class="px-2.5 py-1 text-[11px] font-label-sm rounded-xs border border-primary/50 bg-primary/10 text-primary hover:bg-primary hover:text-on-primary transition-all flex items-center gap-1 cursor-pointer">
+                        <span class="material-symbols-outlined text-[14px]">volume_up</span>
+                        <span id="tts-toggle-label">Voice ON</span>
+                    </button>
+                    <button id="close-scanner-btn" class="text-outline hover:text-primary p-1 cursor-pointer transition-colors" title="Close Scanner">
+                        <span class="material-symbols-outlined text-2xl">close</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Multi-Camera Selector & Controls Toolbar -->
@@ -407,12 +413,15 @@
                     <div><strong class="text-on-surface">Check-In Status:</strong> <span id="scan-checkin-status">--</span></div>
                 </div>
 
-                <div class="pt-2 flex gap-2">
+                <div class="pt-2 flex gap-2 flex-wrap">
                     <button id="scan-checkin-btn" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-label-sm py-2.5 px-3 text-xs uppercase tracking-wider rounded-sm font-bold transition-all cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.4)] flex items-center justify-center gap-1">
                         <span class="material-symbols-outlined text-sm">how_to_reg</span> Issue Badges &amp; Admit
                     </button>
-                    <button id="scan-reset-checkin-btn" class="bg-surface-container hover:bg-surface-container-high text-outline hover:text-error border border-outline-variant/50 font-label-sm py-2 px-3 text-xs uppercase rounded-sm transition-colors cursor-pointer">
-                        Undo Check-In
+                    <button id="scan-print-badge-btn" title="Print ID lanyard badge for this team" class="bg-primary/20 hover:bg-primary text-primary hover:text-on-primary border border-primary/50 font-label-sm py-2 px-3 text-xs uppercase rounded-sm transition-colors cursor-pointer flex items-center gap-1 font-bold">
+                        <span class="material-symbols-outlined text-sm">badge</span> Print Badge
+                    </button>
+                    <button id="scan-reset-checkin-btn" class="bg-surface-container hover:bg-surface-container-high text-outline hover:text-error border border-outline-variant/50 font-label-sm py-2 px-2.5 text-xs uppercase rounded-sm transition-colors cursor-pointer">
+                        Undo
                     </button>
                 </div>
             </div>
@@ -994,6 +1003,9 @@ terminal@vision.hack`
                             <button onclick="resendPassEmail('${escapeHtml(t.team_name || 'Team')}', '${escapeHtml(leaderEmail)}', '${escapeHtml(leaderName)}', '${escapeHtml(t.txn_id || '')}', '${escapeHtml(m2Email)}', '${escapeHtml(m3Email)}', '${escapeHtml(m4Email)}')" class="text-primary hover:bg-primary/10 p-1.5 rounded transition-colors cursor-pointer" title="Send/Resend Admit Pass Email">
                                 <span class="material-symbols-outlined text-sm align-middle">mail</span>
                             </button>
+                            <button onclick="openBadgePrintById('${t.id}')" class="text-primary/70 hover:text-primary hover:bg-primary/10 p-1.5 rounded transition-colors cursor-pointer" title="Print ID Badge">
+                                <span class="material-symbols-outlined text-sm align-middle">badge</span>
+                            </button>
                             <button onclick="deleteSingleTeam('${t.id}', '${escapeHtml(t.team_name || 'Team')}')" class="text-error/70 hover:text-error hover:bg-error/10 p-1.5 rounded transition-colors cursor-pointer" title="Delete Team">
                                 <span class="material-symbols-outlined text-sm align-middle">delete</span>
                             </button>
@@ -1416,6 +1428,17 @@ terminal@vision.hack`
             scanCheckinBtn.disabled = false;
             scannerResult.classList.remove('hidden');
             SFX.success();
+
+            // TTS Voice Announcement on successful scan
+            const ttsLeader = (team.members && team.members[0] && team.members[0].name || '').split(' ')[0];
+            const ttsName = team.team_name || 'Unknown Squad';
+            if (team.checked_in) {
+                speakAnnouncement(`Alert! Squad ${ttsName} has already been checked in. Possible duplicate entry.`);
+            } else if (team.status === 'verified') {
+                speakAnnouncement(`Squad ${ttsName} verified. Welcome ${ttsLeader}! Please proceed to check-in.`);
+            } else {
+                speakAnnouncement(`Warning! Squad ${ttsName} is not verified. Please contact the organizer before entry.`);
+            }
         }
 
         if (scanCheckinBtn) {
@@ -1430,6 +1453,7 @@ terminal@vision.hack`
                     });
                     scanCheckinStatus.innerHTML = `<span class="text-emerald-400 font-bold">✓ CHECKED-IN NOW!</span>`;
                     SFX.success();
+                    speakAnnouncement(`Squad ${activeScannedTeam.team_name} checked in successfully. Welcome to Vision 2026!`);
                 } catch (err) {
                     alert('Check-in failed: ' + err.message);
                     SFX.error();
@@ -1454,6 +1478,133 @@ terminal@vision.hack`
                     alert('Reset check-in failed: ' + err.message);
                 }
             });
+        }
+
+        /* ==========================================================
+           TTS VOICE ANNOUNCER — Web Speech API
+           ========================================================== */
+        const ttsToggleBtn = document.getElementById('tts-toggle-btn');
+        const ttsToggleLabel = document.getElementById('tts-toggle-label');
+        let ttsEnabled = localStorage.getItem('vision_tts_enabled') !== 'false';
+
+        function updateTtsUI() {
+            if (!ttsToggleBtn || !ttsToggleLabel) return;
+            if (ttsEnabled) {
+                ttsToggleBtn.classList.add('border-primary/50', 'text-primary', 'bg-primary/10');
+                ttsToggleBtn.classList.remove('border-outline-variant/60', 'text-outline', 'bg-surface-container');
+                ttsToggleLabel.textContent = 'Voice ON';
+            } else {
+                ttsToggleBtn.classList.remove('border-primary/50', 'text-primary', 'bg-primary/10');
+                ttsToggleBtn.classList.add('border-outline-variant/60', 'text-outline', 'bg-surface-container');
+                ttsToggleLabel.textContent = 'Voice OFF';
+            }
+        }
+        updateTtsUI();
+
+        if (ttsToggleBtn) {
+            ttsToggleBtn.addEventListener('click', () => {
+                ttsEnabled = !ttsEnabled;
+                localStorage.setItem('vision_tts_enabled', ttsEnabled ? 'true' : 'false');
+                updateTtsUI();
+                if (ttsEnabled) speakAnnouncement('Voice announcements enabled. Gate scanner ready.');
+                SFX.click();
+            });
+        }
+
+        function speakAnnouncement(text) {
+            if (!ttsEnabled || !window.speechSynthesis) return;
+            window.speechSynthesis.cancel();
+            const utt = new SpeechSynthesisUtterance(text);
+            utt.rate = 0.92;
+            utt.pitch = 1.0;
+            utt.volume = 1.0;
+            const assignVoice = () => {
+                const voices = window.speechSynthesis.getVoices();
+                const preferred = voices.find(v => v.lang.startsWith('en-') && v.name.toLowerCase().includes('google'))
+                    || voices.find(v => v.lang.startsWith('en-') && !v.name.toLowerCase().includes('compact'))
+                    || voices.find(v => v.lang.startsWith('en'))
+                    || voices[0];
+                if (preferred) utt.voice = preferred;
+                window.speechSynthesis.speak(utt);
+            };
+            if (window.speechSynthesis.getVoices().length > 0) assignVoice();
+            else { window.speechSynthesis.onvoiceschanged = assignVoice; }
+        }
+
+        /* ==========================================================
+           ID BADGE / LANYARD PRINT STATION
+           ========================================================== */
+        window.openBadgePrintById = function(teamId) {
+            const team = registeredTeams.find(t => t.id === teamId);
+            if (team) printBadgeWindow(team);
+            else alert('Team data not found. Refresh and try again.');
+        };
+
+        const scanPrintBadgeBtn = document.getElementById('scan-print-badge-btn');
+        if (scanPrintBadgeBtn) {
+            scanPrintBadgeBtn.addEventListener('click', () => {
+                if (activeScannedTeam) { printBadgeWindow(activeScannedTeam); SFX.click(); }
+                else alert('No team scanned yet.');
+            });
+        }
+
+        function printBadgeWindow(team) {
+            const gm = (i) => team.members && team.members[i] ? team.members[i] : {};
+            const m1 = gm(0), m2 = gm(1), m3 = gm(2), m4 = gm(3);
+            const esc = (s) => (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            const qrToken = encodeURIComponent(team.id || team.txn_id || team.team_name || 'VISION2026');
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${qrToken}&margin=2&bgcolor=0b0c10&color=f0c12c`;
+            const members = [m2.name, m3.name, m4.name].filter(Boolean).map(esc).join(' &bull; ') || '&mdash;';
+            const isVerified = team.status === 'verified';
+            const statusColor = isVerified ? '#10b981' : '#f59e0b';
+            const statusLabel = (team.status || 'PENDING').toUpperCase();
+
+            const html = `<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<title>Badge: ${esc(team.team_name)}</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Space+Grotesk:wght@500;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  @page { size: 2.5in 3.5in; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { width: 2.5in; height: 3.5in; overflow: hidden; background: #0b0c10; color: #fff; font-family: 'Space Grotesk', sans-serif; display: flex; flex-direction: column; }
+  .hdr { background: linear-gradient(135deg,#1a1200,rgba(240,193,44,.14)); border-bottom: 2.5px solid #f0c12c; padding: 9px 12px 7px; text-align: center; }
+  .hdr-t { font-family: 'Orbitron', sans-serif; font-size: 9.5pt; font-weight: 900; color: #f0c12c; letter-spacing: .14em; }
+  .hdr-s { font-family: 'JetBrains Mono', monospace; font-size: 6pt; color: rgba(255,227,161,.6); letter-spacing: .06em; margin-top: 1px; }
+  .body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6px 12px; gap: 4px; }
+  .status { font-size: 5.5pt; font-weight: 800; padding: 1px 7px; border-radius: 2px; border: 1px solid ${statusColor}; color: ${statusColor}; letter-spacing: .1em; font-family: 'JetBrains Mono', monospace; }
+  .team { font-family: 'Space Grotesk', sans-serif; font-size: 12.5pt; font-weight: 800; color: #f0c12c; text-align: center; text-transform: uppercase; letter-spacing: .04em; line-height: 1.15; }
+  .leader { font-size: 10pt; font-weight: 700; color: #fff; text-align: center; margin-top: 1px; }
+  .div { width: 72%; height: 1px; background: linear-gradient(90deg,transparent,rgba(240,193,44,.45),transparent); margin: 3px 0; }
+  .members { font-family: 'JetBrains Mono', monospace; font-size: 6.5pt; color: #c4b897; text-align: center; line-height: 1.6; }
+  .qr { background: #fff; padding: 4px; border-radius: 2px; border: 2px solid #f0c12c; margin-top: 3px; }
+  .qr img { display: block; width: 76px; height: 76px; }
+  .utr { font-family: 'JetBrains Mono', monospace; font-size: 5pt; color: rgba(240,193,44,.55); text-align: center; margin-top: 2px; }
+  .ftr { background: #f0c12c; color: #0b0c10; font-family: 'Orbitron', sans-serif; font-size: 6.5pt; font-weight: 900; text-align: center; padding: 5px 10px; letter-spacing: .12em; }
+</style>
+</head><body>
+  <div class="hdr"><div class="hdr-t">VISION 2026</div><div class="hdr-s">HACKATHON // SEPT 20-21 // KEC ERODE</div></div>
+  <div class="body">
+    <div class="status">${statusLabel}</div>
+    <div class="team">${esc(team.team_name || 'SQUAD')}</div>
+    <div class="leader">${esc(m1.name || 'Leader')}</div>
+    <div class="div"></div>
+    <div class="members">${members}</div>
+    <div class="qr"><img src="${qrUrl}" alt="QR" /></div>
+    <div class="utr">REF: ${esc(team.txn_id || team.id || 'N/A')}</div>
+  </div>
+  <div class="ftr">OFFICIAL HACKATHON BADGE</div>
+  <script>
+    var img=document.querySelector('.qr img'),done=false;
+    function tryPrint(){if(!done)return;setTimeout(function(){window.print();},350);}
+    if(img){img.onload=function(){done=true;tryPrint();};img.onerror=function(){done=true;tryPrint();};if(img.complete){done=true;tryPrint();}}
+    else{setTimeout(function(){window.print();},700);}
+  <\/script>
+</body></html>`;
+
+            const popup = window.open('', '_blank', 'width=325,height=465,menubar=no,scrollbars=no,toolbar=no,resizable=yes');
+            if (popup) { popup.document.write(html); popup.document.close(); SFX.click(); }
+            else alert('Popup blocked. Allow popups for this page to enable badge printing.');
         }
 
         // CSV & Excel Exporters

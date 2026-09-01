@@ -574,6 +574,55 @@
             <div id="email-toast" class="hidden text-center text-xs font-label-sm text-primary mt-3 tracking-widest">
                 ✓ ACTION PROCESSED SUCCESSFULLY
             </div>
+            <!-- Squad Card Share Row -->
+            <div class="mt-2.5">
+                <button id="squad-card-share-btn" class="w-full bg-gradient-to-r from-purple-950/70 to-indigo-900/70 hover:from-purple-900 hover:to-indigo-800 text-purple-300 hover:text-white border border-purple-500/50 hover:border-purple-400 font-label-sm py-3 px-3 text-xs uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 rounded-sm font-bold cursor-pointer">
+                    <span class="material-symbols-outlined text-sm">photo_camera</span>
+                    Share Squad Card (Instagram Story / WhatsApp Status)
+                    <span class="text-[9px] px-1.5 py-0.5 bg-purple-500/25 border border-purple-400/40 rounded-xs font-bold tracking-widest uppercase">9:16</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Squad Invite Card: 1080x1920 Instagram Stories / WhatsApp Status format -->
+    <!-- Captured by html2canvas, then downloaded as PNG -->
+    <div id="squad-invite-card" aria-hidden="true" style="position:fixed;left:-12000px;top:0;width:1080px;height:1920px;overflow:hidden;pointer-events:none;z-index:-1;font-family:'Space Grotesk',-apple-system,sans-serif;">
+        <!-- Gradient background -->
+        <div style="position:absolute;inset:0;background:linear-gradient(160deg,#050608 0%,#0e0f15 40%,#131005 100%);"></div>
+        <!-- Decorative grid lines -->
+        <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(240,193,44,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(240,193,44,0.04) 1px,transparent 1px);background-size:80px 80px;"></div>
+        <!-- Top glow orb -->
+        <div style="position:absolute;top:-180px;left:50%;transform:translateX(-50%);width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(240,193,44,0.14) 0%,transparent 70%);pointer-events:none;"></div>
+        <!-- Corner brackets -->
+        <div style="position:absolute;top:48px;left:48px;width:56px;height:56px;border-top:3px solid #f0c12c;border-left:3px solid #f0c12c;"></div>
+        <div style="position:absolute;top:48px;right:48px;width:56px;height:56px;border-top:3px solid #f0c12c;border-right:3px solid #f0c12c;"></div>
+        <div style="position:absolute;bottom:48px;left:48px;width:56px;height:56px;border-bottom:3px solid #f0c12c;border-left:3px solid #f0c12c;"></div>
+        <div style="position:absolute;bottom:48px;right:48px;width:56px;height:56px;border-bottom:3px solid #f0c12c;border-right:3px solid #f0c12c;"></div>
+        <!-- Content -->
+        <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:80px 72px;gap:0;">
+            <!-- Vision badge -->
+            <div style="font-family:'Orbitron',sans-serif;font-size:13px;font-weight:900;color:#f0c12c;letter-spacing:0.22em;text-transform:uppercase;border:1.5px solid rgba(240,193,44,0.45);padding:8px 28px;border-radius:3px;background:rgba(240,193,44,0.06);margin-bottom:54px;">VISION 2026 · HACKATHON</div>
+            <!-- SQUAD HAS ASSEMBLED headline -->
+            <div style="font-family:'Orbitron',sans-serif;font-size:36px;font-weight:900;color:rgba(255,255,255,0.22);letter-spacing:0.12em;text-transform:uppercase;text-align:center;line-height:1.1;margin-bottom:20px;">SQUAD HAS</div>
+            <div style="font-family:'Orbitron',sans-serif;font-size:52px;font-weight:900;color:#f0c12c;letter-spacing:0.08em;text-transform:uppercase;text-align:center;line-height:1.0;margin-bottom:56px;">ASSEMBLED</div>
+            <!-- Team name -->
+            <div id="squad-card-team-name" style="font-family:'Space Grotesk',sans-serif;font-size:62px;font-weight:800;color:#ffffff;text-align:center;text-transform:uppercase;letter-spacing:0.04em;line-height:1.1;margin-bottom:12px;word-break:break-word;max-width:900px;">TEAM NAME</div>
+            <!-- Divider -->
+            <div style="width:320px;height:2px;background:linear-gradient(90deg,transparent,#f0c12c,transparent);margin:32px 0;"></div>
+            <!-- Members list -->
+            <div id="squad-card-members" style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:600;color:rgba(255,255,255,0.82);text-align:center;line-height:1.9;margin-bottom:52px;">LEADER NAME</div>
+            <!-- QR Code -->
+            <div style="background:#fff;padding:14px;border-radius:6px;border:3px solid #f0c12c;margin-bottom:28px;">
+                <img id="squad-card-qr" src="" alt="Squad QR" style="width:190px;height:190px;display:block;" crossorigin="anonymous" />
+            </div>
+            <!-- Scan label -->
+            <div style="font-family:'JetBrains Mono',monospace;font-size:15px;color:rgba(240,193,44,0.6);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:60px;">SCAN TO VERIFY SQUAD</div>
+            <!-- Event info -->
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:600;color:rgba(255,255,255,0.5);text-align:center;letter-spacing:0.04em;line-height:1.6;">
+                Sept 20-21, 2026 &bull; Main Auditorium<br>
+                <span style="color:rgba(240,193,44,0.7);">Kongu Engineering College, Erode</span>
+            </div>
         </div>
     </div>
 
@@ -1165,6 +1214,89 @@
             printPassBtn.addEventListener('click', () => {
                 SFX.click();
                 window.print();
+            });
+        }
+
+        /* ---------- Squad Invite Card Generator (9:16 Instagram Stories) ---------- */
+        const squadCardShareBtn = document.getElementById('squad-card-share-btn');
+        if (squadCardShareBtn) {
+            squadCardShareBtn.addEventListener('click', async () => {
+                if (!currentPassData) return;
+                if (!window.html2canvas) { alert('Image capture unavailable. Please try again.'); return; }
+
+                SFX.click();
+                const origText = squadCardShareBtn.innerHTML;
+                squadCardShareBtn.disabled = true;
+                squadCardShareBtn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">progress_activity</span> Generating Squad Card...';
+
+                try {
+                    const squadCard = document.getElementById('squad-invite-card');
+                    const teamNameEl = document.getElementById('squad-card-team-name');
+                    const membersEl = document.getElementById('squad-card-members');
+                    const qrEl = document.getElementById('squad-card-qr');
+
+                    // Populate squad card data
+                    if (teamNameEl) teamNameEl.textContent = (currentPassData.team_name || 'SQUAD').toUpperCase();
+                    const allMembers = (currentPassData.members || []).filter(m => m && m.name);
+                    if (membersEl) membersEl.innerHTML = allMembers.map((m, i) => `${i === 0 ? '⚡ ' : ''}${m.name}`).join('<br>');
+
+                    // Set QR code image
+                    const qrToken = currentPassData.id || currentPassData.txn_id || modalPassId.textContent;
+                    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=380x380&data=${encodeURIComponent(qrToken)}&margin=2&bgcolor=ffffff&color=000000`;
+                    if (qrEl) {
+                        qrEl.src = qrUrl;
+                        // Wait for QR to load
+                        await new Promise((res) => {
+                            if (qrEl.complete && qrEl.naturalWidth > 0) { res(); return; }
+                            qrEl.onload = res;
+                            qrEl.onerror = res;
+                            setTimeout(res, 3000);
+                        });
+                    }
+
+                    // Ensure fonts loaded
+                    if (document.fonts && document.fonts.ready) await document.fonts.ready;
+
+                    // Capture at scale:1 since element is already 1080×1920px
+                    const canvas = await html2canvas(squadCard, {
+                        scale: 1,
+                        width: 1080,
+                        height: 1920,
+                        backgroundColor: '#050608',
+                        useCORS: true,
+                        allowTaint: true,
+                        logging: false,
+                        letterRendering: true,
+                        onclone: (clonedDoc) => {
+                            const el = clonedDoc.getElementById('squad-invite-card');
+                            if (el) {
+                                el.style.position = 'relative';
+                                el.style.left = '0';
+                                el.style.top = '0';
+                                el.style.zIndex = '1';
+                            }
+                        }
+                    });
+
+                    // Download
+                    const link = document.createElement('a');
+                    const cleanName = (currentPassData.team_name || 'squad').replace(/[^a-zA-Z0-9_-]/g, '_');
+                    link.download = `VISION_2026_SQUAD_CARD_${cleanName}.png`;
+                    link.href = canvas.toDataURL('image/png', 1.0);
+                    link.click();
+
+                    SFX.success();
+                    emailToast.textContent = '✓ SQUAD CARD DOWNLOADED — SHARE TO INSTAGRAM / WHATSAPP STATUS!';
+                    emailToast.classList.remove('hidden');
+                    setTimeout(() => emailToast.classList.add('hidden'), 5000);
+                } catch (err) {
+                    console.error('Squad card generation error:', err);
+                    alert('Squad card could not be generated. Please try downloading the Pass PNG instead.');
+                    SFX.error();
+                } finally {
+                    squadCardShareBtn.disabled = false;
+                    squadCardShareBtn.innerHTML = origText;
+                }
             });
         }
 
