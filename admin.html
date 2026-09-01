@@ -6,10 +6,10 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Vision — Organizer Control Terminal</title>
     <!-- Security Headers & Policies -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com https://*.googletagmanager.com https://cdn.sheetjs.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://firestore.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; object-src 'none'; base-uri 'self'; form-action 'self';" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com https://*.googletagmanager.com https://cdn.sheetjs.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://firestore.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; object-src 'none'; base-uri 'self'; form-action 'self';" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-    <meta http-equiv="Permissions-Policy" content="accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()" />
+    <meta http-equiv="Permissions-Policy" content="camera=(self)" />
     <style>
         @layer base {
             html, body {
@@ -33,6 +33,7 @@
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 </head>
 
 <body class="bg-surface font-body-md text-on-surface selection:bg-primary selection:text-on-primary min-h-screen">
@@ -72,14 +73,17 @@
     <!-- ============ MAIN TERMINAL UI ============ -->
     <div id="terminal-content" class="hidden">
         <header class="w-full bg-surface-container-lowest border-b border-primary/20 py-4 px-6 md:px-8 sticky top-0 z-50 backdrop-blur-md">
-            <div class="max-w-7xl mx-auto flex items-center justify-between">
-                <div class="flex items-center gap-4 md:gap-6">
+            <div class="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-3">
+                <div class="flex items-center gap-3 md:gap-6">
                     <span class="font-orbitron text-xl md:text-2xl text-primary tracking-widest uppercase">VISION CONTROL</span>
                     <span class="border border-primary/40 bg-primary/10 px-2.5 py-0.5 text-[10px] font-label-sm text-primary tracking-widest uppercase hidden sm:inline-block">ORGANIZER CLEARANCE ACTIVE</span>
                 </div>
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <button id="open-scanner-btn" class="bg-primary text-on-primary font-label-sm px-3.5 py-2 rounded-sm hover:bg-primary-fixed transition-all text-xs flex items-center gap-1.5 font-bold shadow-[0_0_15px_rgba(240,193,44,0.3)] cursor-pointer">
+                        <span class="material-symbols-outlined text-[18px]">qr_code_scanner</span> Live Gate Scanner
+                    </button>
                     <a href="index.html" class="font-label-sm text-outline hover:text-primary transition-colors uppercase tracking-widest text-xs">Public Site &gt;</a>
-                    <button id="lock-terminal-btn" class="border border-outline-variant/40 hover:border-error hover:text-error text-outline text-xs font-label-sm px-3 py-1.5 rounded-sm transition-colors flex items-center gap-1.5">
+                    <button id="lock-terminal-btn" class="border border-outline-variant/40 hover:border-error hover:text-error text-outline text-xs font-label-sm px-3 py-1.5 rounded-sm transition-colors flex items-center gap-1.5 cursor-pointer">
                         <span class="material-symbols-outlined text-[14px]">lock</span> Lock
                     </button>
                 </div>
@@ -88,48 +92,83 @@
 
         <main class="max-w-7xl mx-auto px-6 md:px-8 py-8 space-y-8">
             
-            <!-- Stats & Export Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-surface-container-low border border-primary/20 p-6 relative rounded-sm shadow-md">
-                    <div class="font-label-sm text-outline uppercase tracking-wider text-xs mb-2">Capacity Utilization</div>
-                    <div class="font-orbitron text-3xl text-primary" id="admin-seats">-- / 35</div>
-                    <div class="text-xs text-on-surface-variant mt-2" id="admin-seats-sub">Listening for real-time changes...</div>
+            <!-- 4-Card Financial, Check-In & Operations Dashboard -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <!-- Card 1: Capacity -->
+                <div class="bg-surface-container-low border border-primary/20 p-5 relative rounded-sm shadow-md">
+                    <div class="font-label-sm text-outline uppercase tracking-wider text-[11px] mb-1">Capacity Utilization</div>
+                    <div class="font-orbitron text-2xl md:text-3xl text-primary" id="admin-seats">-- / 35</div>
+                    <div class="text-[11px] text-on-surface-variant mt-2 truncate" id="admin-seats-sub">Listening for live updates...</div>
                 </div>
-                <div class="bg-surface-container-low border border-primary/20 p-6 relative rounded-sm shadow-md">
-                    <div class="font-label-sm text-outline uppercase tracking-wider text-xs mb-2">Total Registrations</div>
-                    <div class="font-orbitron text-3xl text-on-surface" id="admin-total">0</div>
-                    <div class="text-xs text-on-surface-variant mt-2 flex items-center gap-2" id="status-breakdown">
+
+                <!-- Card 2: Registrations -->
+                <div class="bg-surface-container-low border border-primary/20 p-5 relative rounded-sm shadow-md">
+                    <div class="font-label-sm text-outline uppercase tracking-wider text-[11px] mb-1">Total Squads</div>
+                    <div class="font-orbitron text-2xl md:text-3xl text-on-surface" id="admin-total">0</div>
+                    <div class="text-[11px] text-on-surface-variant mt-2" id="status-breakdown">
                         <span>Loading team counts...</span>
                     </div>
                 </div>
-                <div class="bg-surface-container-low border border-primary/20 p-6 relative flex flex-col justify-between rounded-sm shadow-md">
-                    <div>
-                        <div class="font-label-sm text-outline uppercase tracking-wider text-xs mb-1">Export Data</div>
-                        <div class="text-xs text-on-surface-variant">Export team rosters &amp; transaction UTRs for desk check-in.</div>
+
+                <!-- Card 3: Financial Analytics -->
+                <div class="bg-surface-container-low border border-primary/20 p-5 relative rounded-sm shadow-md">
+                    <div class="font-label-sm text-outline uppercase tracking-wider text-[11px] mb-1">Verified Revenue</div>
+                    <div class="font-orbitron text-2xl md:text-3xl text-emerald-400" id="admin-revenue">₹0</div>
+                    <div class="text-[11px] text-on-surface-variant mt-2" id="admin-pending-revenue">
+                        Pending: ₹0 (0 teams)
                     </div>
-                    <div class="mt-4 flex gap-2">
-                        <button id="export-csv-btn" class="w-1/2 bg-primary/20 hover:bg-primary text-primary hover:text-on-primary border border-primary font-label-sm px-3 py-2 text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 rounded-sm">
-                            <span class="material-symbols-outlined text-sm">download</span> CSV
-                        </button>
-                        <button id="export-excel-btn" class="w-1/2 bg-surface-container-highest hover:bg-primary hover:text-on-primary text-on-surface border border-outline-variant hover:border-primary font-label-sm px-3 py-2 text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 rounded-sm">
-                            <span class="material-symbols-outlined text-sm">table_chart</span> Excel
-                        </button>
+                </div>
+
+                <!-- Card 4: Event Day Gate Check-Ins -->
+                <div class="bg-surface-container-low border border-primary/20 p-5 relative rounded-sm shadow-md">
+                    <div class="font-label-sm text-outline uppercase tracking-wider text-[11px] mb-1">Campus Check-Ins</div>
+                    <div class="font-orbitron text-2xl md:text-3xl text-primary" id="admin-checked-in">0 / 0</div>
+                    <div class="text-[11px] text-on-surface-variant mt-2" id="admin-checked-in-sub">
+                        0% Verified squads checked-in
                     </div>
                 </div>
             </div>
 
             <!-- Database Maintenance & Capacity Sync Toolbar -->
-            <div class="bg-surface-container-low/60 border border-outline-variant/30 p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 rounded-sm">
+            <div class="bg-surface-container-low/60 border border-outline-variant/30 p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 rounded-sm">
                 <div>
-                    <h2 class="font-headline-md text-on-surface text-lg">Capacity Management &amp; DB Maintenance</h2>
-                    <p class="text-xs text-on-surface-variant mt-1">Recalibrate live capacity or purge test submissions prior to event launch.</p>
+                    <h2 class="font-headline-md text-on-surface text-base">Capacity Management &amp; Exporters</h2>
+                    <p class="text-xs text-on-surface-variant mt-0.5">Recalibrate capacity count, download attendee sheets, or purge test records.</p>
                 </div>
-                <div class="flex items-center gap-3 flex-wrap">
-                    <button id="init-capacity-btn" class="bg-surface-container-highest hover:bg-primary hover:text-on-primary border border-primary/40 font-label-sm px-4 py-2.5 text-xs uppercase tracking-widest transition-colors rounded-sm">
-                        Sync Capacity (35 Max)
+                <div class="flex items-center gap-2.5 flex-wrap">
+                    <button id="export-csv-btn" class="bg-primary/20 hover:bg-primary text-primary hover:text-on-primary border border-primary font-label-sm px-3 py-2 text-xs uppercase tracking-widest transition-all flex items-center gap-1 rounded-sm cursor-pointer">
+                        <span class="material-symbols-outlined text-sm">download</span> CSV
                     </button>
-                    <button id="purge-data-btn" class="bg-error-container/30 hover:bg-error hover:text-on-error border border-error/50 text-error font-label-sm px-4 py-2.5 text-xs uppercase tracking-widest transition-colors flex items-center gap-1.5 rounded-sm">
-                        <span class="material-symbols-outlined text-sm">delete_forever</span> Purge All Test Data
+                    <button id="export-excel-btn" class="bg-surface-container-highest hover:bg-primary hover:text-on-primary text-on-surface border border-outline-variant hover:border-primary font-label-sm px-3 py-2 text-xs uppercase tracking-widest transition-all flex items-center gap-1 rounded-sm cursor-pointer">
+                        <span class="material-symbols-outlined text-sm">table_chart</span> Excel
+                    </button>
+                    <button id="init-capacity-btn" class="bg-surface-container-highest hover:bg-primary hover:text-on-primary border border-primary/40 font-label-sm px-3 py-2 text-xs uppercase tracking-widest transition-colors rounded-sm cursor-pointer">
+                        Sync Capacity
+                    </button>
+                    <button id="purge-data-btn" class="bg-error-container/30 hover:bg-error hover:text-on-error border border-error/50 text-error font-label-sm px-3 py-2 text-xs uppercase tracking-widest transition-colors flex items-center gap-1 rounded-sm cursor-pointer">
+                        <span class="material-symbols-outlined text-sm">delete_forever</span> Purge
+                    </button>
+                </div>
+            </div>
+
+            <!-- Bulk Actions Floating Toolbar (Appears when rows selected) -->
+            <div id="bulk-toolbar" class="hidden bg-surface-container-high border-2 border-primary p-4 rounded-sm shadow-[0_0_30px_rgba(240,193,44,0.25)] flex items-center justify-between flex-wrap gap-3 animate-fade-in-up">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">checklist</span>
+                    <span class="font-bold text-sm text-primary font-label-sm" id="bulk-count">0 Teams Selected</span>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button id="bulk-verify-btn" class="bg-emerald-900 hover:bg-emerald-800 text-emerald-300 border border-emerald-500/50 font-label-sm px-3 py-1.5 text-xs uppercase tracking-wider rounded-sm transition-all cursor-pointer flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[14px]">verified</span> Mark Verified
+                    </button>
+                    <button id="bulk-flag-btn" class="bg-amber-950 hover:bg-amber-900 text-amber-300 border border-amber-500/50 font-label-sm px-3 py-1.5 text-xs uppercase tracking-wider rounded-sm transition-all cursor-pointer flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[14px]">flag</span> Mark Flagged
+                    </button>
+                    <button id="bulk-delete-btn" class="bg-error-container hover:bg-error text-on-error font-label-sm px-3 py-1.5 text-xs uppercase tracking-wider rounded-sm transition-all cursor-pointer flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[14px]">delete</span> Delete Selected
+                    </button>
+                    <button id="bulk-cancel-btn" class="text-outline hover:text-on-surface font-label-sm px-2.5 py-1.5 text-xs uppercase tracking-wider rounded-sm transition-all cursor-pointer">
+                        Cancel
                     </button>
                 </div>
             </div>
@@ -153,6 +192,7 @@
                             <option value="verified">Verified Only</option>
                             <option value="pending_verification">Pending Only</option>
                             <option value="flagged">Flagged / Invalid UTR</option>
+                            <option value="checked_in">Checked-In Only</option>
                         </select>
                     </div>
                 </div>
@@ -161,20 +201,23 @@
                     <table class="w-full text-left text-xs font-body-md border-collapse">
                         <thead>
                             <tr class="bg-surface-container border-b border-outline-variant/30 text-outline uppercase tracking-wider font-label-sm">
-                                <th class="py-3.5 px-4">#</th>
+                                <th class="py-3.5 px-3 text-center w-10">
+                                    <input type="checkbox" id="select-all-checkbox" class="accent-primary cursor-pointer w-3.5 h-3.5" title="Select All" />
+                                </th>
+                                <th class="py-3.5 px-3">#</th>
                                 <th class="py-3.5 px-4">Team Name</th>
                                 <th class="py-3.5 px-4">Leader (Member 1)</th>
                                 <th class="py-3.5 px-4">Member 2</th>
                                 <th class="py-3.5 px-4">Member 3</th>
                                 <th class="py-3.5 px-4">Member 4</th>
                                 <th class="py-3.5 px-4">UTR / Screenshot</th>
-                                <th class="py-3.5 px-4">Status &amp; Verification</th>
+                                <th class="py-3.5 px-4">Status &amp; Gate Check-In</th>
                                 <th class="py-3.5 px-4 text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="teams-table-body" class="divide-y divide-outline-variant/10 text-on-surface">
                             <tr>
-                                <td colspan="8" class="py-8 text-center text-on-surface-variant font-label-sm tracking-widest">
+                                <td colspan="10" class="py-8 text-center text-on-surface-variant font-label-sm tracking-widest">
                                     Loading registrations from Firestore...
                                 </td>
                             </tr>
@@ -203,6 +246,68 @@
                 <button id="receipt-download-btn" class="bg-primary/20 hover:bg-primary text-primary hover:text-on-primary border border-primary font-label-sm px-4 py-2 text-xs uppercase tracking-widest transition-colors rounded-sm">
                     Open Full Image
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ ON-DAY GATE ENTRY QR SCANNER MODAL ============ -->
+    <div id="scanner-modal" class="fixed inset-0 z-[999999] hidden flex items-center justify-center bg-black/90 backdrop-blur-md p-4 overflow-y-auto">
+        <div class="bg-surface-container-low border-2 border-primary max-w-lg w-full p-6 rounded-sm relative shadow-[0_0_50px_rgba(240,193,44,0.3)] my-8">
+            <div class="flex items-center justify-between border-b border-outline-variant/30 pb-3 mb-4">
+                <h3 class="font-headline-md text-primary text-lg uppercase flex items-center gap-2">
+                    <span class="material-symbols-outlined text-xl">qr_code_scanner</span> On-Day Campus Gate Scanner
+                </h3>
+                <button id="close-scanner-btn" class="text-outline hover:text-primary p-1 cursor-pointer">
+                    <span class="material-symbols-outlined text-2xl">close</span>
+                </button>
+            </div>
+
+            <!-- Scanner Camera Viewfinder -->
+            <div class="relative bg-black rounded-sm overflow-hidden border border-outline-variant/50 mb-4">
+                <div id="qr-reader" class="w-full min-h-[260px]"></div>
+                <div id="scanner-status" class="text-[11px] font-label-sm text-center py-2 bg-surface-container text-outline">
+                    Point camera at participant Admit Pass QR Token
+                </div>
+            </div>
+
+            <!-- Manual Lookup Alternate Input -->
+            <div class="mb-4">
+                <label class="text-[10px] font-label-sm text-outline uppercase block mb-1">Manual Pass / UTR / Team Lookup:</label>
+                <div class="flex gap-2">
+                    <input type="text" id="scanner-manual-input" placeholder="Enter UTR ID, Pass Ref, or Team..." class="flex-1 bg-surface-container border border-outline-variant/60 focus:border-primary text-xs py-2 px-3 text-on-surface outline-none rounded-sm uppercase" />
+                    <button id="scanner-manual-btn" class="bg-primary/20 hover:bg-primary text-primary hover:text-on-primary border border-primary font-label-sm px-4 py-2 text-xs uppercase tracking-wider rounded-sm transition-all cursor-pointer font-bold">
+                        Search
+                    </button>
+                </div>
+            </div>
+
+            <!-- Scanned Team Result Hologram Card -->
+            <div id="scanner-result" class="hidden bg-surface-container-lowest border border-primary/50 p-4 rounded-sm space-y-3 animate-fade-in-up">
+                <div class="flex justify-between items-start border-b border-outline-variant/20 pb-2">
+                    <div>
+                        <span class="text-[9px] font-label-sm text-outline uppercase block">MATCHED SQUAD</span>
+                        <h4 class="font-headline-md text-lg text-primary uppercase" id="scan-team-name">TEAM NAME</h4>
+                    </div>
+                    <div id="scan-status-badge">
+                        <span class="px-2 py-0.5 text-[10px] font-label-sm rounded-xs bg-emerald-950 text-emerald-400 border border-emerald-500/40 uppercase">VERIFIED</span>
+                    </div>
+                </div>
+
+                <div class="text-xs space-y-1 font-body-md text-on-surface-variant">
+                    <div><strong class="text-on-surface">Leader:</strong> <span id="scan-leader">--</span></div>
+                    <div><strong class="text-on-surface">Squad Members:</strong> <span id="scan-members">--</span></div>
+                    <div><strong class="text-on-surface">Txn UTR:</strong> <span class="font-orbitron text-primary" id="scan-utr">--</span></div>
+                    <div><strong class="text-on-surface">Check-In Status:</strong> <span id="scan-checkin-status">--</span></div>
+                </div>
+
+                <div class="pt-2 flex gap-2">
+                    <button id="scan-checkin-btn" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-label-sm py-2.5 px-3 text-xs uppercase tracking-wider rounded-sm font-bold transition-all cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.4)] flex items-center justify-center gap-1">
+                        <span class="material-symbols-outlined text-sm">how_to_reg</span> Issue Badges &amp; Admit
+                    </button>
+                    <button id="scan-reset-checkin-btn" class="bg-surface-container hover:bg-surface-container-high text-outline hover:text-error border border-outline-variant/50 font-label-sm py-2 px-3 text-xs uppercase rounded-sm transition-colors cursor-pointer">
+                        Undo Check-In
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -303,6 +408,11 @@
         const adminSeatsSub = document.getElementById('admin-seats-sub');
         const adminTotal = document.getElementById('admin-total');
         const statusBreakdown = document.getElementById('status-breakdown');
+        const adminRevenue = document.getElementById('admin-revenue');
+        const adminPendingRevenue = document.getElementById('admin-pending-revenue');
+        const adminCheckedIn = document.getElementById('admin-checked-in');
+        const adminCheckedInSub = document.getElementById('admin-checked-in-sub');
+
         const tableBody = document.getElementById('teams-table-body');
         const initBtn = document.getElementById('init-capacity-btn');
         const purgeBtn = document.getElementById('purge-data-btn');
@@ -317,6 +427,35 @@
         const closeReceiptBtn = document.getElementById('close-receipt-btn');
         const receiptDownloadBtn = document.getElementById('receipt-download-btn');
 
+        // Bulk Selection Elements
+        const selectAllCheckbox = document.getElementById('select-all-checkbox');
+        const bulkToolbar = document.getElementById('bulk-toolbar');
+        const bulkCount = document.getElementById('bulk-count');
+        const bulkVerifyBtn = document.getElementById('bulk-verify-btn');
+        const bulkFlagBtn = document.getElementById('bulk-flag-btn');
+        const bulkDeleteBtn = document.getElementById('bulk-delete-btn');
+        const bulkCancelBtn = document.getElementById('bulk-cancel-btn');
+        let selectedTeamIds = new Set();
+
+        // QR Scanner Elements
+        const openScannerBtn = document.getElementById('open-scanner-btn');
+        const scannerModal = document.getElementById('scanner-modal');
+        const closeScannerBtn = document.getElementById('close-scanner-btn');
+        const scannerStatus = document.getElementById('scanner-status');
+        const scannerManualInput = document.getElementById('scanner-manual-input');
+        const scannerManualBtn = document.getElementById('scanner-manual-btn');
+        const scannerResult = document.getElementById('scanner-result');
+        const scanTeamName = document.getElementById('scan-team-name');
+        const scanStatusBadge = document.getElementById('scan-status-badge');
+        const scanLeader = document.getElementById('scan-leader');
+        const scanMembers = document.getElementById('scan-members');
+        const scanUtr = document.getElementById('scan-utr');
+        const scanCheckinStatus = document.getElementById('scan-checkin-status');
+        const scanCheckinBtn = document.getElementById('scan-checkin-btn');
+        const scanResetCheckinBtn = document.getElementById('scan-reset-checkin-btn');
+
+        let html5QrScanner = null;
+        let activeScannedTeam = null;
         let registeredTeams = [];
         let db = null;
 
@@ -345,6 +484,21 @@
                 SFX.success();
             } catch (err) {
                 alert('Status update failed: ' + err.message);
+                SFX.error();
+            }
+        };
+
+        window.toggleCheckIn = async function(docId, currentCheckedIn) {
+            if (!db) return;
+            try {
+                const nextState = !currentCheckedIn;
+                await updateDoc(doc(db, 'registrations', docId), {
+                    checked_in: nextState,
+                    check_in_timestamp: nextState ? new Date().toISOString() : null
+                });
+                SFX.success();
+            } catch (err) {
+                alert('Check-in status update failed: ' + err.message);
                 SFX.error();
             }
         };
@@ -413,7 +567,7 @@ terminal@vision.hack`
                     }
                 });
 
-                // Listen to registrations
+                // Listen to registrations & update financial metrics
                 const regQuery = query(collection(db, 'registrations'));
                 onSnapshot(regQuery, (snapshot) => {
                     registeredTeams = [];
@@ -425,10 +579,29 @@ terminal@vision.hack`
                     
                     const verifiedCount = registeredTeams.filter(t => t.status === 'verified').length;
                     const pendingCount = registeredTeams.filter(t => t.status !== 'verified' && t.status !== 'flagged').length;
+                    const checkedInCount = registeredTeams.filter(t => t.checked_in === true).length;
+
                     statusBreakdown.innerHTML = `
                         <span class="text-primary font-bold">${verifiedCount} Verified</span> • 
                         <span class="text-on-surface-variant">${pendingCount} Pending</span>
                     `;
+
+                    // Financial metrics (₹1600 per 4-person squad)
+                    if (adminRevenue) {
+                        adminRevenue.textContent = `₹${(verifiedCount * 1600).toLocaleString('en-IN')}`;
+                    }
+                    if (adminPendingRevenue) {
+                        adminPendingRevenue.textContent = `Pipeline: ₹${(pendingCount * 1600).toLocaleString('en-IN')} (${pendingCount} squads)`;
+                    }
+
+                    // Check-in tracking
+                    if (adminCheckedIn) {
+                        adminCheckedIn.textContent = `${checkedInCount} / ${verifiedCount || registeredTeams.length}`;
+                    }
+                    if (adminCheckedInSub) {
+                        const pct = verifiedCount > 0 ? Math.round((checkedInCount / verifiedCount) * 100) : 0;
+                        adminCheckedInSub.textContent = `${pct}% of verified squads checked-in`;
+                    }
 
                     applyFilterAndRender();
                 });
@@ -452,7 +625,7 @@ terminal@vision.hack`
                             SFX.error();
                         } finally {
                             initBtn.disabled = false;
-                            initBtn.textContent = 'Sync Capacity (35 Max)';
+                            initBtn.textContent = 'Sync Capacity';
                         }
                     }
                 });
@@ -483,7 +656,7 @@ terminal@vision.hack`
                             SFX.error();
                         } finally {
                             purgeBtn.disabled = false;
-                            purgeBtn.innerHTML = '<span class="material-symbols-outlined text-sm">delete_forever</span> Purge All Test Data';
+                            purgeBtn.innerHTML = '<span class="material-symbols-outlined text-sm">delete_forever</span> Purge';
                         }
                     }
                 });
@@ -493,6 +666,103 @@ terminal@vision.hack`
             }
         }
 
+        /* ---------- Bulk Selection Logic ---------- */
+        function updateBulkToolbar() {
+            if (!bulkToolbar || !bulkCount) return;
+            const count = selectedTeamIds.size;
+            if (count > 0) {
+                bulkCount.textContent = `${count} Team${count > 1 ? 's' : ''} Selected`;
+                bulkToolbar.classList.remove('hidden');
+            } else {
+                bulkToolbar.classList.add('hidden');
+            }
+            if (selectAllCheckbox) {
+                const visibleCheckboxes = document.querySelectorAll('.team-select-checkbox');
+                selectAllCheckbox.checked = visibleCheckboxes.length > 0 && Array.from(visibleCheckboxes).every(cb => cb.checked);
+            }
+        }
+
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', () => {
+                const checked = selectAllCheckbox.checked;
+                document.querySelectorAll('.team-select-checkbox').forEach(cb => {
+                    cb.checked = checked;
+                    const docId = cb.dataset.id;
+                    if (checked) selectedTeamIds.add(docId);
+                    else selectedTeamIds.delete(docId);
+                });
+                updateBulkToolbar();
+            });
+        }
+
+        if (bulkCancelBtn) {
+            bulkCancelBtn.addEventListener('click', () => {
+                selectedTeamIds.clear();
+                document.querySelectorAll('.team-select-checkbox').forEach(cb => cb.checked = false);
+                if (selectAllCheckbox) selectAllCheckbox.checked = false;
+                updateBulkToolbar();
+            });
+        }
+
+        if (bulkVerifyBtn) {
+            bulkVerifyBtn.addEventListener('click', async () => {
+                if (!db || selectedTeamIds.size === 0) return;
+                if (!confirm(`Mark ${selectedTeamIds.size} teams as VERIFIED?`)) return;
+                try {
+                    const updates = Array.from(selectedTeamIds).map(id => updateDoc(doc(db, 'registrations', id), { status: 'verified' }));
+                    await Promise.all(updates);
+                    selectedTeamIds.clear();
+                    updateBulkToolbar();
+                    SFX.success();
+                } catch (err) {
+                    alert('Bulk verify error: ' + err.message);
+                    SFX.error();
+                }
+            });
+        }
+
+        if (bulkFlagBtn) {
+            bulkFlagBtn.addEventListener('click', async () => {
+                if (!db || selectedTeamIds.size === 0) return;
+                if (!confirm(`Mark ${selectedTeamIds.size} teams as FLAGGED?`)) return;
+                try {
+                    const updates = Array.from(selectedTeamIds).map(id => updateDoc(doc(db, 'registrations', id), { status: 'flagged' }));
+                    await Promise.all(updates);
+                    selectedTeamIds.clear();
+                    updateBulkToolbar();
+                    SFX.success();
+                } catch (err) {
+                    alert('Bulk flag error: ' + err.message);
+                    SFX.error();
+                }
+            });
+        }
+
+        if (bulkDeleteBtn) {
+            bulkDeleteBtn.addEventListener('click', async () => {
+                if (!db || selectedTeamIds.size === 0) return;
+                const count = selectedTeamIds.size;
+                if (!confirm(`DANGER: Permanently delete ${count} selected team(s)?`)) return;
+                try {
+                    const deletes = Array.from(selectedTeamIds).map(id => deleteDoc(doc(db, 'registrations', id)));
+                    await Promise.all(deletes);
+                    const newCount = Math.max(0, registeredTeams.length - count);
+                    await setDoc(doc(db, 'metadata', 'capacity'), {
+                        max_teams: 35,
+                        registered_count: newCount,
+                        seats_remaining: Math.max(0, 35 - newCount)
+                    }, { merge: true });
+                    selectedTeamIds.clear();
+                    updateBulkToolbar();
+                    SFX.success();
+                } catch (err) {
+                    alert('Bulk delete error: ' + err.message);
+                    SFX.error();
+                }
+            });
+        }
+
+        /* ---------- Filtering & Table Rendering ---------- */
         function applyFilterAndRender() {
             const queryText = (searchInput.value || '').trim().toLowerCase();
             const filterVal = statusFilter.value;
@@ -501,7 +771,8 @@ terminal@vision.hack`
                 const matchesFilter = filterVal === 'all' || 
                     (filterVal === 'verified' && t.status === 'verified') ||
                     (filterVal === 'pending_verification' && (t.status === 'pending_verification' || !t.status || t.status === 'pending')) ||
-                    (filterVal === 'flagged' && t.status === 'flagged');
+                    (filterVal === 'flagged' && t.status === 'flagged') ||
+                    (filterVal === 'checked_in' && t.checked_in === true);
 
                 if (!matchesFilter) return false;
 
@@ -522,7 +793,7 @@ terminal@vision.hack`
             if (teams.length === 0) {
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="8" class="py-8 text-center text-outline-variant font-label-sm tracking-widest">
+                        <td colspan="10" class="py-8 text-center text-outline-variant font-label-sm tracking-widest">
                             NO MATCHING REGISTRATIONS FOUND.
                         </td>
                     </tr>
@@ -547,6 +818,7 @@ terminal@vision.hack`
                 const m4Email = t.members && t.members[3] ? t.members[3].email : '';
 
                 const currentStatus = t.status || 'pending_verification';
+                const isCheckedIn = t.checked_in === true;
 
                 let statusBadge = '';
                 if (currentStatus === 'verified') {
@@ -557,14 +829,23 @@ terminal@vision.hack`
                     statusBadge = `<span class="inline-block px-2 py-0.5 text-[10px] uppercase font-label-sm rounded-xs bg-primary/10 text-primary border border-primary/30">Pending</span>`;
                 }
 
+                const checkinBadge = isCheckedIn 
+                    ? `<button onclick="toggleCheckIn('${t.id}', true)" class="mt-1 flex items-center gap-1 text-[10px] font-label-sm px-1.5 py-0.5 rounded-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 hover:bg-emerald-500/30" title="Click to undo check-in"><span class="material-symbols-outlined text-[12px]">check_circle</span> Checked-In</button>`
+                    : `<button onclick="toggleCheckIn('${t.id}', false)" class="mt-1 flex items-center gap-1 text-[10px] font-label-sm px-1.5 py-0.5 rounded-xs bg-surface-container text-outline border border-outline-variant/40 hover:border-primary hover:text-primary" title="Click to check-in"><span class="material-symbols-outlined text-[12px]">how_to_reg</span> Admit Entry</button>`;
+
                 const screenshotBtn = t.screenshot ? `
-                    <button onclick="openReceipt('${t.screenshot}')" class="mt-1 flex items-center gap-1 text-[10px] text-primary hover:underline">
-                        <span class="material-symbols-outlined text-[12px]">image</span> View Receipt
+                    <button onclick="openReceipt('${t.screenshot}')" class="mt-1 flex items-center gap-1 text-[10px] text-primary hover:underline cursor-pointer">
+                        <span class="material-symbols-outlined text-[12px]">image</span> View Proof
                     </button>
                 ` : '';
 
+                const isSelected = selectedTeamIds.has(t.id);
+
                 tr.innerHTML = `
-                    <td class="py-3 px-4 font-label-sm text-outline">${idx + 1}</td>
+                    <td class="py-3 px-3 text-center">
+                        <input type="checkbox" data-id="${t.id}" class="team-select-checkbox accent-primary cursor-pointer w-3.5 h-3.5" ${isSelected ? 'checked' : ''} />
+                    </td>
+                    <td class="py-3 px-3 font-label-sm text-outline">${idx + 1}</td>
                     <td class="py-3 px-4 font-bold text-primary">${escapeHtml(t.team_name || 'N/A')}</td>
                     <td class="py-3 px-4">${escapeHtml(m1)}</td>
                     <td class="py-3 px-4">${escapeHtml(m2)}</td>
@@ -575,27 +856,40 @@ terminal@vision.hack`
                         ${screenshotBtn}
                     </td>
                     <td class="py-3 px-4">
-                        <div class="flex items-center gap-2">
-                            ${statusBadge}
-                            <select onchange="updateTeamStatus('${t.id}', this.value)" class="bg-surface-container border border-outline-variant/40 text-[10px] py-1 px-1.5 rounded-xs text-on-surface outline-none">
-                                <option value="pending_verification" ${currentStatus === 'pending_verification' ? 'selected' : ''}>Pending</option>
-                                <option value="verified" ${currentStatus === 'verified' ? 'selected' : ''}>Verify</option>
-                                <option value="flagged" ${currentStatus === 'flagged' ? 'selected' : ''}>Flag</option>
-                            </select>
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                ${statusBadge}
+                                <select onchange="updateTeamStatus('${t.id}', this.value)" class="bg-surface-container border border-outline-variant/40 text-[10px] py-1 px-1.5 rounded-xs text-on-surface outline-none cursor-pointer">
+                                    <option value="pending_verification" ${currentStatus === 'pending_verification' ? 'selected' : ''}>Pending</option>
+                                    <option value="verified" ${currentStatus === 'verified' ? 'selected' : ''}>Verify</option>
+                                    <option value="flagged" ${currentStatus === 'flagged' ? 'selected' : ''}>Flag</option>
+                                </select>
+                            </div>
+                            ${checkinBadge}
                         </div>
                     </td>
                     <td class="py-3 px-4 text-center">
                         <div class="flex items-center justify-center gap-1">
-                            <button onclick="resendPassEmail('${escapeHtml(t.team_name || 'Team')}', '${escapeHtml(leaderEmail)}', '${escapeHtml(leaderName)}', '${escapeHtml(t.txn_id || '')}', '${escapeHtml(m2Email)}', '${escapeHtml(m3Email)}', '${escapeHtml(m4Email)}')" class="text-primary hover:bg-primary/10 p-1.5 rounded transition-colors" title="Send/Resend Admit Pass Email">
+                            <button onclick="resendPassEmail('${escapeHtml(t.team_name || 'Team')}', '${escapeHtml(leaderEmail)}', '${escapeHtml(leaderName)}', '${escapeHtml(t.txn_id || '')}', '${escapeHtml(m2Email)}', '${escapeHtml(m3Email)}', '${escapeHtml(m4Email)}')" class="text-primary hover:bg-primary/10 p-1.5 rounded transition-colors cursor-pointer" title="Send/Resend Admit Pass Email">
                                 <span class="material-symbols-outlined text-sm align-middle">mail</span>
                             </button>
-                            <button onclick="deleteSingleTeam('${t.id}', '${escapeHtml(t.team_name || 'Team')}')" class="text-error/70 hover:text-error hover:bg-error/10 p-1.5 rounded transition-colors" title="Delete Team">
+                            <button onclick="deleteSingleTeam('${t.id}', '${escapeHtml(t.team_name || 'Team')}')" class="text-error/70 hover:text-error hover:bg-error/10 p-1.5 rounded transition-colors cursor-pointer" title="Delete Team">
                                 <span class="material-symbols-outlined text-sm align-middle">delete</span>
                             </button>
                         </div>
                     </td>
                 `;
                 tableBody.appendChild(tr);
+            });
+
+            // Attach checkbox event listeners
+            document.querySelectorAll('.team-select-checkbox').forEach(cb => {
+                cb.addEventListener('change', (e) => {
+                    const id = e.target.dataset.id;
+                    if (e.target.checked) selectedTeamIds.add(id);
+                    else selectedTeamIds.delete(id);
+                    updateBulkToolbar();
+                });
             });
         }
 
@@ -604,10 +898,140 @@ terminal@vision.hack`
             return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/'/g, '&#39;');
         }
 
+        /* ---------- On-Day Gate QR Scanner Logic ---------- */
+        function openGateScanner() {
+            scannerModal.classList.remove('hidden');
+            scannerResult.classList.add('hidden');
+            scannerManualInput.value = '';
+            SFX.click();
+
+            if (window.Html5Qrcode) {
+                if (!html5QrScanner) {
+                    html5QrScanner = new Html5Qrcode("qr-reader");
+                }
+                const config = { fps: 10, qrbox: { width: 220, height: 220 } };
+                html5QrScanner.start({ facingMode: "environment" }, config, onQrCodeScanned)
+                    .catch(err => {
+                        console.warn('Camera scan fallback to user camera:', err);
+                        html5QrScanner.start({ facingMode: "user" }, config, onQrCodeScanned).catch(e => {
+                            scannerStatus.textContent = 'Camera access unavailable. Use manual lookup below.';
+                        });
+                    });
+            }
+        }
+
+        function closeGateScanner() {
+            if (html5QrScanner) {
+                html5QrScanner.stop().catch(() => {}).then(() => {
+                    scannerModal.classList.add('hidden');
+                });
+            } else {
+                scannerModal.classList.add('hidden');
+            }
+        }
+
+        if (openScannerBtn) openScannerBtn.addEventListener('click', openGateScanner);
+        if (closeScannerBtn) closeScannerBtn.addEventListener('click', closeGateScanner);
+
+        function onQrCodeScanned(decodedText) {
+            SFX.boot();
+            findAndDisplayScannedTeam(decodedText.trim());
+        }
+
+        if (scannerManualBtn) {
+            scannerManualBtn.addEventListener('click', () => {
+                const query = scannerManualInput.value.trim();
+                if (!query) return;
+                SFX.click();
+                findAndDisplayScannedTeam(query);
+            });
+            scannerManualInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') scannerManualBtn.click();
+            });
+        }
+
+        function findAndDisplayScannedTeam(token) {
+            const q = token.toLowerCase();
+            const team = registeredTeams.find(t => 
+                (t.id && t.id.toLowerCase() === q) ||
+                (t.txn_id && t.txn_id.toLowerCase().includes(q)) ||
+                (t.team_name && t.team_name.toLowerCase().includes(q)) ||
+                (t.members && t.members.some(m => m.email?.toLowerCase().includes(q) || m.mobile?.includes(q)))
+            );
+
+            if (!team) {
+                alert(`No team matching "${token}" was found.`);
+                SFX.error();
+                return;
+            }
+
+            activeScannedTeam = team;
+            scanTeamName.textContent = team.team_name || 'UNKNOWN TEAM';
+            
+            const isVerified = team.status === 'verified';
+            scanStatusBadge.innerHTML = isVerified
+                ? `<span class="px-2 py-0.5 text-[10px] font-label-sm rounded-xs bg-emerald-950 text-emerald-400 border border-emerald-500/40 uppercase">VERIFIED</span>`
+                : `<span class="px-2 py-0.5 text-[10px] font-label-sm rounded-xs bg-error/20 text-error border border-error/40 uppercase">PENDING / UNVERIFIED</span>`;
+
+            const m1 = team.members && team.members[0] ? `${team.members[0].name} (${team.members[0].mobile})` : 'N/A';
+            const otherMembers = (team.members || []).slice(1).map(m => m.name).filter(Boolean).join(', ') || 'None';
+
+            scanLeader.textContent = m1;
+            scanMembers.textContent = otherMembers;
+            scanUtr.textContent = team.txn_id || 'N/A';
+
+            const checkedIn = team.checked_in === true;
+            scanCheckinStatus.innerHTML = checkedIn 
+                ? `<span class="text-emerald-400 font-bold">ALREADY CHECKED-IN</span> (${team.check_in_timestamp ? new Date(team.check_in_timestamp).toLocaleTimeString() : 'Earlier'})`
+                : `<span class="text-outline">NOT YET CHECKED-IN</span>`;
+
+            scanCheckinBtn.disabled = false;
+            scannerResult.classList.remove('hidden');
+            SFX.success();
+        }
+
+        if (scanCheckinBtn) {
+            scanCheckinBtn.addEventListener('click', async () => {
+                if (!activeScannedTeam || !db) return;
+                try {
+                    scanCheckinBtn.disabled = true;
+                    scanCheckinBtn.textContent = 'CHECKING IN...';
+                    await updateDoc(doc(db, 'registrations', activeScannedTeam.id), {
+                        checked_in: true,
+                        check_in_timestamp: new Date().toISOString()
+                    });
+                    scanCheckinStatus.innerHTML = `<span class="text-emerald-400 font-bold">✓ CHECKED-IN NOW!</span>`;
+                    SFX.success();
+                } catch (err) {
+                    alert('Check-in failed: ' + err.message);
+                    SFX.error();
+                } finally {
+                    scanCheckinBtn.disabled = false;
+                    scanCheckinBtn.innerHTML = '<span class="material-symbols-outlined text-sm">how_to_reg</span> Issue Badges &amp; Admit';
+                }
+            });
+        }
+
+        if (scanResetCheckinBtn) {
+            scanResetCheckinBtn.addEventListener('click', async () => {
+                if (!activeScannedTeam || !db) return;
+                try {
+                    await updateDoc(doc(db, 'registrations', activeScannedTeam.id), {
+                        checked_in: false,
+                        check_in_timestamp: null
+                    });
+                    scanCheckinStatus.innerHTML = `<span class="text-outline">NOT YET CHECKED-IN</span>`;
+                    SFX.click();
+                } catch (err) {
+                    alert('Reset check-in failed: ' + err.message);
+                }
+            });
+        }
+
         // CSV & Excel Exporters
         exportBtn.addEventListener('click', () => {
             if (registeredTeams.length === 0) return alert('No records to export.');
-            const headers = ['ID', 'Team Name', 'Member 1 Name', 'Member 1 Email', 'Member 1 Mobile', 'Member 2 Name', 'Member 2 Email', 'Member 2 Mobile', 'Member 3 Name', 'Member 3 Email', 'Member 3 Mobile', 'Member 4 Name', 'Member 4 Email', 'Member 4 Mobile', 'Transaction ID', 'Status'];
+            const headers = ['ID', 'Team Name', 'Member 1 Name', 'Member 1 Email', 'Member 1 Mobile', 'Member 2 Name', 'Member 2 Email', 'Member 2 Mobile', 'Member 3 Name', 'Member 3 Email', 'Member 3 Mobile', 'Member 4 Name', 'Member 4 Email', 'Member 4 Mobile', 'Transaction ID', 'Status', 'Checked In', 'Check In Time'];
             const rows = registeredTeams.map(t => {
                 const m1 = t.members && t.members[0] ? t.members[0] : {};
                 const m2 = t.members && t.members[1] ? t.members[1] : {};
@@ -629,7 +1053,9 @@ terminal@vision.hack`
                     m4.email || '',
                     m4.mobile || '',
                     t.txn_id || '',
-                    t.status || 'pending'
+                    t.status || 'pending',
+                    t.checked_in ? 'YES' : 'NO',
+                    t.check_in_timestamp || ''
                 ];
             });
             const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
@@ -663,6 +1089,8 @@ terminal@vision.hack`
                     'Member 4 Mobile': m4.mobile || '',
                     'Transaction ID': t.txn_id || '',
                     'Status': t.status || 'pending',
+                    'Checked In': t.checked_in ? 'YES' : 'NO',
+                    'Check In Time': t.check_in_timestamp || '',
                     'Doc ID': t.id || ''
                 };
             });

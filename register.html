@@ -6,10 +6,11 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Vision — Registration &amp; Admission Pass</title>
     <!-- Security Headers & Policies -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://firestore.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; object-src 'none'; base-uri 'self'; form-action 'self';" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com https://*.googletagmanager.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://firestore.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; object-src 'none'; base-uri 'self'; form-action 'self';" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta http-equiv="Permissions-Policy" content="accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @layer base {
             html,
@@ -196,7 +197,7 @@
                                 Assemble Your<br /><span class="text-primary drop-shadow-[0_0_12px_rgba(255,227,161,0.3)]">Vision Squad</span>
                             </h1>
                             <p class="font-body-md text-on-surface-variant mt-4 max-w-xl text-sm leading-relaxed">
-                                Enter your 3-member team credentials and transaction validation code. Upon transmission, an official **Holographic Admit Pass** will be generated with instant email dispatch.
+                                Enter your 4-member team credentials and transaction validation code. Upon transmission, an official **Holographic Admit Pass** will be generated with instant email dispatch.
                             </p>
                         </div>
 
@@ -538,19 +539,27 @@
                 </div>
             </div>
 
-            <!-- Modal Action Buttons -->
-            <div class="mt-6 flex flex-col sm:flex-row items-center gap-3">
-                <button id="email-confirm-btn" class="w-full sm:w-1/2 bg-primary/20 hover:bg-primary text-primary hover:text-on-primary border border-primary font-label-sm py-3 px-4 text-xs uppercase tracking-widest transition-all duration-200 flex items-center justify-center gap-2 rounded-sm">
-                    <span class="material-symbols-outlined text-sm">mail</span>
-                    Send / Copy Confirmation Email
+            <!-- Modal Action Buttons Grid -->
+            <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                <button id="download-png-btn" class="bg-primary text-on-primary hover:bg-primary-fixed border border-primary font-label-sm py-3 px-3 text-xs uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-1.5 rounded-sm font-bold shadow-[0_0_15px_rgba(240,193,44,0.25)] cursor-pointer">
+                    <span class="material-symbols-outlined text-sm">download</span>
+                    Download Pass (PNG)
                 </button>
-                <button id="print-pass-btn" class="w-full sm:w-1/2 bg-primary text-on-primary hover:bg-primary-fixed border border-primary font-label-sm py-3 px-4 text-xs uppercase tracking-widest transition-all duration-200 flex items-center justify-center gap-2 rounded-sm font-bold shadow-[0_0_15px_rgba(240,193,44,0.3)]">
+                <button id="whatsapp-share-btn" class="bg-[#25D366]/20 hover:bg-[#25D366] text-[#25D366] hover:text-black border border-[#25D366]/60 font-label-sm py-3 px-3 text-xs uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-1.5 rounded-sm font-bold cursor-pointer">
+                    <span class="material-symbols-outlined text-sm">share</span>
+                    Share on WhatsApp
+                </button>
+                <button id="email-confirm-btn" class="bg-primary/15 hover:bg-primary text-primary hover:text-on-primary border border-primary/60 font-label-sm py-3 px-3 text-xs uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-1.5 rounded-sm cursor-pointer">
+                    <span class="material-symbols-outlined text-sm">mail</span>
+                    Send Email Pass
+                </button>
+                <button id="print-pass-btn" class="bg-surface-container hover:bg-surface-container-high text-on-surface border border-outline-variant/60 font-label-sm py-3 px-3 text-xs uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-1.5 rounded-sm cursor-pointer">
                     <span class="material-symbols-outlined text-sm">print</span>
-                    Print / Download Admit Pass
+                    Print / PDF
                 </button>
             </div>
             <div id="email-toast" class="hidden text-center text-xs font-label-sm text-primary mt-3 tracking-widest">
-                ✓ EMAIL CONFIRMATION PREPARED &amp; DISPATCHED
+                ✓ ACTION PROCESSED SUCCESSFULLY
             </div>
         </div>
     </div>
@@ -975,6 +984,8 @@
         const modalM3 = document.getElementById('modal-m3');
         const modalM4 = document.getElementById('modal-m4');
         const modalTxnId = document.getElementById('modal-txn-id');
+        const downloadPngBtn = document.getElementById('download-png-btn');
+        const whatsappShareBtn = document.getElementById('whatsapp-share-btn');
         const emailConfirmBtn = document.getElementById('email-confirm-btn');
         const printPassBtn = document.getElementById('print-pass-btn');
         const emailToast = document.getElementById('email-toast');
@@ -1003,6 +1014,74 @@
             closeModalBtn.addEventListener('click', () => {
                 passModal.classList.add('hidden');
                 SFX.click();
+            });
+        }
+
+        // Instant High-Res PNG Image Download via html2canvas
+        if (downloadPngBtn) {
+            downloadPngBtn.addEventListener('click', async () => {
+                const passElement = document.getElementById('printable-pass');
+                if (!passElement || !window.html2canvas) return;
+
+                SFX.click();
+                const originalText = downloadPngBtn.innerHTML;
+                downloadPngBtn.disabled = true;
+                downloadPngBtn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">progress_activity</span> Generating...';
+
+                try {
+                    const canvas = await html2canvas(passElement, {
+                        scale: 2, // Retina 2x quality
+                        backgroundColor: '#0d0e12',
+                        useCORS: true,
+                        logging: false
+                    });
+
+                    const link = document.createElement('a');
+                    const cleanTeam = (modalTeamName.textContent || 'team').replace(/[^a-zA-Z0-9_-]/g, '_');
+                    link.download = `Vision_2026_AdmitPass_${cleanTeam}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+
+                    SFX.success();
+                    emailToast.textContent = '✓ ADMIT PASS IMAGE DOWNLOADED TO GALLERY';
+                    emailToast.classList.remove('hidden');
+                    setTimeout(() => emailToast.classList.add('hidden'), 4000);
+                } catch (err) {
+                    console.error('PNG Pass generation error:', err);
+                    alert('Could not generate image. Please use "Print / PDF" option.');
+                    SFX.error();
+                } finally {
+                    downloadPngBtn.disabled = false;
+                    downloadPngBtn.innerHTML = originalText;
+                }
+            });
+        }
+
+        // 1-Click WhatsApp Share with Formatted Message
+        if (whatsappShareBtn) {
+            whatsappShareBtn.addEventListener('click', () => {
+                if (!currentPassData) return;
+                SFX.click();
+
+                const m4Text = currentPassData.members[3] ? `\n4️⃣ ${currentPassData.members[3].name} (${currentPassData.members[3].mobile})` : '';
+                const msg = `⚡ *VISION 2026 HACKATHON // OFFICIAL ADMIT PASS* ⚡\n\n` +
+                    `🛡️ *Squad:* ${currentPassData.team_name}\n` +
+                    `🎟️ *Pass ID:* ${modalPassId.textContent}\n` +
+                    `💳 *Txn UTR:* ${currentPassData.txn_id}\n` +
+                    `📍 *Venue:* Main Auditorium, Kongu Engineering College\n` +
+                    `📅 *Dates:* September 20-21, 2026 | 08:30 AM IST\n\n` +
+                    `👥 *Confirmed Squad:* \n` +
+                    `1️⃣ Leader: ${currentPassData.members[0].name} (${currentPassData.members[0].mobile})\n` +
+                    `2️⃣ ${currentPassData.members[1].name} (${currentPassData.members[1].mobile})\n` +
+                    `3️⃣ ${currentPassData.members[2].name} (${currentPassData.members[2].mobile})${m4Text}\n\n` +
+                    `Avengers Assemble! See you at the hackathon arena 🚀`;
+
+                const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+                window.open(waUrl, '_blank');
+
+                emailToast.textContent = '✓ OPENED WHATSAPP SHARE WINDOW';
+                emailToast.classList.remove('hidden');
+                setTimeout(() => emailToast.classList.add('hidden'), 4000);
             });
         }
 
@@ -1057,6 +1136,7 @@ terminal@vision.hack`
                 // Open formatted mail client & copy text
                 window.location.href = `mailto:${leaderEmail}?cc=${ccEmails}&subject=${subject}&body=${body}`;
                 
+                emailToast.textContent = '✓ EMAIL CONFIRMATION PREPARED & DISPATCHED';
                 emailToast.classList.remove('hidden');
                 setTimeout(() => {
                     emailToast.classList.add('hidden');
