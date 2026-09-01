@@ -667,7 +667,7 @@
 
     <!-- Firebase & Logic Script -->
     <script type="module">
-        import { firebaseConfig, isFirebaseConfigured } from './firebase-config.js';
+        import { firebaseConfig, isFirebaseConfigured, organizerConfig } from './firebase-config.js';
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js';
         import { 
             getFirestore, 
@@ -1357,6 +1357,79 @@ terminal@vision.hack`
         }
 
         /* =========================================================
+           ORGANIZER REAL-TIME AUTO-NOTIFICATION (WhatsApp / Webhook)
+           ========================================================= */
+        async function dispatchOrganizerWhatsAppNotification(payload, currentRemaining) {
+            try {
+                const phone = organizerConfig?.whatsappPhone || '917339436468';
+                const teamName = payload.team_name || 'Squad';
+                const leader = payload.members && payload.members[0] ? payload.members[0] : {};
+                const leaderName = leader.name || 'Leader';
+                const leaderMobile = leader.mobile || 'N/A';
+                const leaderCollege = leader.college || 'N/A';
+                const txnId = payload.txn_id || 'N/A';
+                const rem = typeof currentRemaining === 'number' ? currentRemaining : 'Active';
+                const timeStr = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+                const alertText = 
+`🚨 *NEW SQUAD REGISTRATION — VISION 2026*
+
+🛡️ *Squad:* ${teamName}
+👤 *Leader:* ${leaderName} (${leaderMobile})
+🎓 *College:* ${leaderCollege}
+💳 *UTR:* ${txnId}
+📊 *Slots Left:* ${rem} / 35
+🕒 *Time:* ${timeStr}
+
+🔗 *Admin Panel:* ${window.location.origin}/admin.html`;
+
+                // 1. Telegram Bot Alert (Instant & 100% Free)
+                const tgToken = localStorage.getItem('vision_tg_token') || organizerConfig?.telegramBotToken || '';
+                const tgChatId = localStorage.getItem('vision_tg_chat_id') || organizerConfig?.telegramChatId || '';
+                if (tgToken && tgChatId) {
+                    const tgUrl = `https://api.telegram.org/bot${tgToken}/sendMessage`;
+                    fetch(tgUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: tgChatId,
+                            text: alertText,
+                            parse_mode: 'Markdown'
+                        })
+                    }).catch(err => console.warn('Telegram dispatch error:', err));
+                }
+
+                // 2. CallMeBot Free WhatsApp Personal Gateway
+                const callMeBotKey = localStorage.getItem('vision_callmebot_key') || '';
+                if (callMeBotKey) {
+                    const callMeBotUrl = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encodeURIComponent(alertText)}&apikey=${callMeBotKey}`;
+                    fetch(callMeBotUrl, { mode: 'no-cors' }).catch(() => {});
+                }
+
+                // 3. Custom Webhook (Discord, Telegram, Zapier, Cloud Function)
+                const webhookUrl = localStorage.getItem('vision_organizer_webhook') || '';
+                if (webhookUrl) {
+                    fetch(webhookUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            event: 'new_registration',
+                            team_name: teamName,
+                            leader: leaderName,
+                            mobile: leaderMobile,
+                            college: leaderCollege,
+                            txn_id: txnId,
+                            slots_left: rem,
+                            timestamp: new Date().toISOString()
+                        })
+                    }).catch(() => {});
+                }
+            } catch (e) {
+                console.warn('Organizer notification dispatch error:', e);
+            }
+        }
+
+        /* =========================================================
            FORM SUBMISSION HANDLER
            ========================================================= */
         form.addEventListener('submit', async (e) => {
@@ -1485,6 +1558,9 @@ terminal@vision.hack`
                             seats_remaining: currentRemaining - 1
                         }, { merge: true });
                     });
+
+                    // Real-Time Auto-Notify Organizer on WhatsApp
+                    dispatchOrganizerWhatsAppNotification(payload, seatsRemaining);
 
                     // Success Feedback & Launch Holographic Admit Pass Modal
                     submitLabel.textContent = 'REGISTRATION CONFIRMED';

@@ -20,3 +20,11 @@ export function isFirebaseConfigured() {
     return firebaseConfig.apiKey !== "YOUR_API_KEY_HERE" &&
            firebaseConfig.projectId !== "YOUR_PROJECT_ID";
 }
+
+// Organizer WhatsApp & Alerts Configuration
+export const organizerConfig = {
+    whatsappPhone: "917339436468",
+    organizerName: "Eniyan S",
+    telegramBotToken: "",
+    telegramChatId: ""
+};

@@ -146,39 +146,74 @@
 
         <main class="max-w-7xl mx-auto px-6 md:px-8 py-8 space-y-8">
             
-            <!-- 4-Card Financial, Check-In & Operations Dashboard -->
+            <!-- 4-Card Financial, Attendance & Operations Dashboard -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                <!-- Card 1: Capacity -->
-                <div class="bg-surface-container-low border border-primary/20 p-5 relative rounded-sm shadow-md">
-                    <div class="font-label-sm text-outline uppercase tracking-wider text-[11px] mb-1">Capacity Utilization</div>
-                    <div class="font-orbitron text-2xl md:text-3xl text-primary" id="admin-seats">-- / 35</div>
-                    <div class="text-[11px] text-on-surface-variant mt-2 truncate" id="admin-seats-sub">Listening for live updates...</div>
+                <!-- Card 1: Capacity & Slots -->
+                <div class="bg-surface-container-low border border-primary/20 p-5 relative rounded-sm shadow-md flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-label-sm text-outline uppercase tracking-wider text-[11px]">Capacity Utilization</span>
+                            <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                        </div>
+                        <div class="font-orbitron text-2xl md:text-3xl text-primary font-bold" id="admin-seats">-- / 35</div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="w-full bg-surface-container-highest h-1.5 rounded-full overflow-hidden mb-1.5">
+                            <div id="capacity-bar" class="bg-primary h-full transition-all duration-500" style="width: 0%;"></div>
+                        </div>
+                        <div class="text-[11px] text-on-surface-variant truncate font-label-sm" id="admin-seats-sub">Listening for live updates...</div>
+                    </div>
                 </div>
 
-                <!-- Card 2: Registrations -->
-                <div class="bg-surface-container-low border border-primary/20 p-5 relative rounded-sm shadow-md">
-                    <div class="font-label-sm text-outline uppercase tracking-wider text-[11px] mb-1">Total Squads</div>
-                    <div class="font-orbitron text-2xl md:text-3xl text-on-surface" id="admin-total">0</div>
-                    <div class="text-[11px] text-on-surface-variant mt-2" id="status-breakdown">
-                        <span>Loading team counts...</span>
+                <!-- Card 2: Registrations Breakdown & Quick Filters -->
+                <div class="bg-surface-container-low border border-primary/20 p-5 relative rounded-sm shadow-md flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-label-sm text-outline uppercase tracking-wider text-[11px]">Total Squads</span>
+                            <span class="font-label-sm text-[10px] text-outline-variant">TAP TO FILTER</span>
+                        </div>
+                        <div class="font-orbitron text-2xl md:text-3xl text-on-surface font-bold" id="admin-total">0</div>
+                    </div>
+                    <div class="mt-3 flex items-center gap-1.5 flex-wrap" id="status-breakdown">
+                        <button onclick="setFilter('verified')" class="px-2 py-0.5 text-[10px] font-label-sm bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-500/40 rounded-xs transition-colors cursor-pointer" id="badge-verified-count">0 Verified</button>
+                        <button onclick="setFilter('pending_verification')" class="px-2 py-0.5 text-[10px] font-label-sm bg-amber-950/80 hover:bg-amber-900 text-amber-300 border border-amber-500/40 rounded-xs transition-colors cursor-pointer" id="badge-pending-count">0 Pending</button>
+                        <button onclick="setFilter('flagged')" class="px-2 py-0.5 text-[10px] font-label-sm bg-error/20 hover:bg-error/30 text-error border border-error/40 rounded-xs transition-colors cursor-pointer" id="badge-flagged-count">0 Flagged</button>
                     </div>
                 </div>
 
                 <!-- Card 3: Financial Analytics -->
-                <div class="bg-surface-container-low border border-primary/20 p-5 relative rounded-sm shadow-md">
-                    <div class="font-label-sm text-outline uppercase tracking-wider text-[11px] mb-1">Verified Revenue</div>
-                    <div class="font-orbitron text-2xl md:text-3xl text-emerald-400" id="admin-revenue">₹0</div>
-                    <div class="text-[11px] text-on-surface-variant mt-2" id="admin-pending-revenue">
-                        Pending: ₹0 (0 teams)
+                <div class="bg-surface-container-low border border-primary/20 p-5 relative rounded-sm shadow-md flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-label-sm text-outline uppercase tracking-wider text-[11px]">Verified Revenue</span>
+                            <span class="font-label-sm text-[10px] text-emerald-400 font-mono">₹1600 / Squad</span>
+                        </div>
+                        <div class="font-orbitron text-2xl md:text-3xl text-emerald-400 font-bold" id="admin-revenue">₹0</div>
+                    </div>
+                    <div class="mt-3 text-[11px] text-on-surface-variant font-mono" id="admin-pending-revenue">
+                        Pending Pipeline: ₹0
                     </div>
                 </div>
 
-                <!-- Card 4: Event Day Gate Check-Ins -->
-                <div class="bg-surface-container-low border border-primary/20 p-5 relative rounded-sm shadow-md">
-                    <div class="font-label-sm text-outline uppercase tracking-wider text-[11px] mb-1">Campus Check-Ins</div>
-                    <div class="font-orbitron text-2xl md:text-3xl text-primary" id="admin-checked-in">0 / 0</div>
-                    <div class="text-[11px] text-on-surface-variant mt-2" id="admin-checked-in-sub">
-                        0% Verified squads checked-in
+                <!-- Card 4: Event Day Gate Check-Ins & Live Attendance Gauge -->
+                <div class="bg-surface-container-low border border-primary/20 p-5 relative rounded-sm shadow-md flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-label-sm text-outline uppercase tracking-wider text-[11px]">Gate Attendance Desk</span>
+                            <button onclick="setFilter('checked_in')" class="font-label-sm text-[10px] text-primary hover:underline cursor-pointer">Filter Attended &gt;</button>
+                        </div>
+                        <div class="flex items-baseline gap-2">
+                            <div class="font-orbitron text-2xl md:text-3xl text-primary font-bold" id="admin-checked-in">0 / 0</div>
+                            <span class="font-label-sm text-xs text-emerald-400 font-bold" id="attendance-pct">0%</span>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="w-full bg-surface-container-highest h-1.5 rounded-full overflow-hidden mb-1.5">
+                            <div id="attendance-bar" class="bg-emerald-500 h-full transition-all duration-500" style="width: 0%;"></div>
+                        </div>
+                        <div class="text-[11px] text-on-surface-variant font-label-sm truncate" id="admin-checked-in-sub">
+                            0 Verified squads admitted at gate
+                        </div>
                     </div>
                 </div>
             </div>
@@ -195,6 +230,10 @@
                     </button>
                     <button id="export-excel-btn" class="bg-surface-container-highest hover:bg-primary hover:text-on-primary text-on-surface border border-outline-variant hover:border-primary font-label-sm px-3 py-2 text-xs uppercase tracking-widest transition-all flex items-center gap-1 rounded-sm cursor-pointer">
                         <span class="material-symbols-outlined text-sm">table_chart</span> Excel
+                    </button>
+                    <button id="whatsapp-alerts-setup-btn" class="bg-[#25D366]/20 hover:bg-[#25D366] text-[#25D366] hover:text-white border border-[#25D366]/50 font-label-sm px-3 py-2 text-xs uppercase tracking-widest transition-all flex items-center gap-1.5 rounded-sm cursor-pointer font-bold">
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                        WA Alerts Setup
                     </button>
                     <button id="init-capacity-btn" class="bg-surface-container-highest hover:bg-primary hover:text-on-primary border border-primary/40 font-label-sm px-3 py-2 text-xs uppercase tracking-widest transition-colors rounded-sm cursor-pointer">
                         Sync Capacity
@@ -417,6 +456,10 @@
                     <button id="scan-checkin-btn" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-label-sm py-2.5 px-3 text-xs uppercase tracking-wider rounded-sm font-bold transition-all cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.4)] flex items-center justify-center gap-1">
                         <span class="material-symbols-outlined text-sm">how_to_reg</span> Issue Badges &amp; Admit
                     </button>
+                    <button id="scan-whatsapp-btn" title="WhatsApp Admit Pass to leader" class="bg-[#25D366]/20 hover:bg-[#25D366] text-[#25D366] hover:text-white border border-[#25D366]/50 font-label-sm py-2 px-3 text-xs uppercase rounded-sm transition-colors cursor-pointer flex items-center gap-1.5 font-bold">
+                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                        WA Notify
+                    </button>
                     <button id="scan-print-badge-btn" title="Print ID lanyard badge for this team" class="bg-primary/20 hover:bg-primary text-primary hover:text-on-primary border border-primary/50 font-label-sm py-2 px-3 text-xs uppercase rounded-sm transition-colors cursor-pointer flex items-center gap-1 font-bold">
                         <span class="material-symbols-outlined text-sm">badge</span> Print Badge
                     </button>
@@ -428,9 +471,89 @@
         </div>
     </div>
 
+    <!-- ============ ORGANIZER TELEGRAM & WHATSAPP ALERTS SETUP MODAL ============ -->
+    <div id="wa-alerts-modal" class="fixed inset-0 z-[99999] hidden flex items-center justify-center bg-black/85 backdrop-blur-md p-4 transition-all duration-300">
+        <div class="relative w-full max-w-xl bg-surface-container-lowest border-2 border-primary/60 rounded-xs shadow-[0_0_50px_rgba(240,193,44,0.25)] flex flex-col overflow-hidden animate-fade-in-up">
+            
+            <div class="p-4 bg-surface-container border-b border-outline-variant/30 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></span>
+                    <span class="font-orbitron text-xs sm:text-sm font-bold tracking-widest text-primary uppercase">REAL-TIME ORGANIZER ALERTS SETUP</span>
+                </div>
+                <button id="close-wa-alerts-btn" class="w-8 h-8 flex items-center justify-center text-outline hover:text-white rounded cursor-pointer" title="Close">
+                    <span class="material-symbols-outlined text-xl">close</span>
+                </button>
+            </div>
+
+            <div class="p-5 space-y-4 text-xs font-body-md text-zinc-300 bg-[#090a0f] max-h-[75vh] overflow-y-auto">
+                
+                <!-- Telegram Bot Section (Recommended) -->
+                <div class="bg-surface-container border-2 border-[#2AABEE]/60 p-3.5 rounded space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="font-bold text-white flex items-center gap-1.5 text-sm">
+                            <span class="text-[#2AABEE] text-base">✈️</span> Telegram Bot Alert <span class="bg-[#2AABEE]/20 text-[#2AABEE] text-[9px] px-1.5 py-0.5 rounded font-mono font-bold uppercase">100% Instant &amp; Free</span>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-zinc-400">Pings your phone the millisecond a squad registers with complete squad and payment details.</p>
+
+                    <div class="space-y-2">
+                        <div>
+                            <label class="font-bold text-white text-[10px] uppercase tracking-wider block mb-1">Telegram Bot Token</label>
+                            <input type="text" id="tg-token-input" placeholder="e.g. 7123456789:AAHq_ABCDEF123456789" class="w-full bg-black/60 border border-outline-variant/50 rounded p-2 text-white font-mono text-xs focus:border-[#2AABEE] outline-none" />
+                        </div>
+                        <div>
+                            <label class="font-bold text-white text-[10px] uppercase tracking-wider block mb-1">Your Telegram Chat ID</label>
+                            <input type="text" id="tg-chat-id-input" placeholder="e.g. 123456789" class="w-full bg-black/60 border border-outline-variant/50 rounded p-2 text-white font-mono text-xs focus:border-[#2AABEE] outline-none" />
+                        </div>
+                    </div>
+
+                    <div class="bg-black/80 border border-[#2AABEE]/30 p-2.5 rounded text-[10.5px] space-y-1 text-zinc-300 font-mono">
+                        <div class="font-bold text-[#2AABEE]">⚡ How to set up in 20 seconds:</div>
+                        <div>1. Open Telegram, message <strong class="text-white">@BotFather</strong>, send <code class="text-amber-300">/newbot</code> &rarr; copy the <strong class="text-white">Bot Token</strong>.</div>
+                        <div>2. Start your new bot, then message <strong class="text-white">@userinfobot</strong> &rarr; copy your <strong class="text-white">Chat ID</strong>.</div>
+                        <div>3. Paste both above, click Save &amp; Test!</div>
+                    </div>
+                </div>
+
+                <!-- WhatsApp Option -->
+                <div class="bg-surface-container border border-outline-variant/40 p-3.5 rounded space-y-2.5">
+                    <div class="font-bold text-white flex items-center gap-1.5">
+                        <span class="text-[#25D366] text-base">💬</span> WhatsApp Bot (CallMeBot)
+                    </div>
+                    <div class="font-mono text-xs text-zinc-300">Target Phone: <span class="text-[#25D366] font-bold">+91 73394 36468</span></div>
+                    <div>
+                        <label class="font-bold text-white text-[10px] uppercase tracking-wider block mb-1">CallMeBot API Key</label>
+                        <input type="text" id="callmebot-key-input" placeholder="e.g. 123456" class="w-full bg-black/60 border border-outline-variant/50 rounded p-2 text-white font-mono text-xs focus:border-[#25D366] outline-none" />
+                    </div>
+                </div>
+
+                <!-- Custom Webhook Option -->
+                <div class="bg-surface-container border border-outline-variant/40 p-3 rounded space-y-1.5">
+                    <label class="font-bold text-white uppercase text-[10px] tracking-wider block">Custom Webhook (Discord / Make / Zapier)</label>
+                    <input type="url" id="custom-webhook-input" placeholder="https://discord.com/api/webhooks/..." class="w-full bg-black/60 border border-outline-variant/50 rounded p-2 text-white font-mono text-xs focus:border-primary outline-none" />
+                </div>
+            </div>
+
+            <div class="p-4 bg-surface-container border-t border-outline-variant/30 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <button id="test-tg-alert-btn" class="flex-1 sm:flex-initial bg-[#2AABEE]/20 hover:bg-[#2AABEE] text-[#2AABEE] hover:text-white border border-[#2AABEE]/50 font-label-sm px-3 py-2 text-xs uppercase tracking-wider rounded transition-colors cursor-pointer flex items-center justify-center gap-1 font-bold">
+                        <span>✈️</span> Test Telegram
+                    </button>
+                    <button id="test-wa-alert-btn" class="flex-1 sm:flex-initial bg-[#25D366]/20 hover:bg-[#25D366] text-[#25D366] hover:text-white border border-[#25D366]/50 font-label-sm px-3 py-2 text-xs uppercase tracking-wider rounded transition-colors cursor-pointer flex items-center justify-center gap-1 font-bold">
+                        <span>💬</span> Test WA
+                    </button>
+                </div>
+                <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                    <button id="cancel-wa-alerts-btn" class="bg-surface-container-high text-outline px-3 py-2 text-xs uppercase rounded cursor-pointer">Close</button>
+                    <button id="save-wa-alerts-btn" class="bg-primary hover:bg-primary-container text-on-primary font-bold px-4 py-2 text-xs uppercase tracking-wider rounded transition-all cursor-pointer shadow-md">Save Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Logic Script -->
     <script type="module">
-        import { firebaseConfig, isFirebaseConfigured } from './firebase-config.js';
+        import { firebaseConfig, isFirebaseConfigured, organizerConfig } from './firebase-config.js';
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js';
         import { 
             getFirestore, 
@@ -719,6 +842,88 @@ terminal@vision.hack`
             window.location.href = `mailto:${leaderEmail}?cc=${ccList}&subject=${subject}&body=${body}`;
         };
 
+        /* =========================================================
+           WHATSAPP QUICK-NOTIFIER (One-Click Direct Dispatch)
+           ========================================================= */
+        window.sendWhatsAppPass = function(teamName, leaderMobile, leaderName, txnId, status = 'verified') {
+            SFX.click();
+            let cleanPhone = (leaderMobile || '').replace(/\D/g, '');
+            if (!cleanPhone) {
+                alert('No valid mobile number recorded for squad leader.');
+                return;
+            }
+            if (cleanPhone.length === 10) {
+                cleanPhone = '91' + cleanPhone;
+            } else if (cleanPhone.length === 11 && cleanPhone.startsWith('0')) {
+                cleanPhone = '91' + cleanPhone.slice(1);
+            }
+
+            let msg = '';
+            if (status === 'flagged') {
+                msg = 
+`⚠️ *VISION 2026 HACKATHON — ACTION REQUIRED (NOT VERIFIED)*
+
+Greetings Team *${teamName}* (Leader: ${leaderName}),
+
+Your registration status for Vision 2026 is currently *NOT VERIFIED & FLAGGED* by our verification desk.
+
+*Registration Summary:*
+• Team: *${teamName}*
+• Submitted UTR: *${txnId || 'N/A'}*
+• Status: ❌ *NOT VERIFIED / FLAGGED*
+
+*Reason:*
+Your payment transaction ID or receipt could not be verified with bank records.
+
+*Action Required:*
+Please reply to this WhatsApp message with a clear screenshot of your payment receipt showing the 12-digit UTR reference ID to validate your slot before registration closes.
+
+— *Organizing Committee // Vision 2026*
+Kongu Engineering College, Perundurai`;
+            } else if (status === 'pending_verification') {
+                msg = 
+`⏳ *VISION 2026 HACKATHON — REGISTRATION ACKNOWLEDGEMENT*
+
+Greetings Team *${teamName}* (Leader: ${leaderName}),
+
+We have received your registration for Vision 2026 (24-Hour Hackathon).
+
+• Team: *${teamName}*
+• Submitted UTR: *${txnId || 'Pending'}*
+• Status: 🟡 *PENDING VERIFICATION*
+
+Our finance team is currently validating your payment reference. You will receive your official Verified Admit Pass shortly.
+
+— *Organizing Committee // Vision 2026*
+Kongu Engineering College`;
+            } else {
+                msg = 
+`⚡ *VISION 2026 HACKATHON — OFFICIAL ADMIT PASS CONFIRMED*
+
+Greetings Team *${teamName}* (Leader: ${leaderName})!
+
+Your registration has been *VERIFIED & CONFIRMED* by the Vision Hackathon Organizing Committee!
+
+*=== ADMIT PASS SUMMARY ===*
+• Team Name: *${teamName}*
+• UTR / Txn ID: *${txnId || 'VERIFIED'}*
+• Status: ✅ *VERIFIED & CONFIRMED*
+
+*=== EVENT DETAILS ===*
+• Dates: *September 20–21, 2026*
+• Venue: *Dept of ECE / Main Auditorium, Kongu Engineering College*
+• Reporting Time: *08:30 AM IST (24-Hour Sprint)*
+
+Please present your digital admit pass or this WhatsApp confirmation at the campus check-in desk on arrival.
+
+— *Organizing Committee // Vision 2026*
+Kongu Engineering College`;
+            }
+
+            const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
+            window.open(waUrl, '_blank', 'noopener,noreferrer');
+        };
+
         window.deleteSingleTeam = async function(docId, teamName) {
             if (!confirm(`Delete registration for "${teamName}"? This will free up 1 slot.`)) return;
             try {
@@ -770,27 +975,43 @@ terminal@vision.hack`
                     const pendingCount = registeredTeams.filter(t => t.status !== 'verified' && t.status !== 'flagged').length;
                     const checkedInCount = registeredTeams.filter(t => t.checked_in === true).length;
 
-                    statusBreakdown.innerHTML = `
-                        <span class="text-primary font-bold">${verifiedCount} Verified</span> • 
-                        <span class="text-on-surface-variant">${pendingCount} Pending</span>
-                    `;
+                    // Update card-2 badge chips
+                    const badgeVerified = document.getElementById('badge-verified-count');
+                    const badgePending = document.getElementById('badge-pending-count');
+                    const badgeFlagged = document.getElementById('badge-flagged-count');
+                    const flaggedCount = registeredTeams.filter(t => t.status === 'flagged').length;
+                    if (badgeVerified) badgeVerified.textContent = `${verifiedCount} Verified`;
+                    if (badgePending) badgePending.textContent = `${pendingCount} Pending`;
+                    if (badgeFlagged) badgeFlagged.textContent = `${flaggedCount} Flagged`;
+
+                    // Card-1 capacity progress bar
+                    const capacityBar = document.getElementById('capacity-bar');
+                    if (capacityBar) {
+                        const pctFull = Math.min(100, Math.round((registeredTeams.length / 35) * 100));
+                        capacityBar.style.width = pctFull + '%';
+                        capacityBar.style.background = pctFull >= 90 ? '#ef4444' : pctFull >= 70 ? '#f59e0b' : '#f0c12c';
+                    }
 
                     // Financial metrics (₹1600 per 4-person squad)
                     if (adminRevenue) {
                         adminRevenue.textContent = `₹${(verifiedCount * 1600).toLocaleString('en-IN')}`;
                     }
                     if (adminPendingRevenue) {
-                        adminPendingRevenue.textContent = `Pipeline: ₹${(pendingCount * 1600).toLocaleString('en-IN')} (${pendingCount} squads)`;
+                        adminPendingRevenue.textContent = `Pending Pipeline: ₹${(pendingCount * 1600).toLocaleString('en-IN')} (${pendingCount} squads)`;
                     }
 
-                    // Check-in tracking
+                    // Card-4 attendance bar & live gauge
                     if (adminCheckedIn) {
                         adminCheckedIn.textContent = `${checkedInCount} / ${verifiedCount || registeredTeams.length}`;
                     }
                     if (adminCheckedInSub) {
-                        const pct = verifiedCount > 0 ? Math.round((checkedInCount / verifiedCount) * 100) : 0;
-                        adminCheckedInSub.textContent = `${pct}% of verified squads checked-in`;
+                        adminCheckedInSub.textContent = `${checkedInCount} Verified squad${checkedInCount !== 1 ? 's' : ''} admitted at gate`;
                     }
+                    const pct = verifiedCount > 0 ? Math.round((checkedInCount / verifiedCount) * 100) : 0;
+                    const attendancePct = document.getElementById('attendance-pct');
+                    const attendanceBar = document.getElementById('attendance-bar');
+                    if (attendancePct) attendancePct.textContent = pct + '%';
+                    if (attendanceBar) attendanceBar.style.width = pct + '%';
 
                     applyFilterAndRender();
                 });
@@ -978,6 +1199,17 @@ terminal@vision.hack`
         if (searchInput) searchInput.addEventListener('input', applyFilterAndRender);
         if (statusFilter) statusFilter.addEventListener('change', applyFilterAndRender);
 
+        /* ---------- Card Chip Quick-Filter Helper ---------- */
+        window.setFilter = function(val) {
+            if (statusFilter) {
+                statusFilter.value = val;
+                applyFilterAndRender();
+                // Scroll to table
+                const tbl = document.getElementById('registrations-table');
+                if (tbl) tbl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        };
+
         function renderTable(teams) {
             if (teams.length === 0) {
                 tableBody.innerHTML = `
@@ -1061,6 +1293,9 @@ terminal@vision.hack`
                         <div class="flex items-center justify-center gap-1">
                             <button onclick="resendPassEmail('${escapeHtml(t.team_name || 'Team')}', '${escapeHtml(leaderEmail)}', '${escapeHtml(leaderName)}', '${escapeHtml(t.txn_id || '')}', '${escapeHtml(m2Email)}', '${escapeHtml(m3Email)}', '${escapeHtml(m4Email)}', '${escapeHtml(currentStatus)}')" class="${currentStatus === 'flagged' ? 'text-error hover:bg-error/10' : (currentStatus === 'verified' ? 'text-emerald-400 hover:bg-emerald-500/10' : 'text-primary hover:bg-primary/10')} p-1.5 rounded transition-colors cursor-pointer" title="${currentStatus === 'flagged' ? 'Send NOT VERIFIED / Flagged Notice Email' : (currentStatus === 'verified' ? 'Send Verified Admit Pass Email' : 'Send Pending Verification Notice Email')}">
                                 <span class="material-symbols-outlined text-sm align-middle">${currentStatus === 'flagged' ? 'mark_email_unread' : 'mail'}</span>
+                            </button>
+                            <button onclick="sendWhatsAppPass('${escapeHtml(t.team_name || 'Team')}', '${escapeHtml(t.members && t.members[0] ? t.members[0].mobile : '')}', '${escapeHtml(leaderName)}', '${escapeHtml(t.txn_id || '')}', '${escapeHtml(currentStatus)}')" class="text-[#25D366] hover:bg-[#25D366]/10 p-1.5 rounded transition-colors cursor-pointer" title="WhatsApp Quick-Notify Leader — ${currentStatus === 'flagged' ? 'NOT VERIFIED Warning' : currentStatus === 'verified' ? 'Send Admit Pass' : 'Send Pending Notice'}">
+                                <svg class="w-3.5 h-3.5 inline-block align-middle" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                             </button>
                             <button onclick="openBadgePrintById('${t.id}')" class="text-primary/70 hover:text-primary hover:bg-primary/10 p-1.5 rounded transition-colors cursor-pointer" title="Print ID Badge">
                                 <span class="material-symbols-outlined text-sm align-middle">badge</span>
@@ -1539,6 +1774,21 @@ terminal@vision.hack`
             });
         }
 
+        /* ---------- Scanner Panel — WhatsApp Quick-Notify ---------- */
+        const scanWhatsappBtn = document.getElementById('scan-whatsapp-btn');
+        if (scanWhatsappBtn) {
+            scanWhatsappBtn.addEventListener('click', () => {
+                if (!activeScannedTeam) {
+                    alert('No team scanned yet. Scan a QR code or search a team first.');
+                    return;
+                }
+                const t = activeScannedTeam;
+                const leaderMobile = t.members && t.members[0] ? t.members[0].mobile : '';
+                const leaderName = t.members && t.members[0] ? t.members[0].name : 'Leader';
+                sendWhatsAppPass(t.team_name || 'Team', leaderMobile, leaderName, t.txn_id || '', t.status || 'pending_verification');
+            });
+        }
+
         /* ==========================================================
            TTS VOICE ANNOUNCER — Web Speech API
            ========================================================== */
@@ -1738,6 +1988,141 @@ terminal@vision.hack`
             XLSX.utils.book_append_sheet(wb, ws, 'Registrations');
             XLSX.writeFile(wb, `vision_hackathon_${new Date().toISOString().slice(0, 10)}.xlsx`);
         });
+
+        /* ==========================================================
+           ORGANIZER REAL-TIME ALERTS SETUP & TESTING ENGINE
+           ========================================================== */
+        const waAlertsModal = document.getElementById('wa-alerts-modal');
+        const waAlertsSetupBtn = document.getElementById('whatsapp-alerts-setup-btn');
+        const closeWaAlertsBtn = document.getElementById('close-wa-alerts-btn');
+        const cancelWaAlertsBtn = document.getElementById('cancel-wa-alerts-btn');
+        const saveWaAlertsBtn = document.getElementById('save-wa-alerts-btn');
+        const testTgAlertBtn = document.getElementById('test-tg-alert-btn');
+        const testWaAlertBtn = document.getElementById('test-wa-alert-btn');
+        const tgTokenInput = document.getElementById('tg-token-input');
+        const tgChatIdInput = document.getElementById('tg-chat-id-input');
+        const callmebotKeyInput = document.getElementById('callmebot-key-input');
+        const customWebhookInput = document.getElementById('custom-webhook-input');
+
+        if (waAlertsSetupBtn) {
+            waAlertsSetupBtn.addEventListener('click', () => {
+                if (tgTokenInput) tgTokenInput.value = localStorage.getItem('vision_tg_token') || organizerConfig?.telegramBotToken || '';
+                if (tgChatIdInput) tgChatIdInput.value = localStorage.getItem('vision_tg_chat_id') || organizerConfig?.telegramChatId || '';
+                if (callmebotKeyInput) callmebotKeyInput.value = localStorage.getItem('vision_callmebot_key') || '';
+                if (customWebhookInput) customWebhookInput.value = localStorage.getItem('vision_organizer_webhook') || '';
+                if (waAlertsModal) waAlertsModal.classList.remove('hidden');
+                SFX.click();
+            });
+        }
+
+        const closeWaAlerts = () => {
+            if (waAlertsModal) waAlertsModal.classList.add('hidden');
+            SFX.click();
+        };
+        if (closeWaAlertsBtn) closeWaAlertsBtn.addEventListener('click', closeWaAlerts);
+        if (cancelWaAlertsBtn) cancelWaAlertsBtn.addEventListener('click', closeWaAlerts);
+
+        if (saveWaAlertsBtn) {
+            saveWaAlertsBtn.addEventListener('click', () => {
+                const tgToken = (tgTokenInput ? tgTokenInput.value : '').trim();
+                const tgChatId = (tgChatIdInput ? tgChatIdInput.value : '').trim();
+                const key = (callmebotKeyInput ? callmebotKeyInput.value : '').trim();
+                const webhook = (customWebhookInput ? customWebhookInput.value : '').trim();
+
+                localStorage.setItem('vision_tg_token', tgToken);
+                localStorage.setItem('vision_tg_chat_id', tgChatId);
+                localStorage.setItem('vision_callmebot_key', key);
+                localStorage.setItem('vision_organizer_webhook', webhook);
+
+                alert('✓ Real-time notification settings saved successfully!');
+                SFX.success();
+                closeWaAlerts();
+            });
+        }
+
+        // Test Telegram Alert Ping
+        if (testTgAlertBtn) {
+            testTgAlertBtn.addEventListener('click', async () => {
+                const token = (tgTokenInput ? tgTokenInput.value : '').trim() || localStorage.getItem('vision_tg_token');
+                const chatId = (tgChatIdInput ? tgChatIdInput.value : '').trim() || localStorage.getItem('vision_tg_chat_id');
+                if (!token || !chatId) {
+                    alert('Please enter your Telegram Bot Token and Chat ID first.');
+                    return;
+                }
+
+                testTgAlertBtn.disabled = true;
+                testTgAlertBtn.textContent = 'Sending...';
+
+                const testMsg = 
+`⚡ *VISION 2026 — TELEGRAM BOT TEST SUCCESSFUL*
+
+Greetings Eniyan! Your real-time registration bot is ACTIVE and verified!
+
+• Bot Status: ✅ ONLINE
+• Recipient: Chat ID \`${chatId}\`
+• Timestamp: ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
+
+Whenever any squad registers on the portal, you will receive an instant notification right here with all squad details!`;
+
+                try {
+                    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: chatId,
+                            text: testMsg,
+                            parse_mode: 'Markdown'
+                        })
+                    });
+                    const data = await res.json();
+                    if (data.ok) {
+                        alert('✓ Test message sent to your Telegram! Check your app.');
+                        SFX.success();
+                    } else {
+                        throw new Error(data.description || 'Telegram API rejected request');
+                    }
+                } catch (err) {
+                    alert('Telegram test failed: ' + err.message + '\n\nTip: Make sure you opened your bot and pressed "Start" once!');
+                    SFX.error();
+                } finally {
+                    testTgAlertBtn.disabled = false;
+                    testTgAlertBtn.innerHTML = '<span>✈️</span> Test Telegram';
+                }
+            });
+        }
+
+        // Test WhatsApp Alert Ping
+        if (testWaAlertBtn) {
+            testWaAlertBtn.addEventListener('click', async () => {
+                const key = (callmebotKeyInput.value || localStorage.getItem('vision_callmebot_key') || '').trim();
+                if (!key) {
+                    alert('Please enter your CallMeBot API key first to send a test alert.');
+                    return;
+                }
+                testWaAlertBtn.disabled = true;
+                testWaAlertBtn.textContent = 'Sending...';
+                try {
+                    const testMsg = 
+`⚡ *VISION 2026 — ORGANIZER ALERT SYSTEM TEST*
+
+Greetings Eniyan! Your real-time registration notification channel is ACTIVE and ready.
+
+• Recipient: +91 73394 36468
+• Timestamp: ${new Date().toLocaleTimeString('en-IN')}`;
+
+                    const apiUrl = `https://api.callmebot.com/whatsapp.php?phone=917339436468&text=${encodeURIComponent(testMsg)}&apikey=${key}`;
+                    await fetch(apiUrl, { mode: 'no-cors' });
+                    alert('✓ Test ping sent to +91 73394 36468! Check your WhatsApp.');
+                    SFX.success();
+                } catch (err) {
+                    alert('Test alert error: ' + err.message);
+                    SFX.error();
+                } finally {
+                    testWaAlertBtn.disabled = false;
+                    testWaAlertBtn.innerHTML = '<span>💬</span> Test WA';
+                }
+            });
+        }
     </script>
 </body>
 
