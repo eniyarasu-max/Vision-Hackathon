@@ -4,7 +4,18 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Vision — 24-Hour Hackathon</title>
+    <title>Vision 2026 — 24-Hour Hackathon | Kongu Engineering College</title>
+    <meta name="description" content="Vision 2026 is a 24-hour hackathon hosted by IEEE AP-S at Kongu Engineering College. Register your 4-member team, pay ₹1600, and compete for cash prizes on September 20-21, 2026." />
+    <link rel="canonical" href="https://vision-hackathon-f153c.web.app/" />
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Vision 2026 — 24-Hour Hackathon" />
+    <meta property="og:description" content="Assemble your 4-member squad and compete in a relentless 24-hour build sprint at Kongu Engineering College, September 20-21 2026." />
+    <meta property="og:url" content="https://vision-hackathon-f153c.web.app/" />
+    <meta property="og:image" content="https://vision-hackathon-f153c.web.app/assets/vision-hero.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Vision 2026 — 24-Hour Hackathon" />
+    <meta name="twitter:description" content="Assemble your 4-member squad and compete in a relentless 24-hour build sprint at Kongu Engineering College." />
     <!-- Security Headers & Policies -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://firestore.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; object-src 'none'; base-uri 'self'; form-action 'self';" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
@@ -28,8 +39,6 @@
         ::-webkit-scrollbar {
             display: none;
         }
-
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@100..800&family=Orbitron:wght@400..900&display=swap');
 
         @keyframes fadeInUp {
             from {
@@ -91,15 +100,15 @@
             </div>
             <div class="flex items-center gap-2 md:gap-3">
                 <div class="bg-white/95 hover:bg-white px-2 py-1 rounded-sm border border-outline-variant/40 flex items-center justify-center h-9 md:h-10 shadow-sm transition-all duration-300">
-                    <img src="assets/kec-logo.png" alt="Kongu Engineering College" class="h-6 md:h-7 w-auto object-contain" />
+                    <img src="assets/kec-logo.png" alt="Kongu Engineering College" class="h-6 md:h-7 w-auto object-contain" loading="lazy" />
                 </div>
                 <div class="bg-white/95 hover:bg-white px-2 py-1 rounded-sm border border-outline-variant/40 flex items-center justify-center h-9 md:h-10 shadow-sm transition-all duration-300">
-                    <img src="assets/ieee-aps-logo.png" alt="IEEE AP-S" class="h-6 md:h-7 w-auto object-contain" />
+                    <img src="assets/ieee-aps-logo.png" alt="IEEE AP-S" class="h-6 md:h-7 w-auto object-contain" loading="lazy" />
                 </div>
+                <button class="lg:hidden text-primary p-2" id="mobile-menu-btn" aria-label="Toggle navigation menu">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
             </div>
-            <button class="lg:hidden text-primary" id="mobile-menu-btn">
-                <span class="material-symbols-outlined">menu</span>
-            </button>
         </div>
         <nav class="lg:hidden hidden flex-col gap-4 px-margin-edge pb-6 bg-surface-container-lowest/95 border-b border-primary/20"
             id="mobile-menu">
@@ -119,7 +128,8 @@
                 <div class="absolute inset-0 z-0">
                     <img src="assets/vision-hero.jpg" alt="" aria-hidden="true"
                         class="w-full h-full object-cover object-center opacity-[0.12] scale-105"
-                        style="filter: saturate(0.4) brightness(0.6);" />
+                        style="filter: saturate(0.4) brightness(0.6);"
+                        fetchpriority="high" loading="eager" decoding="async" />
                 </div>
                 <div
                     class="absolute inset-0 z-0 bg-[linear-gradient(rgba(18,19,23,0.85)_1px,transparent_1px),linear-gradient(90deg,rgba(18,19,23,0.85)_1px,transparent_1px)] bg-[size:40px_40px] opacity-30">
@@ -145,7 +155,7 @@
                             VISION: <br /> <span class="text-primary">24-HOUR</span> <br /> HACKATHON
                         </h1>
                         <p class="font-body-lg text-on-surface-variant max-w-2xl">
-                            A relentless 24-hour build sprint. Teams of exactly 3 compete to design, build, and ship a
+                            A relentless 24-hour build sprint. Teams of exactly 4 compete to design, build, and ship a
                             working prototype from a standing start.
                         </p>
                         <div class="flex flex-wrap items-center gap-6 mt-4">
@@ -168,7 +178,8 @@
                         <div class="relative overflow-hidden" style="aspect-ratio: 3/4;">
                             <img src="assets/vision-profile.jpg" alt="Vision — 24hr Hackathon Mascot"
                                 class="w-full h-full object-cover object-top"
-                                style="filter: saturate(0.7) brightness(0.85) hue-rotate(-10deg);" />
+                                style="filter: saturate(0.7) brightness(0.85) hue-rotate(-10deg);"
+                                loading="lazy" decoding="async" />
                             <!-- overlay gradient -->
                             <div class="absolute inset-0 bg-gradient-to-t from-surface via-surface/20 to-transparent"></div>
                             <div class="absolute inset-0 bg-gradient-to-r from-surface/30 via-transparent to-transparent"></div>
@@ -284,7 +295,7 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
                 <div class="space-y-4">
                     <div class="font-label-sm text-primary tracking-widest uppercase">Contact:</div>
-                    <div class="font-body-md text-on-surface-variant">terminal@vision.hack<br />+91 00000 00000</div>
+                    <div class="font-body-md text-on-surface-variant">terminal@vision.hack</div>
                 </div>
                 <div class="space-y-4">
                     <div class="font-label-sm text-primary tracking-widest uppercase">Support:</div>
@@ -315,8 +326,8 @@
                 <div class="font-label-sm text-outline-variant uppercase">© 2026 VISION HACKATHON. ALL SYSTEMS
                     OPERATIONAL.</div>
                 <div class="flex gap-8">
-                    <span class="font-label-sm text-outline-variant">PRIVACY_POLICY.MD</span>
-                    <span class="font-label-sm text-outline-variant">TERMS_OF_SERVICE.SH</span>
+                    <span class="font-label-sm text-outline-variant opacity-40">PRIVACY_POLICY.MD</span>
+                    <span class="font-label-sm text-outline-variant opacity-40">TERMS_OF_SERVICE.SH</span>
                 </div>
             </div>
         </div>

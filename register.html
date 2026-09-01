@@ -4,7 +4,14 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Vision — Registration &amp; Admission Pass</title>
+    <title>Vision 2026 — Registration &amp; Admission Pass</title>
+    <meta name="description" content="Register your 4-member team for Vision 2026 — the 24-hour hackathon at Kongu Engineering College on September 20-21, 2026. Fill in team details, pay ₹1600 via UPI, and receive your official holographic admit pass instantly." />
+    <link rel="canonical" href="https://vision-hackathon-f153c.web.app/register" />
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Vision 2026 — Team Registration" />
+    <meta property="og:description" content="Register your 4-member squad for Vision 2026 Hackathon at Kongu Engineering College." />
+    <meta property="og:url" content="https://vision-hackathon-f153c.web.app/register" />
     <!-- Security Headers & Policies -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com https://*.googletagmanager.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://firestore.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; object-src 'none'; base-uri 'self'; form-action 'self';" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
@@ -31,8 +38,6 @@
         ::-webkit-scrollbar {
             display: none;
         }
-
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@100..800&family=Orbitron:wght@400..900&display=swap');
 
         @keyframes fadeInUp {
             from {
@@ -1403,6 +1408,7 @@ terminal@vision.hack`
 
             const payload = {
                 team_name: teamNameVal,
+                team_name_lower: teamNameVal.toLowerCase(),
                 members: [
                     {
                         name: sanitizeString(document.getElementById('m1_name').value),
@@ -1432,6 +1438,15 @@ terminal@vision.hack`
 
             if (db) {
                 try {
+                    // Pre-flight duplicate TEAM NAME check in Firestore (case-insensitive)
+                    const teamNameLower = payload.team_name_lower;
+                    const teamNameQuery = query(collection(db, 'registrations'), where('team_name_lower', '==', teamNameLower));
+                    const teamNameSnap = await getDocs(teamNameQuery);
+                    if (!teamNameSnap.empty) {
+                        showFieldError('team_name', true, '// CALLSIGN ALREADY TAKEN — CHOOSE A UNIQUE SQUAD NAME');
+                        throw new Error('DUPLICATE_TEAM_NAME');
+                    }
+
                     // Pre-flight duplicate UTR check in Firestore
                     const dupQuery = query(collection(db, 'registrations'), where('txn_id', '==', txnVal));
                     const dupSnap = await getDocs(dupQuery);
@@ -1493,7 +1508,9 @@ terminal@vision.hack`
                     submitBtn.disabled = false;
                     submitLabel.textContent = 'VERIFY & GENERATE ADMIT PASS';
 
-                    if (error.message === 'DUPLICATE_TXN_ID') {
+                    if (error.message === 'DUPLICATE_TEAM_NAME') {
+                        formStatus.textContent = '// CALLSIGN CONFLICT: SQUAD NAME ALREADY REGISTERED';
+                    } else if (error.message === 'DUPLICATE_TXN_ID') {
                         formStatus.textContent = '// DUPLICATE UTR ERROR: TRANSACTION ID ALREADY USED';
                     } else if (error.message === 'CAPACITY_FULL') {
                         formStatus.textContent = 'REGISTRATION FULL: ALL 35 SEATS ARE FILLED';

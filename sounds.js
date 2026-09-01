@@ -101,7 +101,6 @@ const SFX = (() => {
             getCtx();
             bgAudio.play().then(() => {
                 hasStartedBGM = true;
-                console.log('✓ Marvel background soundtrack active and playing on loop.');
                 const visualizer = document.getElementById('marvel-visualizer');
                 if (visualizer) {
                     visualizer.querySelectorAll('span').forEach((b, idx) => {
