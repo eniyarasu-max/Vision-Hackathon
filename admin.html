@@ -631,11 +631,70 @@
             }
         };
 
-        window.resendPassEmail = function(teamName, leaderEmail, leaderName, txnId, m2Email, m3Email, m4Email) {
+        window.resendPassEmail = function(teamName, leaderEmail, leaderName, txnId, m2Email, m3Email, m4Email, status = 'verified') {
             SFX.click();
-            const subject = encodeURIComponent(`[VERIFIED] Vision 2026 Hackathon Official Admit Pass - Team ${teamName}`);
             const ccList = [m2Email, m3Email, m4Email].filter(Boolean).join(',');
-            const body = encodeURIComponent(
+            
+            let subject = '';
+            let body = '';
+
+            if (status === 'flagged') {
+                subject = encodeURIComponent(`[NOT VERIFIED - ACTION REQUIRED] Vision 2026 Hackathon Registration - Team ${teamName}`);
+                body = encodeURIComponent(
+`Greetings Team ${teamName} (Leader: ${leaderName}),
+
+This is an official notice regarding your registration for the Vision 2026 Hackathon at Kongu Engineering College.
+
+Your registration status is currently: NOT VERIFIED (FLAGGED).
+
+=== REGISTRATION STATUS SUMMARY ===
+Team Name: ${teamName}
+Leader Name: ${leaderName}
+Submitted UTR / Txn ID: ${txnId || 'N/A'}
+Status: NOT VERIFIED // FLAGGED
+
+=== REASON FOR FLAG ===
+Your payment transaction ID (UTR) or payment screenshot could not be verified against our official bank statement. This may occur due to an incorrect 12-digit reference number, incomplete transaction, or missing payment proof.
+
+=== IMMEDIATE ACTION REQUIRED ===
+To validate your slot and obtain your official Verified Admit Pass:
+1. Reply directly to this email with an official payment confirmation screenshot clearly displaying the 12-digit bank UTR/Reference ID, payment date, and transaction timestamp.
+2. Confirm your squad member details in your reply.
+3. If your previous transaction was reversed or failed, please complete the registration fee payment and reply with the new transaction UTR immediately.
+
+⚠️ IMPORTANT: Unverified and flagged registrations will be released if not resolved.
+
+Vision 2026 Hackathon Organizing Committee
+Department of ECE & IEEE AP-S Student Chapter
+Kongu Engineering College, Perundurai
+Support / Verification Desk: terminal@vision.hack`
+                );
+            } else if (status === 'pending_verification') {
+                subject = encodeURIComponent(`[PENDING VERIFICATION] Vision 2026 Hackathon Registration - Team ${teamName}`);
+                body = encodeURIComponent(
+`Greetings Team ${teamName} (Leader: ${leaderName}),
+
+Thank you for registering for the Vision 2026 Hackathon at Kongu Engineering College.
+
+=== REGISTRATION SUMMARY ===
+Team Name: ${teamName}
+Leader Name: ${leaderName}
+Submitted UTR / Txn ID: ${txnId || 'Pending'}
+Status: PENDING VERIFICATION
+
+Our finance verification team is currently validating your payment reference. Once confirmed, you will receive your official Verified Admit Pass.
+
+=== EVENT DETAILS ===
+Dates: September 20-21, 2026
+Venue: Main Auditorium, Kongu Engineering College
+Reporting Time: 08:30 AM IST
+
+Organizing Committee // Vision 2026
+terminal@vision.hack`
+                );
+            } else {
+                subject = encodeURIComponent(`[VERIFIED] Vision 2026 Hackathon Official Admit Pass - Team ${teamName}`);
+                body = encodeURIComponent(
 `Greetings Team ${teamName} (Leader: ${leaderName}),
 
 Your registration status has been verified by the Vision Hackathon Organizing Committee!
@@ -654,7 +713,9 @@ Please present this confirmation email at the campus check-in desk.
 
 Organizing Committee // Vision 2026
 terminal@vision.hack`
-            );
+                );
+            }
+
             window.location.href = `mailto:${leaderEmail}?cc=${ccList}&subject=${subject}&body=${body}`;
         };
 
@@ -998,8 +1059,8 @@ terminal@vision.hack`
                     </td>
                     <td class="py-3 px-4 text-center">
                         <div class="flex items-center justify-center gap-1">
-                            <button onclick="resendPassEmail('${escapeHtml(t.team_name || 'Team')}', '${escapeHtml(leaderEmail)}', '${escapeHtml(leaderName)}', '${escapeHtml(t.txn_id || '')}', '${escapeHtml(m2Email)}', '${escapeHtml(m3Email)}', '${escapeHtml(m4Email)}')" class="text-primary hover:bg-primary/10 p-1.5 rounded transition-colors cursor-pointer" title="Send/Resend Admit Pass Email">
-                                <span class="material-symbols-outlined text-sm align-middle">mail</span>
+                            <button onclick="resendPassEmail('${escapeHtml(t.team_name || 'Team')}', '${escapeHtml(leaderEmail)}', '${escapeHtml(leaderName)}', '${escapeHtml(t.txn_id || '')}', '${escapeHtml(m2Email)}', '${escapeHtml(m3Email)}', '${escapeHtml(m4Email)}', '${escapeHtml(currentStatus)}')" class="${currentStatus === 'flagged' ? 'text-error hover:bg-error/10' : (currentStatus === 'verified' ? 'text-emerald-400 hover:bg-emerald-500/10' : 'text-primary hover:bg-primary/10')} p-1.5 rounded transition-colors cursor-pointer" title="${currentStatus === 'flagged' ? 'Send NOT VERIFIED / Flagged Notice Email' : (currentStatus === 'verified' ? 'Send Verified Admit Pass Email' : 'Send Pending Verification Notice Email')}">
+                                <span class="material-symbols-outlined text-sm align-middle">${currentStatus === 'flagged' ? 'mark_email_unread' : 'mail'}</span>
                             </button>
                             <button onclick="openBadgePrintById('${t.id}')" class="text-primary/70 hover:text-primary hover:bg-primary/10 p-1.5 rounded transition-colors cursor-pointer" title="Print ID Badge">
                                 <span class="material-symbols-outlined text-sm align-middle">badge</span>
@@ -1554,8 +1615,9 @@ terminal@vision.hack`
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${qrToken}&margin=2&bgcolor=0b0c10&color=f0c12c`;
             const members = [m2.name, m3.name, m4.name].filter(Boolean).map(esc).join(' &bull; ') || '&mdash;';
             const isVerified = team.status === 'verified';
-            const statusColor = isVerified ? '#10b981' : '#f59e0b';
-            const statusLabel = (team.status || 'PENDING').toUpperCase();
+            const isFlagged = team.status === 'flagged';
+            const statusColor = isVerified ? '#10b981' : (isFlagged ? '#ef4444' : '#f59e0b');
+            const statusLabel = isFlagged ? 'NOT VERIFIED' : (team.status || 'PENDING').toUpperCase();
 
             const html = `<!DOCTYPE html>
 <html lang="en"><head>
