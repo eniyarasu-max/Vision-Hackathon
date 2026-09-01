@@ -9,7 +9,9 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com https://*.googletagmanager.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://firestore.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; object-src 'none'; base-uri 'self'; form-action 'self';" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-    <meta http-equiv="Permissions-Policy" content="accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
@@ -457,79 +459,96 @@
             </button>
 
             <!-- Ultra-HD Holographic Admit Pass Card -->
-            <div id="printable-pass" class="border-2 border-primary bg-[#0c0d12] p-6 sm:p-8 relative overflow-hidden rounded-sm text-white shadow-[0_0_50px_rgba(240,193,44,0.35)]">
-                <!-- Watermark Arc Reactor (static background) -->
+            <div id="printable-pass" class="border-2 border-primary bg-[#0b0c10] p-6 sm:p-7 relative overflow-hidden rounded-sm text-white shadow-[0_0_50px_rgba(240,193,44,0.35)]" style="font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                <!-- Subtle Watermark -->
                 <div class="absolute -right-20 -bottom-20 w-80 h-80 border-[16px] border-dashed border-primary/10 rounded-full pointer-events-none"></div>
 
                 <!-- Pass Top Header -->
-                <div class="flex items-center justify-between border-b-2 border-primary/50 pb-4 mb-5 flex-wrap gap-3">
+                <div class="flex items-center justify-between border-b-2 border-primary/50 pb-4 mb-4 flex-wrap gap-3">
                     <div>
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2 mb-1">
                             <span class="w-2.5 h-2.5 rounded-full bg-primary animate-ping"></span>
-                            <span class="text-xs font-orbitron text-primary tracking-widest uppercase font-bold">VISION 2026 // OFFICIAL PASS</span>
+                            <span class="text-xs font-bold text-primary uppercase" style="font-family: 'Orbitron', sans-serif; letter-spacing: 0.12em;">VISION 2026 // OFFICIAL PASS</span>
                         </div>
-                        <h2 class="text-2xl sm:text-3xl font-headline-xl text-white uppercase tracking-wider mt-1 font-extrabold">HACKATHON ADMISSION PROTOCOL</h2>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-white uppercase tracking-wider" style="font-family: 'Space Grotesk', sans-serif; letter-spacing: 0.05em;">HACKATHON ADMISSION PROTOCOL</h2>
                     </div>
                     <div class="text-left sm:text-right bg-surface-container/80 border border-primary/40 py-2 px-3.5 rounded-xs">
-                        <span class="text-[10px] font-label-sm text-primary uppercase block font-bold tracking-wider">PASS REFERENCE ID</span>
-                        <span class="text-base font-orbitron text-white tracking-widest font-bold" id="modal-pass-id">VIS-2026-0000</span>
+                        <span class="text-[10px] text-primary uppercase block font-bold tracking-wider" style="font-family: 'JetBrains Mono', monospace;">PASS REFERENCE ID</span>
+                        <span class="text-base text-white font-bold tracking-widest" style="font-family: 'Orbitron', sans-serif;" id="modal-pass-id">VIS-2026-0000</span>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-5">
-                    <div class="md:col-span-2 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-4">
+                    <div class="md:col-span-2 space-y-3.5">
                         <!-- Confirmed Squad Box -->
                         <div class="bg-surface-container/60 p-3 rounded-xs border border-outline-variant/60">
-                            <span class="text-[10px] font-label-sm text-primary uppercase block font-bold tracking-widest">CONFIRMED TEAM SQUAD</span>
-                            <span class="text-xl sm:text-2xl font-headline-md text-primary uppercase font-black tracking-wide" id="modal-team-name">TEAM NAME</span>
+                            <span class="text-[10px] text-primary uppercase block font-bold tracking-widest" style="font-family: 'JetBrains Mono', monospace;">CONFIRMED TEAM SQUAD</span>
+                            <span class="text-2xl sm:text-3xl text-primary uppercase font-black tracking-wide block mt-0.5" style="font-family: 'Space Grotesk', sans-serif;" id="modal-team-name">TEAM NAME</span>
                         </div>
 
-                        <!-- Squad Members Grid -->
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 border-t border-b border-primary/30 py-3 text-xs bg-surface-container-lowest/90 p-2.5 rounded-xs">
-                            <div class="space-y-0.5">
-                                <span class="text-[10px] font-label-sm text-primary font-bold block uppercase tracking-wider">LEADER (M1)</span>
-                                <span class="font-body-md text-white font-semibold text-xs truncate block" id="modal-m1">--</span>
-                            </div>
-                            <div class="space-y-0.5">
-                                <span class="text-[10px] font-label-sm text-on-surface-variant font-bold block uppercase tracking-wider">MEMBER 2</span>
-                                <span class="font-body-md text-white font-semibold text-xs truncate block" id="modal-m2">--</span>
-                            </div>
-                            <div class="space-y-0.5">
-                                <span class="text-[10px] font-label-sm text-on-surface-variant font-bold block uppercase tracking-wider">MEMBER 3</span>
-                                <span class="font-body-md text-white font-semibold text-xs truncate block" id="modal-m3">--</span>
-                            </div>
-                            <div class="space-y-0.5">
-                                <span class="text-[10px] font-label-sm text-on-surface-variant font-bold block uppercase tracking-wider">MEMBER 4</span>
-                                <span class="font-body-md text-white font-semibold text-xs truncate block" id="modal-m4">--</span>
+                        <!-- 2x2 Squad Members Grid - High-Legibility Cards -->
+                        <div>
+                            <span class="text-[10px] text-primary uppercase block font-bold tracking-wider mb-1.5" style="font-family: 'JetBrains Mono', monospace;">CONFIRMED SQUAD MEMBERS:</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <!-- Leader (M1) -->
+                                <div class="bg-[#14161d] border border-primary/40 p-2.5 rounded-xs space-y-1">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[10px] text-primary font-bold uppercase tracking-wider" style="font-family: 'Orbitron', sans-serif;">LEADER (M1)</span>
+                                        <span class="text-[9px] px-1.5 py-0.2 bg-primary/20 text-primary border border-primary/40 rounded-xs font-bold uppercase">CAPTAIN</span>
+                                    </div>
+                                    <div class="text-sm font-extrabold text-white leading-tight break-words" id="modal-m1-name">--</div>
+                                    <div class="text-[11px] font-mono text-[#f0c12c] font-semibold" id="modal-m1-contact">--</div>
+                                </div>
+
+                                <!-- Member 2 -->
+                                <div class="bg-[#14161d] border border-outline-variant/40 p-2.5 rounded-xs space-y-1">
+                                    <span class="text-[10px] text-on-surface-variant font-bold uppercase tracking-wider block" style="font-family: 'Orbitron', sans-serif;">MEMBER 2</span>
+                                    <div class="text-sm font-extrabold text-white leading-tight break-words" id="modal-m2-name">--</div>
+                                    <div class="text-[11px] font-mono text-[#d1c5ad] font-semibold" id="modal-m2-contact">--</div>
+                                </div>
+
+                                <!-- Member 3 -->
+                                <div class="bg-[#14161d] border border-outline-variant/40 p-2.5 rounded-xs space-y-1">
+                                    <span class="text-[10px] text-on-surface-variant font-bold uppercase tracking-wider block" style="font-family: 'Orbitron', sans-serif;">MEMBER 3</span>
+                                    <div class="text-sm font-extrabold text-white leading-tight break-words" id="modal-m3-name">--</div>
+                                    <div class="text-[11px] font-mono text-[#d1c5ad] font-semibold" id="modal-m3-contact">--</div>
+                                </div>
+
+                                <!-- Member 4 -->
+                                <div id="modal-m4-wrap" class="bg-[#14161d] border border-outline-variant/40 p-2.5 rounded-xs space-y-1">
+                                    <span class="text-[10px] text-on-surface-variant font-bold uppercase tracking-wider block" style="font-family: 'Orbitron', sans-serif;">MEMBER 4</span>
+                                    <div class="text-sm font-extrabold text-white leading-tight break-words" id="modal-m4-name">--</div>
+                                    <div class="text-[11px] font-mono text-[#d1c5ad] font-semibold" id="modal-m4-contact">--</div>
+                                </div>
                             </div>
                         </div>
 
                         <!-- Venue & Verification Badges -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
                             <div class="bg-surface-container/60 border border-outline-variant/40 p-2.5 rounded-xs">
-                                <span class="text-[10px] font-label-sm text-primary uppercase font-bold block tracking-wider">EVENT VENUE &amp; SCHEDULE</span>
-                                <span class="font-body-md text-white font-medium block mt-0.5 leading-snug">Sept 20-21, 2026 // 08:30 AM IST<br /><span class="text-on-surface-variant font-bold">Main Auditorium, KEC</span></span>
+                                <span class="text-[10px] text-primary uppercase font-bold block tracking-wider" style="font-family: 'JetBrains Mono', monospace;">EVENT VENUE &amp; SCHEDULE</span>
+                                <span class="text-white font-bold block mt-0.5 leading-snug">Sept 20-21, 2026 // 08:30 AM IST<br /><span class="text-on-surface-variant font-medium">Main Auditorium, KEC</span></span>
                             </div>
                             <div class="bg-surface-container/60 border border-outline-variant/40 p-2.5 rounded-xs">
-                                <span class="text-[10px] font-label-sm text-primary uppercase font-bold block tracking-wider">TRANSACTION UTR / VERIFICATION</span>
-                                <span class="font-body-md text-primary font-orbitron text-xs font-bold block mt-0.5 tracking-wider" id="modal-txn-id">UTR: --</span>
-                                <span class="inline-block mt-1 text-[10px] px-2 py-0.5 bg-emerald-950 text-emerald-300 border border-emerald-500/60 font-label-sm font-bold rounded-xs uppercase tracking-wider">✓ OFFICIAL CLEARANCE ACTIVE</span>
+                                <span class="text-[10px] text-primary uppercase font-bold block tracking-wider" style="font-family: 'JetBrains Mono', monospace;">TRANSACTION UTR / STATUS</span>
+                                <span class="text-primary font-mono text-xs font-bold block mt-0.5 tracking-wider" id="modal-txn-id">UTR: --</span>
+                                <span class="inline-block mt-1 text-[10px] px-2 py-0.5 bg-emerald-950 text-emerald-300 border border-emerald-500/60 font-mono font-bold rounded-xs uppercase tracking-wider">✓ OFFICIAL CLEARANCE ACTIVE</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Pass Verification Real High-Res QR Code Card -->
-                    <div class="flex flex-col items-center justify-center p-4 bg-white rounded-sm text-black shadow-2xl border-2 border-primary">
-                        <div id="pass-qrcode-container" class="w-32 h-32 flex items-center justify-center bg-white p-1">
+                    <div class="flex flex-col items-center justify-center p-3 bg-white rounded-sm text-black shadow-2xl border-2 border-primary">
+                        <div id="pass-qrcode-container" class="w-36 h-36 flex items-center justify-center bg-white p-1">
                             <!-- Dynamic QR Code rendered here -->
                         </div>
-                        <span class="text-[9px] font-label-sm text-black font-black uppercase mt-1 tracking-widest text-center">CAMPUS GATE SCAN TOKEN</span>
+                        <span class="text-[10px] font-mono text-black font-black uppercase mt-1 tracking-widest text-center" style="font-family: 'JetBrains Mono', monospace;">CAMPUS GATE TOKEN</span>
                     </div>
                 </div>
 
                 <div class="border-t-2 border-dashed border-primary/40 pt-3 text-[11px] font-label-sm text-on-surface-variant flex justify-between items-center flex-wrap gap-2">
                     <span class="text-white/90 font-medium">★ Present this digital pass or email pass on arrival at gate verification desk.</span>
-                    <span class="font-orbitron text-primary text-[10px] font-bold tracking-widest uppercase">VISION 2026 OFFICIAL PASS</span>
+                    <span class="text-primary text-[10px] font-bold tracking-widest uppercase" style="font-family: 'Orbitron', sans-serif;">VISION 2026 OFFICIAL PASS</span>
                 </div>
             </div>
 
@@ -973,10 +992,15 @@
         const closeModalBtn = document.getElementById('close-modal-btn');
         const modalPassId = document.getElementById('modal-pass-id');
         const modalTeamName = document.getElementById('modal-team-name');
-        const modalM1 = document.getElementById('modal-m1');
-        const modalM2 = document.getElementById('modal-m2');
-        const modalM3 = document.getElementById('modal-m3');
-        const modalM4 = document.getElementById('modal-m4');
+        const modalM1Name = document.getElementById('modal-m1-name');
+        const modalM1Contact = document.getElementById('modal-m1-contact');
+        const modalM2Name = document.getElementById('modal-m2-name');
+        const modalM2Contact = document.getElementById('modal-m2-contact');
+        const modalM3Name = document.getElementById('modal-m3-name');
+        const modalM3Contact = document.getElementById('modal-m3-contact');
+        const modalM4Wrap = document.getElementById('modal-m4-wrap');
+        const modalM4Name = document.getElementById('modal-m4-name');
+        const modalM4Contact = document.getElementById('modal-m4-contact');
         const modalTxnId = document.getElementById('modal-txn-id');
         const downloadPngBtn = document.getElementById('download-png-btn');
         const whatsappShareBtn = document.getElementById('whatsapp-share-btn');
@@ -991,14 +1015,31 @@
             const passRef = 'VIS-2026-' + (data.id ? data.id.substring(0, 6).toUpperCase() : Math.random().toString(36).substring(2, 7).toUpperCase());
             
             modalPassId.textContent = passRef;
-            modalTeamName.textContent = data.team_name;
-            modalM1.textContent = `${data.members[0].name} (${data.members[0].mobile})`;
-            modalM2.textContent = `${data.members[1].name} (${data.members[1].mobile})`;
-            modalM3.textContent = `${data.members[2].name} (${data.members[2].mobile})`;
-            if (modalM4 && data.members[3]) {
-                modalM4.textContent = `${data.members[3].name} (${data.members[3].mobile})`;
+            modalTeamName.textContent = data.team_name || 'CONFIRMED SQUAD';
+            
+            const m1 = data.members && data.members[0] ? data.members[0] : {};
+            const m2 = data.members && data.members[1] ? data.members[1] : {};
+            const m3 = data.members && data.members[2] ? data.members[2] : {};
+            const m4 = data.members && data.members[3] ? data.members[3] : null;
+
+            modalM1Name.textContent = m1.name || 'Leader';
+            modalM1Contact.textContent = m1.mobile ? `📞 ${m1.mobile}` : '';
+
+            modalM2Name.textContent = m2.name || 'Member 2';
+            modalM2Contact.textContent = m2.mobile ? `📞 ${m2.mobile}` : '';
+
+            modalM3Name.textContent = m3.name || 'Member 3';
+            modalM3Contact.textContent = m3.mobile ? `📞 ${m3.mobile}` : '';
+
+            if (m4 && m4.name) {
+                modalM4Wrap.classList.remove('hidden');
+                modalM4Name.textContent = m4.name;
+                modalM4Contact.textContent = m4.mobile ? `📞 ${m4.mobile}` : '';
+            } else {
+                modalM4Wrap.classList.add('hidden');
             }
-            modalTxnId.textContent = `UTR: ${data.txn_id}`;
+
+            modalTxnId.textContent = `UTR: ${data.txn_id || 'VERIFIED'}`;
 
             // Generate Real High-Resolution QR Code (30% Error-Correction for instant gate scanning)
             const qrContainer = document.getElementById('pass-qrcode-container');
@@ -1010,17 +1051,17 @@
                     try {
                         new QRCode(qrContainer, {
                             text: qrToken,
-                            width: 124,
-                            height: 124,
+                            width: 140,
+                            height: 140,
                             colorDark: "#000000",
                             colorLight: "#ffffff",
                             correctLevel: QRCode.CorrectLevel.H
                         });
                     } catch (e) {
-                        qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrToken)}&margin=1" alt="Pass QR" class="w-full h-full object-contain" />`;
+                        qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(qrToken)}&margin=1" alt="Pass QR" class="w-full h-full object-contain" />`;
                     }
                 } else {
-                    qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrToken)}&margin=1" alt="Pass QR" class="w-full h-full object-contain" />`;
+                    qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(qrToken)}&margin=1" alt="Pass QR" class="w-full h-full object-contain" />`;
                 }
             }
 
@@ -1047,19 +1088,26 @@
                 downloadPngBtn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">progress_activity</span> Generating 4K Pass...';
 
                 try {
-                    // High-DPI 3x canvas rendering for ultra-sharp typography & crystal-clear QR
+                    // Ensure fonts are ready before snapshot
+                    if (document.fonts && typeof document.fonts.ready === 'object') {
+                        await document.fonts.ready;
+                    }
+
+                    // High-DPI 2.5x canvas rendering with exact fonts and crisp geometry
                     const canvas = await html2canvas(passElement, {
-                        scale: 3, // Ultra-HD 300+ DPI
-                        backgroundColor: '#0c0d12',
+                        scale: 2.5,
+                        backgroundColor: '#0b0c10',
                         useCORS: true,
                         allowTaint: true,
                         logging: false,
+                        letterRendering: true,
                         onclone: (clonedDoc) => {
                             const clonedPass = clonedDoc.getElementById('printable-pass');
                             if (clonedPass) {
-                                clonedPass.style.width = '740px';
-                                clonedPass.style.maxWidth = '740px';
+                                clonedPass.style.width = '780px';
+                                clonedPass.style.maxWidth = '780px';
                                 clonedPass.style.margin = '0 auto';
+                                clonedPass.style.fontFamily = "'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
                             }
                         }
                     });
