@@ -30,10 +30,11 @@ service cloud.firestore {
       allow create: if request.resource.data.team_name is string &&
                        request.resource.data.txn_id is string &&
                        request.resource.data.members is list &&
-                       request.resource.data.members.size() == 3 &&
+                       request.resource.data.members.size() == 4 &&
                        isValidMember(request.resource.data.members[0]) &&
                        isValidMember(request.resource.data.members[1]) &&
-                       isValidMember(request.resource.data.members[2]);
+                       isValidMember(request.resource.data.members[2]) &&
+                       isValidMember(request.resource.data.members[3]);
       
       allow read, update, delete: if true;
     }

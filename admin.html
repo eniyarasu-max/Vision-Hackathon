@@ -166,6 +166,7 @@
                                 <th class="py-3.5 px-4">Leader (Member 1)</th>
                                 <th class="py-3.5 px-4">Member 2</th>
                                 <th class="py-3.5 px-4">Member 3</th>
+                                <th class="py-3.5 px-4">Member 4</th>
                                 <th class="py-3.5 px-4">UTR / Screenshot</th>
                                 <th class="py-3.5 px-4">Status &amp; Verification</th>
                                 <th class="py-3.5 px-4 text-center">Actions</th>
@@ -348,9 +349,10 @@
             }
         };
 
-        window.resendPassEmail = function(teamName, leaderEmail, leaderName, txnId, m2Email, m3Email) {
+        window.resendPassEmail = function(teamName, leaderEmail, leaderName, txnId, m2Email, m3Email, m4Email) {
             SFX.click();
             const subject = encodeURIComponent(`[VERIFIED] Vision 2026 Hackathon Official Admit Pass - Team ${teamName}`);
+            const ccList = [m2Email, m3Email, m4Email].filter(Boolean).join(',');
             const body = encodeURIComponent(
 `Greetings Team ${teamName} (Leader: ${leaderName}),
 
@@ -371,7 +373,7 @@ Please present this confirmation email at the campus check-in desk.
 Organizing Committee // Vision 2026
 terminal@vision.hack`
             );
-            window.location.href = `mailto:${leaderEmail}?cc=${m2Email || ''},${m3Email || ''}&subject=${subject}&body=${body}`;
+            window.location.href = `mailto:${leaderEmail}?cc=${ccList}&subject=${subject}&body=${body}`;
         };
 
         window.deleteSingleTeam = async function(docId, teamName) {
@@ -536,11 +538,13 @@ terminal@vision.hack`
                 const m1 = t.members && t.members[0] ? `${t.members[0].name} (${t.members[0].email} / ${t.members[0].mobile})` : '--';
                 const m2 = t.members && t.members[1] ? `${t.members[1].name} (${t.members[1].email} / ${t.members[1].mobile})` : '--';
                 const m3 = t.members && t.members[2] ? `${t.members[2].name} (${t.members[2].email} / ${t.members[2].mobile})` : '--';
+                const m4 = t.members && t.members[3] ? `${t.members[3].name} (${t.members[3].email} / ${t.members[3].mobile})` : '--';
 
                 const leaderEmail = t.members && t.members[0] ? t.members[0].email : '';
                 const leaderName = t.members && t.members[0] ? t.members[0].name : '';
                 const m2Email = t.members && t.members[1] ? t.members[1].email : '';
                 const m3Email = t.members && t.members[2] ? t.members[2].email : '';
+                const m4Email = t.members && t.members[3] ? t.members[3].email : '';
 
                 const currentStatus = t.status || 'pending_verification';
 
@@ -565,6 +569,7 @@ terminal@vision.hack`
                     <td class="py-3 px-4">${escapeHtml(m1)}</td>
                     <td class="py-3 px-4">${escapeHtml(m2)}</td>
                     <td class="py-3 px-4">${escapeHtml(m3)}</td>
+                    <td class="py-3 px-4">${escapeHtml(m4)}</td>
                     <td class="py-3 px-4 font-label-sm uppercase text-outline-variant">
                         <div>${escapeHtml(t.txn_id || 'N/A')}</div>
                         ${screenshotBtn}
@@ -581,7 +586,7 @@ terminal@vision.hack`
                     </td>
                     <td class="py-3 px-4 text-center">
                         <div class="flex items-center justify-center gap-1">
-                            <button onclick="resendPassEmail('${escapeHtml(t.team_name || 'Team')}', '${escapeHtml(leaderEmail)}', '${escapeHtml(leaderName)}', '${escapeHtml(t.txn_id || '')}', '${escapeHtml(m2Email)}', '${escapeHtml(m3Email)}')" class="text-primary hover:bg-primary/10 p-1.5 rounded transition-colors" title="Send/Resend Admit Pass Email">
+                            <button onclick="resendPassEmail('${escapeHtml(t.team_name || 'Team')}', '${escapeHtml(leaderEmail)}', '${escapeHtml(leaderName)}', '${escapeHtml(t.txn_id || '')}', '${escapeHtml(m2Email)}', '${escapeHtml(m3Email)}', '${escapeHtml(m4Email)}')" class="text-primary hover:bg-primary/10 p-1.5 rounded transition-colors" title="Send/Resend Admit Pass Email">
                                 <span class="material-symbols-outlined text-sm align-middle">mail</span>
                             </button>
                             <button onclick="deleteSingleTeam('${t.id}', '${escapeHtml(t.team_name || 'Team')}')" class="text-error/70 hover:text-error hover:bg-error/10 p-1.5 rounded transition-colors" title="Delete Team">
@@ -602,11 +607,12 @@ terminal@vision.hack`
         // CSV & Excel Exporters
         exportBtn.addEventListener('click', () => {
             if (registeredTeams.length === 0) return alert('No records to export.');
-            const headers = ['ID', 'Team Name', 'Member 1 Name', 'Member 1 Email', 'Member 1 Mobile', 'Member 2 Name', 'Member 2 Email', 'Member 2 Mobile', 'Member 3 Name', 'Member 3 Email', 'Member 3 Mobile', 'Transaction ID', 'Status'];
+            const headers = ['ID', 'Team Name', 'Member 1 Name', 'Member 1 Email', 'Member 1 Mobile', 'Member 2 Name', 'Member 2 Email', 'Member 2 Mobile', 'Member 3 Name', 'Member 3 Email', 'Member 3 Mobile', 'Member 4 Name', 'Member 4 Email', 'Member 4 Mobile', 'Transaction ID', 'Status'];
             const rows = registeredTeams.map(t => {
                 const m1 = t.members && t.members[0] ? t.members[0] : {};
                 const m2 = t.members && t.members[1] ? t.members[1] : {};
                 const m3 = t.members && t.members[2] ? t.members[2] : {};
+                const m4 = t.members && t.members[3] ? t.members[3] : {};
                 return [
                     t.id || '',
                     `"${(t.team_name || '').replace(/"/g, '""')}"`,
@@ -619,6 +625,9 @@ terminal@vision.hack`
                     `"${(m3.name || '').replace(/"/g, '""')}"`,
                     m3.email || '',
                     m3.mobile || '',
+                    `"${(m4.name || '').replace(/"/g, '""')}"`,
+                    m4.email || '',
+                    m4.mobile || '',
                     t.txn_id || '',
                     t.status || 'pending'
                 ];
@@ -636,6 +645,7 @@ terminal@vision.hack`
                 const m1 = t.members && t.members[0] ? t.members[0] : {};
                 const m2 = t.members && t.members[1] ? t.members[1] : {};
                 const m3 = t.members && t.members[2] ? t.members[2] : {};
+                const m4 = t.members && t.members[3] ? t.members[3] : {};
                 return {
                     '#': idx + 1,
                     'Team Name': t.team_name || '',
@@ -648,6 +658,9 @@ terminal@vision.hack`
                     'Member 3 Name': m3.name || '',
                     'Member 3 Email': m3.email || '',
                     'Member 3 Mobile': m3.mobile || '',
+                    'Member 4 Name': m4.name || '',
+                    'Member 4 Email': m4.email || '',
+                    'Member 4 Mobile': m4.mobile || '',
                     'Transaction ID': t.txn_id || '',
                     'Status': t.status || 'pending',
                     'Doc ID': t.id || ''

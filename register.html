@@ -299,6 +299,33 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Member 4 -->
+                            <div class="space-y-4 pt-2">
+                                <div class="flex items-center justify-between border-b border-outline-variant/30 pb-2">
+                                    <span class="font-headline-md text-on-surface text-base uppercase flex items-center gap-2">
+                                        <span class="text-outline font-orbitron text-xs px-2 py-0.5 border border-outline-variant bg-surface-container">04</span>
+                                        MEMBER FOUR
+                                    </span>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="space-y-1.5">
+                                        <label class="font-label-sm text-outline uppercase tracking-wider text-xs" for="m4_name">FULL NAME:</label>
+                                        <input class="w-full bg-surface-container border-b border-outline-variant focus:border-primary text-on-surface font-body-md py-2.5 px-3 outline-none transition-all duration-300" id="m4_name" name="m4_name" required minlength="2" maxlength="50" autocomplete="name" type="text" placeholder="Member 4 Full Name" />
+                                        <div class="field-error-msg" data-error-for="m4_name">// VALID NAME REQUIRED (2-50 CHARS)</div>
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <label class="font-label-sm text-outline uppercase tracking-wider text-xs" for="m4_email">EMAIL ADDRESS:</label>
+                                        <input class="w-full bg-surface-container border-b border-outline-variant focus:border-primary text-on-surface font-body-md py-2.5 px-3 outline-none transition-all duration-300" id="m4_email" name="m4_email" required maxlength="80" autocomplete="email" type="email" placeholder="member4@example.com" />
+                                        <div class="field-error-msg" data-error-for="m4_email">// VALID UNIQUE EMAIL REQUIRED</div>
+                                    </div>
+                                    <div class="space-y-1.5 md:col-span-2">
+                                        <label class="font-label-sm text-outline uppercase tracking-wider text-xs" for="m4_mobile">MOBILE NUMBER:</label>
+                                        <input class="w-full bg-surface-container border-b border-outline-variant focus:border-primary text-on-surface font-body-md py-2.5 px-3 outline-none transition-all duration-300" id="m4_mobile" name="m4_mobile" pattern="^[6-9]\d{9}$" minlength="10" maxlength="10" placeholder="10-digit mobile number" required autocomplete="tel" type="tel" />
+                                        <div class="field-error-msg" data-error-for="m4_mobile">// VALID 10-DIGIT MOBILE REQUIRED</div>
+                                    </div>
+                                </div>
+                            </div>
                         </form>
                     </div>
 
@@ -321,11 +348,11 @@
                                     </div>
                                     <div class="flex justify-between items-center text-on-surface-variant">
                                         <span>TEAM MEMBERS:</span>
-                                        <span class="text-on-surface font-orbitron" id="fee-multiplier">3 Nodes</span>
+                                        <span class="text-on-surface font-orbitron" id="fee-multiplier">4 Nodes</span>
                                     </div>
                                     <div class="flex justify-between items-center pt-3 border-t border-dashed border-outline-variant/40">
                                         <span class="text-primary font-bold tracking-wider">TOTAL TEAM PASS:</span>
-                                        <span class="text-primary font-orbitron text-2xl drop-shadow-[0_0_8px_rgba(255,227,161,0.5)]" id="fee-total">₹1200</span>
+                                        <span class="text-primary font-orbitron text-2xl drop-shadow-[0_0_8px_rgba(255,227,161,0.5)]" id="fee-total">₹1600</span>
                                     </div>
                                 </div>
 
@@ -453,7 +480,7 @@
                             <span class="text-xl font-headline-md text-primary uppercase" id="modal-team-name">TEAM NAME</span>
                         </div>
 
-                        <div class="grid grid-cols-3 gap-2 border-t border-b border-outline-variant/30 py-3 text-xs">
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 border-t border-b border-outline-variant/30 py-3 text-xs">
                             <div>
                                 <span class="text-[9px] font-label-sm text-outline block">LEADER</span>
                                 <span class="font-body-md text-on-surface truncate block" id="modal-m1">--</span>
@@ -465,6 +492,10 @@
                             <div>
                                 <span class="text-[9px] font-label-sm text-outline block">MEMBER 3</span>
                                 <span class="font-body-md text-on-surface truncate block" id="modal-m3">--</span>
+                            </div>
+                            <div>
+                                <span class="text-[9px] font-label-sm text-outline block">MEMBER 4</span>
+                                <span class="font-body-md text-on-surface truncate block" id="modal-m4">--</span>
                             </div>
                         </div>
 
@@ -604,7 +635,7 @@
         /* ---------- 1-Tap UPI Payment Protocol ---------- */
         const UPI_ID = '7339436468@upi';
         const PAYEE_NAME = 'Vision Hackathon';
-        const AMOUNT = '1200';
+        const AMOUNT = '1600';
         const NOTE = 'Vision2026Registration';
 
         window.triggerUpiPayment = function(appType) {
@@ -874,21 +905,39 @@
             showFieldError('m3_mobile', !m3MobileOk);
             if (!m3MobileOk) valid = false;
 
-            // Uniqueness check across members
-            if (m1EmailOk && m2EmailOk && m3EmailOk) {
-                if (m1Email === m2Email || m1Email === m3Email || m2Email === m3Email) {
-                    showFieldError('m1_email', true, '// EACH MEMBER MUST HAVE A UNIQUE EMAIL');
-                    showFieldError('m2_email', true, '// EACH MEMBER MUST HAVE A UNIQUE EMAIL');
-                    showFieldError('m3_email', true, '// EACH MEMBER MUST HAVE A UNIQUE EMAIL');
+            const m4NameOk = REGEX.name.test(document.getElementById('m4_name').value.trim());
+            showFieldError('m4_name', !m4NameOk);
+            if (!m4NameOk) valid = false;
+
+            const m4Email = document.getElementById('m4_email').value.trim().toLowerCase();
+            const m4EmailOk = REGEX.email.test(m4Email);
+            showFieldError('m4_email', !m4EmailOk);
+            if (!m4EmailOk) valid = false;
+
+            const m4Mobile = document.getElementById('m4_mobile').value.trim();
+            const m4MobileOk = REGEX.mobile.test(m4Mobile);
+            showFieldError('m4_mobile', !m4MobileOk);
+            if (!m4MobileOk) valid = false;
+
+            // Uniqueness check across 4 members
+            const emails = [m1Email, m2Email, m3Email, m4Email];
+            if (m1EmailOk && m2EmailOk && m3EmailOk && m4EmailOk) {
+                const uniqueEmails = new Set(emails);
+                if (uniqueEmails.size !== 4) {
+                    ['m1_email', 'm2_email', 'm3_email', 'm4_email'].forEach(id => {
+                        showFieldError(id, true, '// EACH MEMBER MUST HAVE A UNIQUE EMAIL');
+                    });
                     valid = false;
                 }
             }
 
-            if (m1MobileOk && m2MobileOk && m3MobileOk) {
-                if (m1Mobile === m2Mobile || m1Mobile === m3Mobile || m2Mobile === m3Mobile) {
-                    showFieldError('m1_mobile', true, '// EACH MEMBER MUST HAVE A UNIQUE PHONE');
-                    showFieldError('m2_mobile', true, '// EACH MEMBER MUST HAVE A UNIQUE PHONE');
-                    showFieldError('m3_mobile', true, '// EACH MEMBER MUST HAVE A UNIQUE PHONE');
+            const mobiles = [m1Mobile, m2Mobile, m3Mobile, m4Mobile];
+            if (m1MobileOk && m2MobileOk && m3MobileOk && m4MobileOk) {
+                const uniqueMobiles = new Set(mobiles);
+                if (uniqueMobiles.size !== 4) {
+                    ['m1_mobile', 'm2_mobile', 'm3_mobile', 'm4_mobile'].forEach(id => {
+                        showFieldError(id, true, '// EACH MEMBER MUST HAVE A UNIQUE PHONE');
+                    });
                     valid = false;
                 }
             }
@@ -924,6 +973,7 @@
         const modalM1 = document.getElementById('modal-m1');
         const modalM2 = document.getElementById('modal-m2');
         const modalM3 = document.getElementById('modal-m3');
+        const modalM4 = document.getElementById('modal-m4');
         const modalTxnId = document.getElementById('modal-txn-id');
         const emailConfirmBtn = document.getElementById('email-confirm-btn');
         const printPassBtn = document.getElementById('print-pass-btn');
@@ -940,6 +990,9 @@
             modalM1.textContent = `${data.members[0].name} (${data.members[0].mobile})`;
             modalM2.textContent = `${data.members[1].name} (${data.members[1].mobile})`;
             modalM3.textContent = `${data.members[2].name} (${data.members[2].mobile})`;
+            if (modalM4 && data.members[3]) {
+                modalM4.textContent = `${data.members[3].name} (${data.members[3].mobile})`;
+            }
             modalTxnId.textContent = `UTR: ${data.txn_id}`;
 
             passModal.classList.remove('hidden');
@@ -967,6 +1020,13 @@
 
                 const leaderEmail = currentPassData.members[0].email;
                 const subject = encodeURIComponent(`[CONFIRMED] Vision 2026 Hackathon Admit Pass - Team ${currentPassData.team_name}`);
+                const m4Text = currentPassData.members[3] ? `\n4. Member 4: ${currentPassData.members[3].name} (${currentPassData.members[3].email} / ${currentPassData.members[3].mobile})` : '';
+                const ccEmails = [
+                    currentPassData.members[1]?.email,
+                    currentPassData.members[2]?.email,
+                    currentPassData.members[3]?.email
+                ].filter(Boolean).join(',');
+
                 const body = encodeURIComponent(
 `Greetings Team ${currentPassData.team_name},
 
@@ -980,7 +1040,7 @@ Transaction UTR: ${currentPassData.txn_id}
 === SQUAD MEMBERS ===
 1. Leader: ${currentPassData.members[0].name} (${currentPassData.members[0].email} / ${currentPassData.members[0].mobile})
 2. Member 2: ${currentPassData.members[1].name} (${currentPassData.members[1].email} / ${currentPassData.members[1].mobile})
-3. Member 3: ${currentPassData.members[2].name} (${currentPassData.members[2].email} / ${currentPassData.members[2].mobile})
+3. Member 3: ${currentPassData.members[2].name} (${currentPassData.members[2].email} / ${currentPassData.members[2].mobile})${m4Text}
 
 === EVENT VENUE & SCHEDULE ===
 Dates: September 20-21, 2026
@@ -995,7 +1055,7 @@ terminal@vision.hack`
                 );
 
                 // Open formatted mail client & copy text
-                window.location.href = `mailto:${leaderEmail}?cc=${currentPassData.members[1].email},${currentPassData.members[2].email}&subject=${subject}&body=${body}`;
+                window.location.href = `mailto:${leaderEmail}?cc=${ccEmails}&subject=${subject}&body=${body}`;
                 
                 emailToast.classList.remove('hidden');
                 setTimeout(() => {
@@ -1070,6 +1130,11 @@ terminal@vision.hack`
                         name: sanitizeString(document.getElementById('m3_name').value),
                         email: sanitizeString(document.getElementById('m3_email').value.toLowerCase()),
                         mobile: sanitizeString(document.getElementById('m3_mobile').value)
+                    },
+                    {
+                        name: sanitizeString(document.getElementById('m4_name').value),
+                        email: sanitizeString(document.getElementById('m4_email').value.toLowerCase()),
+                        mobile: sanitizeString(document.getElementById('m4_mobile').value)
                     }
                 ],
                 txn_id: txnVal,
