@@ -653,7 +653,7 @@
                         <a class="w-10 h-10 border border-outline-variant flex items-center justify-center text-primary hover:bg-primary/10 transition-all" href="#" rel="noopener noreferrer" aria-label="Network"><span class="material-symbols-outlined">hub</span></a>
                         <a class="w-10 h-10 border border-outline-variant flex items-center justify-center text-primary hover:bg-primary/10 transition-all" href="#" rel="noopener noreferrer" aria-label="Web"><span class="material-symbols-outlined">public</span></a>
                     </div>
-                    <div class="font-label-sm text-outline-variant">VER: 2.0.0 // MARVEL AUDIO EDITION</div>
+                    <div class="font-label-sm text-outline-variant">VER: 2.0.0</div>
                 </div>
             </div>
             <div class="border-t border-outline-variant/20 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
@@ -684,9 +684,8 @@
 
         window._SFX = SFX;
 
-        // Boot sound and inject Marvel Floating HUD
+        // Attach interactive sound effects
         document.addEventListener('DOMContentLoaded', () => {
-            SFX.injectMarvelHUD();
             SFX.attachClickSounds();
         });
 

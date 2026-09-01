@@ -466,7 +466,6 @@
             if (isAuth) {
                 authModal.classList.add('hidden');
                 terminalContent.classList.remove('hidden');
-                SFX.injectMarvelHUD();
                 SFX.attachClickSounds();
             } else {
                 authModal.classList.remove('hidden');
@@ -493,7 +492,6 @@
                     authModal.classList.add('hidden');
                     terminalContent.classList.remove('hidden');
                     SFX.success();
-                    SFX.injectMarvelHUD();
                     SFX.attachClickSounds();
                 } else {
                     failedAttempts++;
