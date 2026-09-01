@@ -1409,6 +1409,7 @@ terminal@vision.hack`
             const payload = {
                 team_name: teamNameVal,
                 team_name_lower: teamNameVal.toLowerCase(),
+                team_name_key: teamNameVal.toLowerCase().replace(/\s+/g, ''),
                 members: [
                     {
                         name: sanitizeString(document.getElementById('m1_name').value),
@@ -1438,9 +1439,9 @@ terminal@vision.hack`
 
             if (db) {
                 try {
-                    // Pre-flight duplicate TEAM NAME check in Firestore (case-insensitive)
-                    const teamNameLower = payload.team_name_lower;
-                    const teamNameQuery = query(collection(db, 'registrations'), where('team_name_lower', '==', teamNameLower));
+                    // Pre-flight duplicate TEAM NAME check in Firestore (case-insensitive + space-insensitive)
+                    const teamNameKey = payload.team_name_key;
+                    const teamNameQuery = query(collection(db, 'registrations'), where('team_name_key', '==', teamNameKey));
                     const teamNameSnap = await getDocs(teamNameQuery);
                     if (!teamNameSnap.empty) {
                         showFieldError('team_name', true, '// CALLSIGN ALREADY TAKEN — CHOOSE A UNIQUE SQUAD NAME');
