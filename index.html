@@ -441,8 +441,8 @@
     </script>
 
     <!-- ============ OFFICIAL EVENT BROCHURE POPUP MODAL ============ -->
-    <div id="brochure-modal" class="fixed inset-0 z-[999999] hidden flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-6 transition-all duration-300">
-        <div class="relative w-full max-w-2xl max-h-[92vh] bg-surface-container-lowest border-2 border-primary/60 rounded-xs shadow-[0_0_50px_rgba(240,193,44,0.35)] flex flex-col overflow-hidden animate-fade-in-up">
+    <div id="brochure-modal" class="fixed inset-0 z-[999999] hidden flex items-center justify-center bg-black/85 backdrop-blur-md p-2 sm:p-4 transition-all duration-300">
+        <div class="relative w-full max-w-4xl max-h-[95vh] bg-surface-container-lowest border-2 border-primary/60 rounded-xs shadow-[0_0_50px_rgba(240,193,44,0.35)] flex flex-col overflow-hidden animate-fade-in-up">
             
             <!-- Tech HUD Corner Accents -->
             <div class="absolute top-0 left-0 w-3.5 h-3.5 border-t-2 border-l-2 border-primary z-20"></div>
@@ -451,7 +451,7 @@
             <div class="absolute bottom-0 right-0 w-3.5 h-3.5 border-b-2 border-r-2 border-primary z-20"></div>
 
             <!-- Modal Header -->
-            <div class="p-3.5 sm:p-4 bg-surface-container border-b border-outline-variant/30 flex items-center justify-between z-10">
+            <div class="p-3 sm:p-4 bg-surface-container border-b border-outline-variant/30 flex items-center justify-between z-10">
                 <div class="flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></span>
                     <span class="font-orbitron text-xs sm:text-sm font-bold tracking-widest text-primary uppercase">OFFICIAL TRANSMISSION // EVENT BROCHURE</span>
@@ -461,29 +461,161 @@
                 </button>
             </div>
 
-            <!-- Brochure Content Viewport -->
-            <div class="flex-1 overflow-y-auto p-2 sm:p-4 flex flex-col items-center justify-center bg-black/60 relative">
-                <a id="brochure-link" href="assets/brochure.jpg" target="_blank" rel="noopener noreferrer" class="relative group block max-w-full max-h-[60vh] overflow-hidden border border-outline-variant/40 hover:border-primary transition-all duration-300">
-                    <img id="brochure-img" src="assets/brochure.jpg" alt="Vision 2026 Official Hackathon Brochure" class="max-h-[60vh] w-auto object-contain mx-auto transition-transform duration-300 group-hover:scale-[1.01]" />
-                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-                        <span class="bg-black/85 text-primary font-label-sm text-xs px-3.5 py-2 border border-primary flex items-center gap-1.5 shadow-lg">
-                            <span class="material-symbols-outlined text-sm">open_in_new</span> Click to Open Full Resolution
-                        </span>
+            <!-- Brochure Content Viewport (Responsive High-Tech Poster Card) -->
+            <div class="flex-1 overflow-y-auto p-3 sm:p-5 bg-[#090a0f] space-y-4">
+                
+                <!-- Top Institution Row -->
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 border-b border-primary/30 pb-3">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-white px-2.5 py-1 rounded flex items-center justify-center shadow">
+                            <img src="assets/kec-logo.png" alt="Kongu Engineering College" class="h-8 md:h-9 w-auto object-contain" />
+                        </div>
+                        <div class="text-left">
+                            <div class="font-orbitron font-bold text-xs md:text-sm text-primary">KONGU ENGINEERING COLLEGE</div>
+                            <div class="font-mono text-[10px] text-amber-200/70">(Autonomous) • PERUNDURAI, ERODE</div>
+                        </div>
                     </div>
-                </a>
+                    <div class="text-center font-mono text-[11px] uppercase tracking-wider text-amber-400 font-bold">
+                        IEEE STUDENT BRANCH - KEC | IEEE AP-S CHAPTER PRESENTS
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="text-right hidden sm:block">
+                            <div class="font-orbitron font-bold text-xs text-primary">IEEE AP-S</div>
+                            <div class="font-mono text-[9px] text-amber-200/70">STUDENT CHAPTER</div>
+                        </div>
+                        <div class="bg-white px-2.5 py-1 rounded flex items-center justify-center shadow">
+                            <img src="assets/ieee-aps-logo.png" alt="IEEE AP-S" class="h-8 md:h-9 w-auto object-contain" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Poster Body Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                    
+                    <!-- Left: Tracks & Perks (4 Cols) -->
+                    <div class="md:col-span-4 space-y-3">
+                        <div class="bg-surface-container border border-primary/40 rounded p-3">
+                            <div class="flex items-center gap-1.5 border-b border-primary/30 pb-1.5 mb-2">
+                                <span class="material-symbols-outlined text-primary text-sm">terminal</span>
+                                <span class="font-orbitron text-xs font-bold text-primary tracking-wider uppercase">HACKATHON TRACKS</span>
+                            </div>
+                            <div class="space-y-1.5 font-mono text-[11px]">
+                                <div class="bg-black/60 border border-primary/20 p-1.5 rounded flex items-center gap-2">
+                                    <span class="text-primary font-bold">01</span>
+                                    <span>AI &amp; Autonomous Systems</span>
+                                </div>
+                                <div class="bg-black/60 border border-primary/20 p-1.5 rounded flex items-center gap-2">
+                                    <span class="text-primary font-bold">02</span>
+                                    <span>Web3, Cloud &amp; SaaS</span>
+                                </div>
+                                <div class="bg-black/60 border border-primary/20 p-1.5 rounded flex items-center gap-2">
+                                    <span class="text-primary font-bold">03</span>
+                                    <span>Embedded &amp; Smart IoT</span>
+                                </div>
+                                <div class="bg-black/60 border border-primary/20 p-1.5 rounded flex items-center gap-2">
+                                    <span class="text-primary font-bold">04</span>
+                                    <span>Open Innovation</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-surface-container border border-primary/40 rounded p-2.5">
+                            <div class="font-orbitron text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                                <span class="material-symbols-outlined text-xs">stars</span> SQUAD PRIVILEGES
+                            </div>
+                            <ul class="font-mono text-[10px] space-y-1 text-zinc-300">
+                                <li>✔ 24-Hour Non-Stop Build Arena</li>
+                                <li>✔ Food, Refreshments &amp; WiFi</li>
+                                <li>✔ Holographic Verified Admit Pass</li>
+                                <li>✔ Industry Mentorship &amp; Certificates</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Center: Arc-Reactor Badge (4 Cols) -->
+                    <div class="md:col-span-4 flex flex-col items-center justify-center text-center">
+                        <div class="w-48 h-48 sm:w-52 sm:h-52 rounded-full border-2 border-primary/60 bg-black/80 shadow-[0_0_30px_rgba(240,193,44,0.3)] flex flex-col items-center justify-center p-3 relative overflow-hidden">
+                            <div class="font-mono text-[8px] uppercase tracking-widest text-primary/80">MARVEL TECH EDITION</div>
+                            <h2 class="font-orbitron text-3xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-b from-[#fff2b2] via-[#f0c12c] to-[#997300] uppercase leading-none mt-0.5">
+                                VISION
+                            </h2>
+                            <div class="font-orbitron text-lg font-bold tracking-widest text-primary">2026</div>
+                            <div class="h-[1px] w-16 bg-gradient-to-r from-transparent via-primary to-transparent my-1"></div>
+                            <div class="font-orbitron text-[9px] font-bold text-white uppercase tracking-wider">24-HOUR HACKATHON</div>
+                            <div class="font-mono text-[8px] text-amber-300 tracking-widest uppercase">NATIONAL LEVEL</div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 mt-2.5 w-full">
+                            <div class="bg-primary/10 border border-primary rounded p-1.5 text-center">
+                                <div class="font-mono text-[8px] text-primary uppercase font-bold">PRIZE POOL</div>
+                                <div class="font-orbitron text-xs font-black text-amber-300">CASH AWARDS</div>
+                                <div class="font-mono text-[7.5px] text-zinc-300">+ Trophies</div>
+                            </div>
+                            <div class="bg-primary/10 border border-primary rounded p-1.5 text-center">
+                                <div class="font-mono text-[8px] text-primary uppercase font-bold">REGISTRATION</div>
+                                <div class="font-orbitron text-xs font-black text-white">₹1600</div>
+                                <div class="font-mono text-[7.5px] text-amber-300 font-bold">4-MEMBER SQUAD</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Authentic Avengers Cast Art (4 Cols) -->
+                    <div class="md:col-span-4 flex flex-col gap-2">
+                        <div class="border border-primary/50 rounded overflow-hidden relative shadow-lg" style="height: 280px;">
+                            <img src="assets/avengers-art.png" alt="Official Avengers Cast" class="w-full h-full object-cover object-top" style="filter: contrast(1.05) brightness(0.95);" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"></div>
+                            <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between font-mono text-[9px] text-primary bg-black/85 px-2 py-0.5 rounded border border-primary/40">
+                                <span>AVENGERS ASSEMBLE</span>
+                                <span class="text-white font-bold">35 SQUADS ONLY</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Bottom Logistics Bar -->
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 pt-2 border-t border-primary/30">
+                    <div class="sm:col-span-3 bg-surface-container border border-outline-variant/40 rounded p-2 text-left">
+                        <div class="font-mono text-[8.5px] text-primary uppercase font-bold">📅 EVENT DATES</div>
+                        <div class="font-orbitron text-xs font-bold text-white mt-0.5">20-21 SEP 2026</div>
+                        <div class="font-mono text-[8px] text-zinc-400">24-Hour Non-Stop</div>
+                    </div>
+                    <div class="sm:col-span-3 bg-surface-container border border-outline-variant/40 rounded p-2 text-left">
+                        <div class="font-mono text-[8.5px] text-primary uppercase font-bold">📍 VENUE</div>
+                        <div class="font-orbitron text-xs font-bold text-white mt-0.5">Dept of ECE, KEC</div>
+                        <div class="font-mono text-[8px] text-zinc-400">Kongu Engg College, Perundurai</div>
+                    </div>
+                    <div class="sm:col-span-3 bg-surface-container border border-outline-variant/40 rounded p-2 text-left">
+                        <div class="font-mono text-[8.5px] text-primary uppercase font-bold">📞 COORDINATION</div>
+                        <div class="font-mono text-[8.5px] text-zinc-300 mt-0.5">
+                            <div>Faculty: Dr. J. Vijayalakshmi</div>
+                            <div>Student Lead: Eniyan S (93448 37626)</div>
+                        </div>
+                    </div>
+                    <div class="sm:col-span-3 bg-black/80 border border-primary rounded p-2 flex items-center justify-between gap-2">
+                        <div class="bg-white p-0.5 rounded shrink-0">
+                            <img src="assets/payment-qr.png" alt="Registration QR" class="w-10 h-10 object-contain" />
+                        </div>
+                        <div class="flex-1 text-left">
+                            <div class="font-orbitron text-[9px] font-bold text-primary">SCAN TO REGISTER</div>
+                            <div class="font-mono text-[7.5px] text-zinc-300">35 Squads Max</div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <!-- Modal Footer Actions -->
-            <div class="p-3.5 sm:p-4 bg-surface-container border-t border-outline-variant/30 flex flex-col sm:flex-row items-center justify-between gap-3 z-10">
-                <a id="brochure-view-btn" href="assets/brochure.jpg" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto text-xs font-label-sm text-outline hover:text-primary transition-colors flex items-center justify-center gap-1 py-1.5 font-bold">
-                    <span class="material-symbols-outlined text-sm">download</span> Full Resolution / Download
+            <div class="p-3 sm:p-4 bg-surface-container border-t border-outline-variant/30 flex flex-col sm:flex-row items-center justify-between gap-3 z-10">
+                <a href="brochure.html" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto text-xs font-label-sm text-outline hover:text-primary transition-colors flex items-center justify-center gap-1 py-1.5 font-bold">
+                    <span class="material-symbols-outlined text-sm">open_in_new</span> Open Full Screen Poster
                 </a>
                 <div class="flex items-center gap-3 w-full sm:w-auto">
                     <button id="dismiss-brochure-btn" class="flex-1 sm:flex-initial bg-surface-container-high hover:bg-surface-container-highest text-outline hover:text-on-surface font-label-sm px-4 py-2.5 text-xs uppercase tracking-wider rounded-xs border border-outline-variant/40 transition-colors cursor-pointer">
                         Dismiss
                     </button>
                     <a href="register.html" class="flex-1 sm:flex-initial bg-primary hover:bg-primary-container text-on-primary font-label-sm font-bold px-5 py-2.5 text-xs uppercase tracking-widest rounded-xs border border-primary shadow-[0_0_15px_rgba(240,193,44,0.3)] transition-all text-center">
-                        Register Now &gt;
+                        Register Squad &gt;
                     </a>
                 </div>
             </div>
