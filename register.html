@@ -331,7 +331,7 @@
 
                                 <!-- Official QR Code & 1-Tap UPI Links -->
                                 <div class="flex flex-col items-center justify-center space-y-3 mb-5">
-                                    <div class="w-48 h-48 bg-white p-2 rounded-sm relative shadow-[0_0_20px_rgba(240,193,44,0.15)] border border-primary/40 flex items-center justify-center">
+                                    <div id="payment-qr-card" class="w-48 h-48 bg-white p-2 rounded-sm relative shadow-[0_0_20px_rgba(240,193,44,0.15)] border border-primary/40 flex items-center justify-center transition-all duration-300">
                                         <img src="assets/payment-qr.png" alt="Official UPI Payment QR Code" class="w-full h-full object-contain rounded-xs" />
                                     </div>
                                     <div class="flex items-center gap-2">
@@ -346,20 +346,25 @@
                                 <!-- 1-Tap Mobile UPI App Links -->
                                 <div class="space-y-2 mb-5">
                                     <span class="font-label-sm text-outline uppercase text-[10px] tracking-wider block text-center">Instant 1-Tap Mobile Pay:</span>
-                                    <div class="grid grid-cols-3 gap-2">
-                                        <a href="upi://pay?pa=7339436468@upi&pn=Vision%20Hackathon&am=1200&cu=INR&tn=Vision2026Registration" class="bg-surface-container hover:bg-primary/20 border border-outline-variant/40 hover:border-primary text-center py-2 px-1 text-[11px] font-label-sm text-on-surface rounded-sm transition-all flex flex-col items-center justify-center gap-1">
+                                    <div class="grid grid-cols-4 gap-1.5">
+                                        <button type="button" onclick="triggerUpiPayment('gpay')" class="bg-surface-container hover:bg-primary/20 border border-outline-variant/40 hover:border-primary text-center py-2 px-1 text-[10px] font-label-sm text-on-surface rounded-sm transition-all flex flex-col items-center justify-center gap-1 cursor-pointer">
                                             <span class="material-symbols-outlined text-[16px] text-primary">smartphone</span>
-                                            GPay / PhonePe
-                                        </a>
-                                        <a href="upi://pay?pa=7339436468@upi&pn=Vision%20Hackathon&am=1200&cu=INR&tn=Vision2026Registration" class="bg-surface-container hover:bg-primary/20 border border-outline-variant/40 hover:border-primary text-center py-2 px-1 text-[11px] font-label-sm text-on-surface rounded-sm transition-all flex flex-col items-center justify-center gap-1">
-                                            <span class="material-symbols-outlined text-[16px] text-primary">account_balance</span>
-                                            Paytm / BHIM
-                                        </a>
-                                        <a href="upi://pay?pa=7339436468@upi&pn=Vision%20Hackathon&am=1200&cu=INR&tn=Vision2026Registration" class="bg-surface-container hover:bg-primary/20 border border-outline-variant/40 hover:border-primary text-center py-2 px-1 text-[11px] font-label-sm text-on-surface rounded-sm transition-all flex flex-col items-center justify-center gap-1">
+                                            GPay
+                                        </button>
+                                        <button type="button" onclick="triggerUpiPayment('phonepe')" class="bg-surface-container hover:bg-primary/20 border border-outline-variant/40 hover:border-primary text-center py-2 px-1 text-[10px] font-label-sm text-on-surface rounded-sm transition-all flex flex-col items-center justify-center gap-1 cursor-pointer">
+                                            <span class="material-symbols-outlined text-[16px] text-primary">payments</span>
+                                            PhonePe
+                                        </button>
+                                        <button type="button" onclick="triggerUpiPayment('paytm')" class="bg-surface-container hover:bg-primary/20 border border-outline-variant/40 hover:border-primary text-center py-2 px-1 text-[10px] font-label-sm text-on-surface rounded-sm transition-all flex flex-col items-center justify-center gap-1 cursor-pointer">
+                                            <span class="material-symbols-outlined text-[16px] text-primary">account_balance_wallet</span>
+                                            Paytm
+                                        </button>
+                                        <button type="button" onclick="triggerUpiPayment('generic')" class="bg-surface-container hover:bg-primary/20 border border-outline-variant/40 hover:border-primary text-center py-2 px-1 text-[10px] font-label-sm text-on-surface rounded-sm transition-all flex flex-col items-center justify-center gap-1 cursor-pointer">
                                             <span class="material-symbols-outlined text-[16px] text-primary">credit_card</span>
-                                            Any UPI App
-                                        </a>
+                                            Other UPI
+                                        </button>
                                     </div>
+                                    <div id="upi-notice" class="hidden text-[11px] font-label-sm bg-surface-container border border-primary/30 p-2 text-center text-on-surface rounded-xs"></div>
                                 </div>
 
                                 <!-- Transaction ID Input -->
@@ -596,6 +601,71 @@
             });
         }
 
+        /* ---------- 1-Tap UPI Payment Protocol ---------- */
+        const UPI_ID = '7339436468@upi';
+        const PAYEE_NAME = 'Vision Hackathon';
+        const AMOUNT = '1200';
+        const NOTE = 'Vision2026Registration';
+
+        window.triggerUpiPayment = function(appType) {
+            SFX.click();
+            const isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const rawParams = `pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${AMOUNT}&cu=INR&tn=${encodeURIComponent(NOTE)}`;
+            const genericUpi = `upi://pay?${rawParams}`;
+
+            let appUri = genericUpi;
+            if (appType === 'gpay') {
+                appUri = /Android/i.test(navigator.userAgent)
+                    ? `intent://pay?${rawParams}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end`
+                    : `gpay://upi/pay?${rawParams}`;
+            } else if (appType === 'phonepe') {
+                appUri = /Android/i.test(navigator.userAgent)
+                    ? `intent://pay?${rawParams}#Intent;scheme=upi;package=com.phonepe.app;end`
+                    : `phonepe://pay?${rawParams}`;
+            } else if (appType === 'paytm') {
+                appUri = /Android/i.test(navigator.userAgent)
+                    ? `intent://pay?${rawParams}#Intent;scheme=upi;package=net.one97.paytm;end`
+                    : `paytmmp://pay?${rawParams}`;
+            }
+
+            // Copy UPI ID to clipboard automatically
+            navigator.clipboard.writeText(UPI_ID).catch(() => {});
+
+            const notice = document.getElementById('upi-notice');
+            const qrCard = document.getElementById('payment-qr-card');
+
+            if (!isMobile) {
+                // Desktop Experience: Highlight QR code and notify
+                if (qrCard) {
+                    qrCard.classList.add('ring-4', 'ring-primary', 'shadow-[0_0_35px_rgba(240,193,44,0.7)]');
+                    setTimeout(() => {
+                        qrCard.classList.remove('ring-4', 'ring-primary', 'shadow-[0_0_35px_rgba(240,193,44,0.7)]');
+                    }, 3500);
+                }
+                if (notice) {
+                    notice.innerHTML = `<span class="text-primary font-bold">UPI ID COPIED!</span> Since you are on PC/Laptop, please scan the QR code above with your mobile app to pay ₹${AMOUNT}.`;
+                    notice.classList.remove('hidden');
+                }
+                return;
+            }
+
+            // Mobile Device Experience: Open App with Fallback
+            if (notice) {
+                notice.innerHTML = `<span class="text-primary font-bold">OPENING UPI APP...</span> If your app doesn't open automatically, use the QR code or copy the UPI ID.`;
+                notice.classList.remove('hidden');
+            }
+
+            const launchTime = Date.now();
+            window.location.href = appUri;
+
+            // Fallback to standard upi:// scheme after 600ms if specific intent is not recognized
+            setTimeout(() => {
+                if (Date.now() - launchTime < 1500 && appType !== 'generic') {
+                    window.location.href = genericUpi;
+                }
+            }, 600);
+        };
+
         /* ---------- Copy UPI ID Button ---------- */
         const copyUpiBtn = document.getElementById('copy-upi-btn');
         const upiIdText = document.getElementById('upi-id-text');
@@ -604,6 +674,11 @@
                 navigator.clipboard.writeText(upiIdText.textContent.trim());
                 SFX.click();
                 copyUpiBtn.innerHTML = '<span class="material-symbols-outlined text-[16px] text-primary">check</span>';
+                const notice = document.getElementById('upi-notice');
+                if (notice) {
+                    notice.innerHTML = `<span class="text-primary font-bold">COPIED:</span> 7339436468@upi`;
+                    notice.classList.remove('hidden');
+                }
                 setTimeout(() => {
                     copyUpiBtn.innerHTML = '<span class="material-symbols-outlined text-[16px]">content_copy</span>';
                 }, 2000);

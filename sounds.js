@@ -193,42 +193,10 @@ const SFX = (() => {
         },
 
         /**
-         * Inject Non-Stoppable Marvel Hologram HUD Indicator
+         * Initialize Marvel Background Audio (Visual popup removed - music plays cleanly)
          */
         injectMarvelHUD() {
-            if (document.getElementById('marvel-audio-hud')) return;
-
-            const hud = document.createElement('div');
-            hud.id = 'marvel-audio-hud';
-            hud.className = 'fixed bottom-5 right-5 z-[9999] flex items-center gap-3 bg-surface-container-lowest/90 backdrop-blur-md border border-primary/40 px-4 py-2.5 rounded-full shadow-[0_0_25px_rgba(240,193,44,0.25)] select-none pointer-events-none';
-            hud.innerHTML = `
-                <!-- Arc Reactor Glowing Badge -->
-                <div class="relative flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 border border-primary/60 text-primary">
-                    <span class="material-symbols-outlined text-[18px] animate-pulse">graphic_eq</span>
-                    <span class="absolute inset-0 rounded-full border border-dashed border-primary/50 animate-[spin_6s_linear_infinite]"></span>
-                </div>
-
-                <!-- Track Info & Visualizer -->
-                <div class="flex flex-col pr-1">
-                    <div class="flex items-center gap-2">
-                        <span class="text-[9px] font-orbitron text-primary tracking-wider uppercase flex items-center gap-1">
-                            <span class="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span> MARVEL PROTOCOL ACTIVE
-                        </span>
-                        <!-- Animated Equalizer Bars -->
-                        <div class="flex items-end gap-[2px] h-3" id="marvel-visualizer">
-                            <span class="w-[2px] h-2 bg-primary rounded-full animate-pulse" style="animation-duration: 0.4s;"></span>
-                            <span class="w-[2px] h-3.5 bg-primary rounded-full animate-pulse" style="animation-duration: 0.6s;"></span>
-                            <span class="w-[2px] h-2.5 bg-primary rounded-full animate-pulse" style="animation-duration: 0.3s;"></span>
-                            <span class="w-[2px] h-3 bg-primary rounded-full animate-pulse" style="animation-duration: 0.5s;"></span>
-                        </div>
-                    </div>
-                    <span class="text-[10px] font-body-md text-on-surface-variant leading-tight">Marvel Avengers OST • Playing</span>
-                </div>
-            `;
-
-            document.body.appendChild(hud);
-
-            // Automatically start background music
+            // Start background music without showing any visual popup
             initBackgroundMusic();
         }
     };
