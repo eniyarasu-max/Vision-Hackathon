@@ -11,6 +11,7 @@
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta http-equiv="Permissions-Policy" content="accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         @layer base {
             html,
@@ -455,87 +456,80 @@
                 <span class="material-symbols-outlined text-2xl">close</span>
             </button>
 
-            <!-- Holographic Admit Pass Card -->
-            <div id="printable-pass" class="border border-primary/40 bg-surface-container-lowest p-6 relative overflow-hidden rounded-sm">
-                <!-- Watermark Arc Reactor -->
-                <div class="absolute -right-16 -bottom-16 w-64 h-64 border-[12px] border-dashed border-primary/5 rounded-full pointer-events-none animate-[spin_40s_linear_infinite]"></div>
+            <!-- Ultra-HD Holographic Admit Pass Card -->
+            <div id="printable-pass" class="border-2 border-primary bg-[#0c0d12] p-6 sm:p-8 relative overflow-hidden rounded-sm text-white shadow-[0_0_50px_rgba(240,193,44,0.35)]">
+                <!-- Watermark Arc Reactor (static background) -->
+                <div class="absolute -right-20 -bottom-20 w-80 h-80 border-[16px] border-dashed border-primary/10 rounded-full pointer-events-none"></div>
 
-                <div class="flex items-center justify-between border-b border-primary/30 pb-4 mb-6">
+                <!-- Pass Top Header -->
+                <div class="flex items-center justify-between border-b-2 border-primary/50 pb-4 mb-5 flex-wrap gap-3">
                     <div>
                         <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-primary animate-ping"></span>
-                            <span class="text-[10px] font-orbitron text-primary tracking-widest uppercase">VISION 2026 // OFFICIAL PASS</span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-primary animate-ping"></span>
+                            <span class="text-xs font-orbitron text-primary tracking-widest uppercase font-bold">VISION 2026 // OFFICIAL PASS</span>
                         </div>
-                        <h2 class="text-2xl font-headline-xl text-on-surface uppercase tracking-wider mt-1">HACKATHON ADMISSION PROTOCOL</h2>
+                        <h2 class="text-2xl sm:text-3xl font-headline-xl text-white uppercase tracking-wider mt-1 font-extrabold">HACKATHON ADMISSION PROTOCOL</h2>
                     </div>
-                    <div class="text-right">
-                        <span class="text-[10px] font-label-sm text-outline uppercase block">PASS REFERENCE ID</span>
-                        <span class="text-sm font-orbitron text-primary" id="modal-pass-id">VIS-2026-0000</span>
+                    <div class="text-left sm:text-right bg-surface-container/80 border border-primary/40 py-2 px-3.5 rounded-xs">
+                        <span class="text-[10px] font-label-sm text-primary uppercase block font-bold tracking-wider">PASS REFERENCE ID</span>
+                        <span class="text-base font-orbitron text-white tracking-widest font-bold" id="modal-pass-id">VIS-2026-0000</span>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-5">
                     <div class="md:col-span-2 space-y-4">
-                        <div>
-                            <span class="text-[10px] font-label-sm text-outline uppercase block">CONFIRMED TEAM SQUAD</span>
-                            <span class="text-xl font-headline-md text-primary uppercase" id="modal-team-name">TEAM NAME</span>
+                        <!-- Confirmed Squad Box -->
+                        <div class="bg-surface-container/60 p-3 rounded-xs border border-outline-variant/60">
+                            <span class="text-[10px] font-label-sm text-primary uppercase block font-bold tracking-widest">CONFIRMED TEAM SQUAD</span>
+                            <span class="text-xl sm:text-2xl font-headline-md text-primary uppercase font-black tracking-wide" id="modal-team-name">TEAM NAME</span>
                         </div>
 
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 border-t border-b border-outline-variant/30 py-3 text-xs">
-                            <div>
-                                <span class="text-[9px] font-label-sm text-outline block">LEADER</span>
-                                <span class="font-body-md text-on-surface truncate block" id="modal-m1">--</span>
+                        <!-- Squad Members Grid -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 border-t border-b border-primary/30 py-3 text-xs bg-surface-container-lowest/90 p-2.5 rounded-xs">
+                            <div class="space-y-0.5">
+                                <span class="text-[10px] font-label-sm text-primary font-bold block uppercase tracking-wider">LEADER (M1)</span>
+                                <span class="font-body-md text-white font-semibold text-xs truncate block" id="modal-m1">--</span>
                             </div>
-                            <div>
-                                <span class="text-[9px] font-label-sm text-outline block">MEMBER 2</span>
-                                <span class="font-body-md text-on-surface truncate block" id="modal-m2">--</span>
+                            <div class="space-y-0.5">
+                                <span class="text-[10px] font-label-sm text-on-surface-variant font-bold block uppercase tracking-wider">MEMBER 2</span>
+                                <span class="font-body-md text-white font-semibold text-xs truncate block" id="modal-m2">--</span>
                             </div>
-                            <div>
-                                <span class="text-[9px] font-label-sm text-outline block">MEMBER 3</span>
-                                <span class="font-body-md text-on-surface truncate block" id="modal-m3">--</span>
+                            <div class="space-y-0.5">
+                                <span class="text-[10px] font-label-sm text-on-surface-variant font-bold block uppercase tracking-wider">MEMBER 3</span>
+                                <span class="font-body-md text-white font-semibold text-xs truncate block" id="modal-m3">--</span>
                             </div>
-                            <div>
-                                <span class="text-[9px] font-label-sm text-outline block">MEMBER 4</span>
-                                <span class="font-body-md text-on-surface truncate block" id="modal-m4">--</span>
+                            <div class="space-y-0.5">
+                                <span class="text-[10px] font-label-sm text-on-surface-variant font-bold block uppercase tracking-wider">MEMBER 4</span>
+                                <span class="font-body-md text-white font-semibold text-xs truncate block" id="modal-m4">--</span>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-4 text-xs">
-                            <div>
-                                <span class="text-[9px] font-label-sm text-outline block">EVENT DATE &amp; VENUE</span>
-                                <span class="font-body-md text-on-surface-variant block">Sept 20-21, 2026<br />Main Auditorium, KEC</span>
+                        <!-- Venue & Verification Badges -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                            <div class="bg-surface-container/60 border border-outline-variant/40 p-2.5 rounded-xs">
+                                <span class="text-[10px] font-label-sm text-primary uppercase font-bold block tracking-wider">EVENT VENUE &amp; SCHEDULE</span>
+                                <span class="font-body-md text-white font-medium block mt-0.5 leading-snug">Sept 20-21, 2026 // 08:30 AM IST<br /><span class="text-on-surface-variant font-bold">Main Auditorium, KEC</span></span>
                             </div>
-                            <div>
-                                <span class="text-[9px] font-label-sm text-outline block">TRANSACTION UTR / STATUS</span>
-                                <span class="font-body-md text-primary font-orbitron text-xs block" id="modal-txn-id">UTR: --</span>
-                                <span class="inline-block mt-1 text-[9px] px-2 py-0.5 bg-primary/20 text-primary border border-primary/40 rounded-xs">VERIFIED &amp; LOCKED</span>
+                            <div class="bg-surface-container/60 border border-outline-variant/40 p-2.5 rounded-xs">
+                                <span class="text-[10px] font-label-sm text-primary uppercase font-bold block tracking-wider">TRANSACTION UTR / VERIFICATION</span>
+                                <span class="font-body-md text-primary font-orbitron text-xs font-bold block mt-0.5 tracking-wider" id="modal-txn-id">UTR: --</span>
+                                <span class="inline-block mt-1 text-[10px] px-2 py-0.5 bg-emerald-950 text-emerald-300 border border-emerald-500/60 font-label-sm font-bold rounded-xs uppercase tracking-wider">✓ OFFICIAL CLEARANCE ACTIVE</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Pass Verification QR Code -->
-                    <div class="flex flex-col items-center justify-center p-3 bg-white rounded-sm text-black shadow-inner">
-                        <svg viewBox="0 0 100 100" class="w-24 h-24">
-                            <rect width="100" height="100" fill="white" />
-                            <rect x="5" y="5" width="26" height="26" fill="#121317" />
-                            <rect x="9" y="9" width="18" height="18" fill="white" />
-                            <rect x="13" y="13" width="10" height="10" fill="#f0c12c" />
-                            <rect x="69" y="5" width="26" height="26" fill="#121317" />
-                            <rect x="73" y="9" width="18" height="18" fill="white" />
-                            <rect x="77" y="13" width="10" height="10" fill="#f0c12c" />
-                            <rect x="5" y="69" width="26" height="26" fill="#121317" />
-                            <rect x="9" y="73" width="18" height="18" fill="white" />
-                            <rect x="13" y="77" width="10" height="10" fill="#f0c12c" />
-                            <rect x="36" y="34" width="28" height="28" fill="#121317" rx="3" />
-                            <text x="50" y="52" fill="#f0c12c" font-size="12" font-family="Orbitron" font-weight="bold" text-anchor="middle">V</text>
-                        </svg>
-                        <span class="text-[8px] font-label-sm text-black/70 uppercase mt-1 tracking-wider">Gate Check Token</span>
+                    <!-- Pass Verification Real High-Res QR Code Card -->
+                    <div class="flex flex-col items-center justify-center p-4 bg-white rounded-sm text-black shadow-2xl border-2 border-primary">
+                        <div id="pass-qrcode-container" class="w-32 h-32 flex items-center justify-center bg-white p-1">
+                            <!-- Dynamic QR Code rendered here -->
+                        </div>
+                        <span class="text-[9px] font-label-sm text-black font-black uppercase mt-1 tracking-widest text-center">CAMPUS GATE SCAN TOKEN</span>
                     </div>
                 </div>
 
-                <div class="border-t border-dashed border-outline-variant/30 pt-3 text-[10px] text-on-surface-variant flex justify-between items-center">
-                    <span>* Present this digital pass or email receipt during campus entry check-in.</span>
-                    <span class="font-orbitron text-primary text-[9px]">VISION 2026 PROTOCOL</span>
+                <div class="border-t-2 border-dashed border-primary/40 pt-3 text-[11px] font-label-sm text-on-surface-variant flex justify-between items-center flex-wrap gap-2">
+                    <span class="text-white/90 font-medium">★ Present this digital pass or email pass on arrival at gate verification desk.</span>
+                    <span class="font-orbitron text-primary text-[10px] font-bold tracking-widest uppercase">VISION 2026 OFFICIAL PASS</span>
                 </div>
             </div>
 
@@ -994,7 +988,7 @@
 
         function showAdmitPass(data) {
             currentPassData = data;
-            const passRef = 'VIS-2026-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+            const passRef = 'VIS-2026-' + (data.id ? data.id.substring(0, 6).toUpperCase() : Math.random().toString(36).substring(2, 7).toUpperCase());
             
             modalPassId.textContent = passRef;
             modalTeamName.textContent = data.team_name;
@@ -1005,6 +999,30 @@
                 modalM4.textContent = `${data.members[3].name} (${data.members[3].mobile})`;
             }
             modalTxnId.textContent = `UTR: ${data.txn_id}`;
+
+            // Generate Real High-Resolution QR Code (30% Error-Correction for instant gate scanning)
+            const qrContainer = document.getElementById('pass-qrcode-container');
+            if (qrContainer) {
+                qrContainer.innerHTML = '';
+                const qrToken = data.id || data.txn_id || passRef;
+                
+                if (window.QRCode) {
+                    try {
+                        new QRCode(qrContainer, {
+                            text: qrToken,
+                            width: 124,
+                            height: 124,
+                            colorDark: "#000000",
+                            colorLight: "#ffffff",
+                            correctLevel: QRCode.CorrectLevel.H
+                        });
+                    } catch (e) {
+                        qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrToken)}&margin=1" alt="Pass QR" class="w-full h-full object-contain" />`;
+                    }
+                } else {
+                    qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrToken)}&margin=1" alt="Pass QR" class="w-full h-full object-contain" />`;
+                }
+            }
 
             passModal.classList.remove('hidden');
             SFX.success();
@@ -1017,7 +1035,7 @@
             });
         }
 
-        // Instant High-Res PNG Image Download via html2canvas
+        // Instant High-Res 4K PNG Image Download via html2canvas
         if (downloadPngBtn) {
             downloadPngBtn.addEventListener('click', async () => {
                 const passElement = document.getElementById('printable-pass');
@@ -1026,24 +1044,34 @@
                 SFX.click();
                 const originalText = downloadPngBtn.innerHTML;
                 downloadPngBtn.disabled = true;
-                downloadPngBtn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">progress_activity</span> Generating...';
+                downloadPngBtn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">progress_activity</span> Generating 4K Pass...';
 
                 try {
+                    // High-DPI 3x canvas rendering for ultra-sharp typography & crystal-clear QR
                     const canvas = await html2canvas(passElement, {
-                        scale: 2, // Retina 2x quality
-                        backgroundColor: '#0d0e12',
+                        scale: 3, // Ultra-HD 300+ DPI
+                        backgroundColor: '#0c0d12',
                         useCORS: true,
-                        logging: false
+                        allowTaint: true,
+                        logging: false,
+                        onclone: (clonedDoc) => {
+                            const clonedPass = clonedDoc.getElementById('printable-pass');
+                            if (clonedPass) {
+                                clonedPass.style.width = '740px';
+                                clonedPass.style.maxWidth = '740px';
+                                clonedPass.style.margin = '0 auto';
+                            }
+                        }
                     });
 
                     const link = document.createElement('a');
                     const cleanTeam = (modalTeamName.textContent || 'team').replace(/[^a-zA-Z0-9_-]/g, '_');
-                    link.download = `Vision_2026_AdmitPass_${cleanTeam}.png`;
-                    link.href = canvas.toDataURL('image/png');
+                    link.download = `VISION_2026_OFFICIAL_PASS_${cleanTeam}.png`;
+                    link.href = canvas.toDataURL('image/png', 1.0);
                     link.click();
 
                     SFX.success();
-                    emailToast.textContent = '✓ ADMIT PASS IMAGE DOWNLOADED TO GALLERY';
+                    emailToast.textContent = '✓ ULTRA-HD OFFICIAL PASS DOWNLOADED';
                     emailToast.classList.remove('hidden');
                     setTimeout(() => emailToast.classList.add('hidden'), 4000);
                 } catch (err) {

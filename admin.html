@@ -19,6 +19,60 @@
             }
         }
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@100..800&family=Orbitron:wght@400..900&display=swap');
+
+        /* Gate QR Scanner Viewfinder & Camera Enhancements */
+        #qr-reader {
+            border: none !important;
+            position: relative;
+            background: #000;
+        }
+        #qr-reader video {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            border-radius: 4px;
+            display: block;
+        }
+        #qr-reader__scan_region {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #qr-reader__dashboard {
+            display: none !important;
+        }
+        @keyframes laserScan {
+            0% { top: 8%; opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { top: 90%; opacity: 0.7; }
+        }
+        .scanner-laser {
+            position: absolute;
+            left: 8%;
+            right: 8%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ffe3a1, #f4c430, #ffe3a1, transparent);
+            box-shadow: 0 0 12px #f4c430, 0 0 22px #f0c12c;
+            animation: laserScan 2.2s ease-in-out infinite alternate;
+            pointer-events: none;
+            z-index: 15;
+        }
+        @keyframes focusTapPulse {
+            0% { transform: translate(-50%, -50%) scale(1.6); opacity: 0.9; }
+            50% { transform: translate(-50%, -50%) scale(0.9); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+        }
+        .tap-focus-box {
+            position: absolute;
+            width: 56px;
+            height: 56px;
+            border: 2px solid #ffe3a1;
+            border-radius: 4px;
+            box-shadow: 0 0 16px rgba(240, 193, 44, 0.85);
+            pointer-events: none;
+            z-index: 30;
+            animation: focusTapPulse 0.6s ease-out forwards;
+        }
     </style>
     <script src="https://cdn.tailwindcss.com"></script>
     <script id="tailwind-config">
@@ -252,21 +306,74 @@
 
     <!-- ============ ON-DAY GATE ENTRY QR SCANNER MODAL ============ -->
     <div id="scanner-modal" class="fixed inset-0 z-[999999] hidden flex items-center justify-center bg-black/90 backdrop-blur-md p-4 overflow-y-auto">
-        <div class="bg-surface-container-low border-2 border-primary max-w-lg w-full p-6 rounded-sm relative shadow-[0_0_50px_rgba(240,193,44,0.3)] my-8">
-            <div class="flex items-center justify-between border-b border-outline-variant/30 pb-3 mb-4">
-                <h3 class="font-headline-md text-primary text-lg uppercase flex items-center gap-2">
-                    <span class="material-symbols-outlined text-xl">qr_code_scanner</span> On-Day Campus Gate Scanner
-                </h3>
-                <button id="close-scanner-btn" class="text-outline hover:text-primary p-1 cursor-pointer">
+        <div class="bg-surface-container-low border-2 border-primary max-w-lg w-full p-5 sm:p-6 rounded-sm relative shadow-[0_0_50px_rgba(240,193,44,0.3)] my-8">
+            <div class="flex items-center justify-between border-b border-outline-variant/30 pb-3 mb-3">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-2xl">qr_code_scanner</span>
+                    <div>
+                        <h3 class="font-headline-md text-primary text-base sm:text-lg uppercase leading-tight">On-Day Campus Gate Scanner</h3>
+                        <span class="text-[10px] font-label-sm text-outline uppercase tracking-wider block">Continuous Autofocus &amp; Hardware Barcode Detection</span>
+                    </div>
+                </div>
+                <button id="close-scanner-btn" class="text-outline hover:text-primary p-1 cursor-pointer transition-colors" title="Close Scanner">
                     <span class="material-symbols-outlined text-2xl">close</span>
                 </button>
             </div>
 
-            <!-- Scanner Camera Viewfinder -->
-            <div class="relative bg-black rounded-sm overflow-hidden border border-outline-variant/50 mb-4">
-                <div id="qr-reader" class="w-full min-h-[260px]"></div>
-                <div id="scanner-status" class="text-[11px] font-label-sm text-center py-2 bg-surface-container text-outline">
-                    Point camera at participant Admit Pass QR Token
+            <!-- Multi-Camera Selector & Controls Toolbar -->
+            <div class="bg-surface-container-lowest border border-outline-variant/40 p-2.5 rounded-sm mb-3 space-y-2">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-lg">videocam</span>
+                    <select id="scanner-camera-select" class="flex-1 bg-surface-container border border-outline-variant/60 focus:border-primary text-[11px] font-label-sm py-1.5 px-2 text-on-surface outline-none rounded-xs cursor-pointer">
+                        <option value="">Detecting Cameras...</option>
+                    </select>
+                    <button id="scanner-flip-cam-btn" title="Switch / Flip Camera" class="bg-surface-container hover:bg-surface-container-high border border-outline-variant/60 text-outline hover:text-primary p-1.5 rounded-xs transition-colors cursor-pointer flex items-center justify-center">
+                        <span class="material-symbols-outlined text-base">cameraswitch</span>
+                    </button>
+                </div>
+
+                <!-- Hardware Controls: Torch, Zoom Presets, File Upload -->
+                <div class="flex items-center justify-between gap-2 pt-1 border-t border-outline-variant/20 flex-wrap">
+                    <!-- Zoom Options -->
+                    <div id="scanner-zoom-wrap" class="flex items-center gap-1">
+                        <span class="text-[10px] font-label-sm text-outline uppercase mr-1">Zoom:</span>
+                        <button type="button" data-zoom="1" class="scanner-zoom-btn px-2 py-0.5 text-[10px] font-label-sm bg-primary text-on-primary font-bold border border-primary rounded-xs transition-all">1x</button>
+                        <button type="button" data-zoom="1.5" class="scanner-zoom-btn px-2 py-0.5 text-[10px] font-label-sm bg-surface-container text-outline border border-outline-variant/40 rounded-xs hover:text-primary transition-all">1.5x</button>
+                        <button type="button" data-zoom="2" class="scanner-zoom-btn px-2 py-0.5 text-[10px] font-label-sm bg-surface-container text-outline border border-outline-variant/40 rounded-xs hover:text-primary transition-all">2x</button>
+                    </div>
+
+                    <div class="flex items-center gap-1.5 ml-auto">
+                        <!-- Torch Toggle -->
+                        <button id="scanner-torch-btn" type="button" title="Toggle Camera Flashlight" class="hidden px-2.5 py-1 text-[11px] font-label-sm rounded-xs border border-outline-variant/60 bg-surface-container text-outline hover:text-primary transition-all flex items-center gap-1 cursor-pointer">
+                            <span class="material-symbols-outlined text-[14px]">flash_on</span>
+                            <span id="scanner-torch-label">Torch</span>
+                        </button>
+                        
+                        <!-- Upload Image Fallback -->
+                        <label for="scanner-file-input" title="Scan QR from saved photo or screenshot" class="px-2.5 py-1 text-[11px] font-label-sm rounded-xs border border-outline-variant/60 bg-surface-container text-outline hover:text-primary transition-all flex items-center gap-1 cursor-pointer">
+                            <span class="material-symbols-outlined text-[14px]">photo_library</span>
+                            <span>Upload QR</span>
+                            <input type="file" id="scanner-file-input" accept="image/*" class="hidden" />
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scanner Camera Viewfinder with HUD Reticles -->
+            <div id="qr-viewfinder-container" class="relative bg-black rounded-sm overflow-hidden border border-outline-variant/50 mb-3 select-none cursor-crosshair">
+                <div class="scanner-laser"></div>
+                <!-- Cyberpunk HUD corner brackets -->
+                <div class="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-primary pointer-events-none z-20"></div>
+                <div class="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-primary pointer-events-none z-20"></div>
+                <div class="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-primary pointer-events-none z-20"></div>
+                <div class="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-primary pointer-events-none z-20"></div>
+
+                <div id="qr-reader" class="w-full min-h-[280px]"></div>
+
+                <!-- Status & Tap Tip -->
+                <div id="scanner-status" class="text-[11px] font-label-sm text-center py-1.5 bg-surface-container-lowest/90 border-t border-outline-variant/30 text-outline flex items-center justify-center gap-1.5 px-3">
+                    <span class="material-symbols-outlined text-primary text-[14px] animate-pulse">center_focus_strong</span>
+                    <span id="scanner-status-text">Align QR code in center. Tap to re-focus.</span>
                 </div>
             </div>
 
@@ -437,11 +544,19 @@
         const bulkCancelBtn = document.getElementById('bulk-cancel-btn');
         let selectedTeamIds = new Set();
 
-        // QR Scanner Elements
+        // QR Scanner Elements & Advanced Controls
         const openScannerBtn = document.getElementById('open-scanner-btn');
         const scannerModal = document.getElementById('scanner-modal');
         const closeScannerBtn = document.getElementById('close-scanner-btn');
         const scannerStatus = document.getElementById('scanner-status');
+        const scannerStatusText = document.getElementById('scanner-status-text');
+        const scannerCameraSelect = document.getElementById('scanner-camera-select');
+        const scannerFlipCamBtn = document.getElementById('scanner-flip-cam-btn');
+        const scannerTorchBtn = document.getElementById('scanner-torch-btn');
+        const scannerTorchLabel = document.getElementById('scanner-torch-label');
+        const scannerZoomWrap = document.getElementById('scanner-zoom-wrap');
+        const scannerFileInput = document.getElementById('scanner-file-input');
+        const qrViewfinderContainer = document.getElementById('qr-viewfinder-container');
         const scannerManualInput = document.getElementById('scanner-manual-input');
         const scannerManualBtn = document.getElementById('scanner-manual-btn');
         const scannerResult = document.getElementById('scanner-result');
@@ -455,6 +570,12 @@
         const scanResetCheckinBtn = document.getElementById('scan-reset-checkin-btn');
 
         let html5QrScanner = null;
+        let isScannerRunning = false;
+        let availableCameras = [];
+        let currentCameraIndex = 0;
+        let isTorchOn = false;
+        let currentZoomLevel = 1.0;
+        let scanCooldown = false;
         let activeScannedTeam = null;
         let registeredTeams = [];
         let db = null;
@@ -898,42 +1019,349 @@ terminal@vision.hack`
             return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/'/g, '&#39;');
         }
 
-        /* ---------- On-Day Gate QR Scanner Logic ---------- */
-        function openGateScanner() {
-            scannerModal.classList.remove('hidden');
-            scannerResult.classList.add('hidden');
-            scannerManualInput.value = '';
-            SFX.click();
+        /* ---------- Advanced On-Day Gate QR Scanner Engine ---------- */
+        function getActiveVideoTrack() {
+            const videoEl = document.querySelector('#qr-reader video');
+            return videoEl && videoEl.srcObject ? videoEl.srcObject.getVideoTracks()[0] : null;
+        }
 
-            if (window.Html5Qrcode) {
-                if (!html5QrScanner) {
-                    html5QrScanner = new Html5Qrcode("qr-reader");
-                }
-                const config = { fps: 10, qrbox: { width: 220, height: 220 } };
-                html5QrScanner.start({ facingMode: "environment" }, config, onQrCodeScanned)
-                    .catch(err => {
-                        console.warn('Camera scan fallback to user camera:', err);
-                        html5QrScanner.start({ facingMode: "user" }, config, onQrCodeScanned).catch(e => {
-                            scannerStatus.textContent = 'Camera access unavailable. Use manual lookup below.';
-                        });
+        async function populateAvailableCameras() {
+            if (!window.Html5Qrcode) return;
+            try {
+                const devices = await Html5Qrcode.getCameras();
+                if (devices && devices.length > 0) {
+                    availableCameras = devices;
+                    scannerCameraSelect.innerHTML = '';
+                    
+                    devices.forEach((dev, idx) => {
+                        const opt = document.createElement('option');
+                        opt.value = dev.id;
+                        const labelLower = (dev.label || '').toLowerCase();
+                        let friendlyName = dev.label || `Camera ${idx + 1}`;
+                        
+                        if (labelLower.includes('back') || labelLower.includes('rear') || labelLower.includes('environment') || labelLower.includes('facing 0')) {
+                            friendlyName = `📷 Rear: ${dev.label || 'Primary'}`;
+                        } else if (labelLower.includes('front') || labelLower.includes('user') || labelLower.includes('facing 1')) {
+                            friendlyName = `🤳 Front: ${dev.label || 'Selfie'}`;
+                        } else if (labelLower.includes('wide')) {
+                            friendlyName = `🔭 Wide: ${dev.label}`;
+                        }
+                        
+                        opt.textContent = friendlyName;
+                        scannerCameraSelect.appendChild(opt);
                     });
+
+                    // Prefer previously stored or rear camera
+                    const savedCam = localStorage.getItem('vision_admin_cam_id');
+                    const preferredCam = devices.find(d => d.id === savedCam) 
+                        || devices.find(d => {
+                            const l = (d.label || '').toLowerCase();
+                            return (l.includes('back') || l.includes('rear') || l.includes('environment')) && !l.includes('wide');
+                        })
+                        || devices.find(d => (d.label || '').toLowerCase().includes('back') || (d.label || '').toLowerCase().includes('rear'))
+                        || devices[0];
+
+                    if (preferredCam) {
+                        scannerCameraSelect.value = preferredCam.id;
+                        currentCameraIndex = devices.findIndex(d => d.id === preferredCam.id);
+                        if (currentCameraIndex === -1) currentCameraIndex = 0;
+                    }
+                } else {
+                    scannerCameraSelect.innerHTML = '<option value="">Default Camera</option>';
+                }
+            } catch (err) {
+                console.warn('Camera enumeration error:', err);
+                scannerCameraSelect.innerHTML = '<option value="">Auto Camera</option>';
             }
         }
 
-        function closeGateScanner() {
-            if (html5QrScanner) {
-                html5QrScanner.stop().catch(() => {}).then(() => {
-                    scannerModal.classList.add('hidden');
-                });
-            } else {
-                scannerModal.classList.add('hidden');
+        async function startGateScanner(selectedCameraId) {
+            if (!window.Html5Qrcode) {
+                scannerStatusText.textContent = 'Scanner library missing. Use manual lookup.';
+                return;
             }
+
+            if (isScannerRunning) {
+                await stopGateScannerInstance();
+            }
+
+            const qrReaderDiv = document.getElementById('qr-reader');
+            if (qrReaderDiv) {
+                qrReaderDiv.innerHTML = '';
+            }
+
+            try {
+                scannerStatusText.textContent = 'Initializing camera autofocus stream...';
+                
+                html5QrScanner = new Html5Qrcode("qr-reader", {
+                    experimentalFeatures: {
+                        useBarCodeDetectorIfSupported: true
+                    },
+                    formatsToSupport: [0] // 0 = QR_CODE only for maximum performance & rapid scanning
+                });
+
+                const targetCam = selectedCameraId 
+                    ? { deviceId: { exact: selectedCameraId } }
+                    : { facingMode: { ideal: "environment" } };
+
+                const config = {
+                    fps: 25,
+                    qrbox: (viewfinderWidth, viewfinderHeight) => {
+                        const minDimension = Math.min(viewfinderWidth, viewfinderHeight);
+                        const boxSize = Math.max(190, Math.floor(minDimension * 0.78));
+                        return { width: boxSize, height: boxSize };
+                    },
+                    aspectRatio: 1.0,
+                    videoConstraints: {
+                        ...(selectedCameraId ? { deviceId: { exact: selectedCameraId } } : { facingMode: { ideal: "environment" } }),
+                        width: { min: 640, ideal: 1280, max: 1920 },
+                        height: { min: 480, ideal: 720, max: 1080 },
+                        focusMode: "continuous",
+                        advanced: [
+                            { focusMode: "continuous" }
+                        ]
+                    }
+                };
+
+                await html5QrScanner.start(
+                    targetCam,
+                    config,
+                    onQrCodeScanned,
+                    (errorMessage) => {
+                        // Silent frame scanning failures
+                    }
+                );
+
+                isScannerRunning = true;
+                scannerStatusText.textContent = 'Camera active. Tap screen to refocus.';
+
+                if (selectedCameraId) {
+                    localStorage.setItem('vision_admin_cam_id', selectedCameraId);
+                }
+
+                // Post-start hardware feature check (autofocus, torch, zoom)
+                setTimeout(applyHardwareCapabilities, 400);
+
+            } catch (err) {
+                console.warn('Camera start failed, retrying with fallback:', err);
+                try {
+                    await html5QrScanner.start(
+                        { facingMode: "environment" },
+                        { fps: 20, qrbox: { width: 240, height: 240 } },
+                        onQrCodeScanned,
+                        () => {}
+                    );
+                    isScannerRunning = true;
+                    scannerStatusText.textContent = 'Camera active (standard mode). Tap to focus.';
+                    setTimeout(applyHardwareCapabilities, 400);
+                } catch (fallbackErr) {
+                    console.error('All camera attempts failed:', fallbackErr);
+                    scannerStatusText.textContent = 'Camera unavailable. Use manual lookup or upload image.';
+                }
+            }
+        }
+
+        async function stopGateScannerInstance() {
+            if (html5QrScanner && isScannerRunning) {
+                try {
+                    await html5QrScanner.stop();
+                } catch (e) {
+                    console.warn('Error stopping scanner:', e);
+                }
+                isScannerRunning = false;
+                isTorchOn = false;
+                if (scannerTorchBtn) {
+                    scannerTorchBtn.classList.remove('bg-primary', 'text-on-primary', 'font-bold', 'shadow-[0_0_12px_rgba(240,193,44,0.6)]');
+                    scannerTorchBtn.classList.add('bg-surface-container', 'text-outline');
+                    scannerTorchLabel.textContent = 'Torch';
+                }
+            }
+        }
+
+        function applyHardwareCapabilities() {
+            const track = getActiveVideoTrack();
+            if (!track) return;
+
+            const caps = typeof track.getCapabilities === 'function' ? track.getCapabilities() : {};
+
+            // 1. Enforce continuous auto-focus if supported
+            if (caps.focusMode && caps.focusMode.includes('continuous')) {
+                track.applyConstraints({
+                    advanced: [{ focusMode: 'continuous' }]
+                }).catch(() => {});
+            }
+
+            // 2. Setup Torch Flashlight button
+            if (caps.torch) {
+                scannerTorchBtn.classList.remove('hidden');
+            } else {
+                scannerTorchBtn.classList.add('hidden');
+            }
+
+            // 3. Setup Zoom controls
+            if (caps.zoom) {
+                scannerZoomWrap.classList.remove('hidden');
+            }
+        }
+
+        async function openGateScanner() {
+            scannerModal.classList.remove('hidden');
+            scannerResult.classList.add('hidden');
+            scannerManualInput.value = '';
+            scanCooldown = false;
+            SFX.click();
+
+            await populateAvailableCameras();
+            const selectedId = scannerCameraSelect.value;
+            await startGateScanner(selectedId);
+        }
+
+        async function closeGateScanner() {
+            await stopGateScannerInstance();
+            scannerModal.classList.add('hidden');
+        }
+
+        // Tap-to-Focus trigger on the viewfinder
+        if (qrViewfinderContainer) {
+            qrViewfinderContainer.addEventListener('click', (e) => {
+                if (e.target.closest('button') || e.target.closest('select') || e.target.closest('input')) return;
+
+                const rect = qrViewfinderContainer.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                // Visual Reticle
+                const reticle = document.createElement('div');
+                reticle.className = 'tap-focus-box';
+                reticle.style.left = `${x}px`;
+                reticle.style.top = `${y}px`;
+                qrViewfinderContainer.appendChild(reticle);
+                setTimeout(() => reticle.remove(), 600);
+
+                // Hardware focus pulse
+                const track = getActiveVideoTrack();
+                if (track && typeof track.applyConstraints === 'function') {
+                    track.applyConstraints({
+                        advanced: [{ focusMode: 'continuous' }]
+                    }).catch(() => {});
+                }
+
+                SFX.click();
+                scannerStatusText.textContent = '🎯 Focus locked & refreshed';
+                setTimeout(() => {
+                    if (isScannerRunning) scannerStatusText.textContent = 'Align QR code in center. Tap to re-focus.';
+                }, 1200);
+            });
+        }
+
+        // Camera Dropdown Switch
+        if (scannerCameraSelect) {
+            scannerCameraSelect.addEventListener('change', async () => {
+                const newId = scannerCameraSelect.value;
+                if (newId) {
+                    SFX.click();
+                    currentCameraIndex = availableCameras.findIndex(d => d.id === newId);
+                    await startGateScanner(newId);
+                }
+            });
+        }
+
+        // Flip Camera Quick Button
+        if (scannerFlipCamBtn) {
+            scannerFlipCamBtn.addEventListener('click', async () => {
+                if (availableCameras.length <= 1) return;
+                SFX.click();
+                currentCameraIndex = (currentCameraIndex + 1) % availableCameras.length;
+                const nextCam = availableCameras[currentCameraIndex];
+                if (nextCam) {
+                    scannerCameraSelect.value = nextCam.id;
+                    await startGateScanner(nextCam.id);
+                }
+            });
+        }
+
+        // Torch Toggle Button
+        if (scannerTorchBtn) {
+            scannerTorchBtn.addEventListener('click', async () => {
+                const track = getActiveVideoTrack();
+                if (!track) return;
+                try {
+                    isTorchOn = !isTorchOn;
+                    await track.applyConstraints({
+                        advanced: [{ torch: isTorchOn }]
+                    });
+                    if (isTorchOn) {
+                        scannerTorchBtn.classList.remove('bg-surface-container', 'text-outline');
+                        scannerTorchBtn.classList.add('bg-primary', 'text-on-primary', 'font-bold', 'shadow-[0_0_12px_rgba(240,193,44,0.6)]');
+                        scannerTorchLabel.textContent = 'Torch ON';
+                        SFX.boot();
+                    } else {
+                        scannerTorchBtn.classList.remove('bg-primary', 'text-on-primary', 'font-bold', 'shadow-[0_0_12px_rgba(240,193,44,0.6)]');
+                        scannerTorchBtn.classList.add('bg-surface-container', 'text-outline');
+                        scannerTorchLabel.textContent = 'Torch';
+                        SFX.click();
+                    }
+                } catch (err) {
+                    console.warn('Torch constraint error:', err);
+                }
+            });
+        }
+
+        // Zoom Preset Buttons (1x, 1.5x, 2x)
+        document.querySelectorAll('.scanner-zoom-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const zoomVal = parseFloat(btn.dataset.zoom) || 1.0;
+                currentZoomLevel = zoomVal;
+                const track = getActiveVideoTrack();
+                if (track && typeof track.applyConstraints === 'function') {
+                    try {
+                        await track.applyConstraints({
+                            advanced: [{ zoom: zoomVal }]
+                        });
+                        SFX.click();
+                    } catch (err) {
+                        console.warn('Zoom not supported:', err);
+                    }
+                }
+                document.querySelectorAll('.scanner-zoom-btn').forEach(b => {
+                    b.classList.remove('bg-primary', 'text-on-primary', 'font-bold');
+                    b.classList.add('bg-surface-container', 'text-outline');
+                });
+                btn.classList.add('bg-primary', 'text-on-primary', 'font-bold');
+                btn.classList.remove('bg-surface-container', 'text-outline');
+            });
+        });
+
+        // Scan from Image/Screenshot File
+        if (scannerFileInput) {
+            scannerFileInput.addEventListener('change', async (e) => {
+                const file = e.target.files && e.target.files[0];
+                if (!file) return;
+                SFX.click();
+                scannerStatusText.textContent = `Analyzing image file (${file.name})...`;
+                try {
+                    if (!html5QrScanner) {
+                        html5QrScanner = new Html5Qrcode("qr-reader");
+                    }
+                    const decodedText = await html5QrScanner.scanFile(file, true);
+                    onQrCodeScanned(decodedText);
+                } catch (err) {
+                    alert('Could not decode QR code from the selected image. Please try a clearer screenshot or camera scan.');
+                    scannerStatusText.textContent = 'Image scan failed. Align QR code in camera.';
+                    SFX.error();
+                }
+                scannerFileInput.value = '';
+            });
         }
 
         if (openScannerBtn) openScannerBtn.addEventListener('click', openGateScanner);
         if (closeScannerBtn) closeScannerBtn.addEventListener('click', closeGateScanner);
 
         function onQrCodeScanned(decodedText) {
+            if (scanCooldown) return;
+            scanCooldown = true;
+            setTimeout(() => { scanCooldown = false; }, 2200);
+
             SFX.boot();
             findAndDisplayScannedTeam(decodedText.trim());
         }
