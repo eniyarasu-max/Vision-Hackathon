@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Vision — Organizer Control Terminal</title>
+    <!-- Security Headers & Policies -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com https://*.googletagmanager.com https://cdn.sheetjs.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://firestore.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; object-src 'none'; base-uri 'self'; form-action 'self';" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="Permissions-Policy" content="accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()" />
+    <style>
+        @layer base {
+            html, body {
+                margin: 0;
+                padding: 0;
+                scroll-behavior: smooth;
+            }
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@100..800&family=Orbitron:wght@400..900&display=swap');
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class", theme: {
+                extend: {
+                    "colors": { "secondary-container": "#a90214", "surface-bright": "#38393d", "surface": "#121317", "on-tertiary-fixed-variant": "#3e4945", "primary-fixed": "#ffdf90", "secondary-fixed": "#ffdad6", "surface-container-lowest": "#0d0e12", "on-secondary": "#680007", "on-secondary-fixed-variant": "#93000f", "primary-container": "#f4c430", "on-surface-variant": "#d1c5ad", "surface-container-low": "#1a1b20", "on-primary": "#3d2e00", "surface-container-highest": "#343439", "tertiary-fixed-dim": "#bdc9c4", "on-primary-container": "#695200", "outline": "#9a907a", "on-error-container": "#ffdad6", "inverse-surface": "#e3e2e7", "on-tertiary-fixed": "#131e1b", "inverse-primary": "#755b00", "inverse-on-surface": "#2f3035", "surface-container-high": "#292a2e", "secondary": "#ffb3ac", "outline-variant": "#4e4634", "on-tertiary-container": "#4c5753", "secondary-fixed-dim": "#ffb3ac", "on-surface": "#e3e2e7", "on-primary-fixed": "#241a00", "on-background": "#e3e2e7", "surface-variant": "#343439", "background": "#121317", "error": "#ffb4ab", "tertiary-container": "#c0cdc8", "on-secondary-fixed": "#410003", "surface-container": "#1f1f24", "on-tertiary": "#27332f", "surface-tint": "#f0c12c", "error-container": "#93000a", "surface-dim": "#121317", "primary-fixed-dim": "#f0c12c", "on-error": "#690005", "on-secondary-container": "#ffb3ac", "tertiary": "#dce9e3", "on-primary-fixed-variant": "#584400", "tertiary-fixed": "#d9e5e0", "primary": "#ffe3a1" },
+                    "fontFamily": { "headline-lg": ["Space Grotesk"], "body-lg": ["JetBrains Mono"], "body-md": ["JetBrains Mono"], "headline-md": ["Space Grotesk"], "label-sm": ["JetBrains Mono"], "headline-xl": ["Space Grotesk"], "orbitron": ["Orbitron"] }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+</head>
+
+<body class="bg-surface font-body-md text-on-surface selection:bg-primary selection:text-on-primary min-h-screen">
+
+    <!-- ============ AUTHENTICATION PASSCODE GATE MODAL ============ -->
+    <div id="auth-gate-modal" class="fixed inset-0 z-[999999] flex items-center justify-center bg-black/90 backdrop-blur-2xl p-4">
+        <div class="bg-surface-container-low border border-primary/40 p-8 max-w-md w-full rounded-sm shadow-[0_0_50px_rgba(240,193,44,0.3)] text-center relative overflow-hidden">
+            <!-- Glow Accents -->
+            <div class="absolute -top-12 -left-12 w-32 h-32 bg-primary/10 rounded-full blur-2xl pointer-events-none"></div>
+            
+            <div class="w-14 h-14 rounded-full border border-primary/40 bg-primary/10 flex items-center justify-center mx-auto mb-4 text-primary">
+                <span class="material-symbols-outlined text-2xl">shield_lock</span>
+            </div>
+
+            <span class="text-[10px] font-orbitron text-primary tracking-widest uppercase">ORGANIZER CLEARANCE ONLY</span>
+            <h2 class="text-xl font-headline-xl text-on-surface uppercase mt-1 mb-2">ACCESS TERMINAL</h2>
+            <p class="text-xs text-on-surface-variant mb-6">Enter the master administrative passcode to initialize access protocols.</p>
+
+            <form id="auth-form" class="space-y-4">
+                <div class="space-y-2">
+                    <input type="password" id="admin-passcode" placeholder="ENTER ACCESS CODE" class="w-full bg-surface-container border border-outline-variant focus:border-primary text-center font-orbitron text-lg tracking-[0.3em] py-3 text-primary outline-none transition-all rounded-sm" autocomplete="off" required />
+                    <div id="auth-error-msg" class="text-xs font-label-sm text-error hidden">// ACCESS DENIED: INVALID PASSCODE</div>
+                </div>
+
+                <button type="submit" id="auth-submit-btn" class="w-full bg-primary text-on-primary font-label-sm py-3 uppercase tracking-widest text-xs font-bold hover:bg-primary-fixed transition-all rounded-sm shadow-[0_0_15px_rgba(240,193,44,0.3)]">
+                    AUTHENTICATE &amp; UNLOCK
+                </button>
+            </form>
+
+            <div class="mt-6 pt-4 border-t border-outline-variant/20 text-[10px] text-outline flex justify-between items-center">
+                <span>SECURITY CLEARANCE: LEVEL 5</span>
+                <a href="index.html" class="hover:text-primary transition-colors">Return to Site &gt;</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MAIN TERMINAL UI ============ -->
+    <div id="terminal-content" class="hidden">
+        <header class="w-full bg-surface-container-lowest border-b border-primary/20 py-4 px-6 md:px-8 sticky top-0 z-50 backdrop-blur-md">
+            <div class="max-w-7xl mx-auto flex items-center justify-between">
+                <div class="flex items-center gap-4 md:gap-6">
+                    <span class="font-orbitron text-xl md:text-2xl text-primary tracking-widest uppercase">VISION CONTROL</span>
+                    <span class="border border-primary/40 bg-primary/10 px-2.5 py-0.5 text-[10px] font-label-sm text-primary tracking-widest uppercase hidden sm:inline-block">ORGANIZER CLEARANCE ACTIVE</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="index.html" class="font-label-sm text-outline hover:text-primary transition-colors uppercase tracking-widest text-xs">Public Site &gt;</a>
+                    <button id="lock-terminal-btn" class="border border-outline-variant/40 hover:border-error hover:text-error text-outline text-xs font-label-sm px-3 py-1.5 rounded-sm transition-colors flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-[14px]">lock</span> Lock
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-6 md:px-8 py-8 space-y-8">
+            
+            <!-- Stats & Export Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-surface-container-low border border-primary/20 p-6 relative rounded-sm shadow-md">
+                    <div class="font-label-sm text-outline uppercase tracking-wider text-xs mb-2">Capacity Utilization</div>
+                    <div class="font-orbitron text-3xl text-primary" id="admin-seats">-- / 35</div>
+                    <div class="text-xs text-on-surface-variant mt-2" id="admin-seats-sub">Listening for real-time changes...</div>
+                </div>
+                <div class="bg-surface-container-low border border-primary/20 p-6 relative rounded-sm shadow-md">
+                    <div class="font-label-sm text-outline uppercase tracking-wider text-xs mb-2">Total Registrations</div>
+                    <div class="font-orbitron text-3xl text-on-surface" id="admin-total">0</div>
+                    <div class="text-xs text-on-surface-variant mt-2 flex items-center gap-2" id="status-breakdown">
+                        <span>Loading team counts...</span>
+                    </div>
+                </div>
+                <div class="bg-surface-container-low border border-primary/20 p-6 relative flex flex-col justify-between rounded-sm shadow-md">
+                    <div>
+                        <div class="font-label-sm text-outline uppercase tracking-wider text-xs mb-1">Export Data</div>
+                        <div class="text-xs text-on-surface-variant">Export team rosters &amp; transaction UTRs for desk check-in.</div>
+                    </div>
+                    <div class="mt-4 flex gap-2">
+                        <button id="export-csv-btn" class="w-1/2 bg-primary/20 hover:bg-primary text-primary hover:text-on-primary border border-primary font-label-sm px-3 py-2 text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 rounded-sm">
+                            <span class="material-symbols-outlined text-sm">download</span> CSV
+                        </button>
+                        <button id="export-excel-btn" class="w-1/2 bg-surface-container-highest hover:bg-primary hover:text-on-primary text-on-surface border border-outline-variant hover:border-primary font-label-sm px-3 py-2 text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 rounded-sm">
+                            <span class="material-symbols-outlined text-sm">table_chart</span> Excel
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Database Maintenance & Capacity Sync Toolbar -->
+            <div class="bg-surface-container-low/60 border border-outline-variant/30 p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 rounded-sm">
+                <div>
+                    <h2 class="font-headline-md text-on-surface text-lg">Capacity Management &amp; DB Maintenance</h2>
+                    <p class="text-xs text-on-surface-variant mt-1">Recalibrate live capacity or purge test submissions prior to event launch.</p>
+                </div>
+                <div class="flex items-center gap-3 flex-wrap">
+                    <button id="init-capacity-btn" class="bg-surface-container-highest hover:bg-primary hover:text-on-primary border border-primary/40 font-label-sm px-4 py-2.5 text-xs uppercase tracking-widest transition-colors rounded-sm">
+                        Sync Capacity (35 Max)
+                    </button>
+                    <button id="purge-data-btn" class="bg-error-container/30 hover:bg-error hover:text-on-error border border-error/50 text-error font-label-sm px-4 py-2.5 text-xs uppercase tracking-widest transition-colors flex items-center gap-1.5 rounded-sm">
+                        <span class="material-symbols-outlined text-sm">delete_forever</span> Purge All Test Data
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search, Filter & Registrations Table -->
+            <div class="bg-surface-container-low border border-primary/20 overflow-hidden rounded-sm shadow-xl">
+                <div class="p-6 border-b border-outline-variant/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="font-headline-md text-on-surface text-xl uppercase">Registered Teams Master Log</h2>
+                        <div class="text-xs font-label-sm text-primary tracking-widest mt-1" id="sync-indicator">LIVE SYNC ACTIVE</div>
+                    </div>
+                    
+                    <!-- Search & Filter Controls -->
+                    <div class="flex items-center gap-3 w-full md:w-auto flex-wrap">
+                        <div class="relative flex-1 md:w-64">
+                            <input type="text" id="search-input" placeholder="Search team, leader, UTR..." class="w-full bg-surface-container border border-outline-variant/50 focus:border-primary text-xs py-2 pl-8 pr-3 text-on-surface outline-none rounded-sm" />
+                            <span class="material-symbols-outlined text-outline text-sm absolute left-2.5 top-2.5">search</span>
+                        </div>
+                        <select id="status-filter" class="bg-surface-container border border-outline-variant/50 text-xs py-2 px-3 text-on-surface outline-none rounded-sm">
+                            <option value="all">Status: All Teams</option>
+                            <option value="verified">Verified Only</option>
+                            <option value="pending_verification">Pending Only</option>
+                            <option value="flagged">Flagged / Invalid UTR</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs font-body-md border-collapse">
+                        <thead>
+                            <tr class="bg-surface-container border-b border-outline-variant/30 text-outline uppercase tracking-wider font-label-sm">
+                                <th class="py-3.5 px-4">#</th>
+                                <th class="py-3.5 px-4">Team Name</th>
+                                <th class="py-3.5 px-4">Leader (Member 1)</th>
+                                <th class="py-3.5 px-4">Member 2</th>
+                                <th class="py-3.5 px-4">Member 3</th>
+                                <th class="py-3.5 px-4">UTR / Screenshot</th>
+                                <th class="py-3.5 px-4">Status &amp; Verification</th>
+                                <th class="py-3.5 px-4 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teams-table-body" class="divide-y divide-outline-variant/10 text-on-surface">
+                            <tr>
+                                <td colspan="8" class="py-8 text-center text-on-surface-variant font-label-sm tracking-widest">
+                                    Loading registrations from Firestore...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ============ RECEIPT SCREENSHOT INSPECTOR MODAL ============ -->
+    <div id="receipt-modal" class="fixed inset-0 z-[999999] hidden flex items-center justify-center bg-black/85 backdrop-blur-md p-4">
+        <div class="bg-surface-container-low border border-primary max-w-xl w-full p-6 rounded-sm relative shadow-2xl">
+            <div class="flex items-center justify-between border-b border-outline-variant/30 pb-3 mb-4">
+                <h3 class="font-headline-md text-primary text-base uppercase flex items-center gap-2">
+                    <span class="material-symbols-outlined">receipt_long</span> Payment Proof Inspector
+                </h3>
+                <button id="close-receipt-btn" class="text-outline hover:text-primary">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="flex flex-col items-center justify-center bg-black p-4 rounded-sm max-h-[70vh] overflow-auto">
+                <img id="receipt-modal-img" src="" alt="Payment screenshot" class="max-h-[60vh] object-contain rounded-xs border border-outline-variant/40" />
+            </div>
+            <div class="mt-4 text-right">
+                <button id="receipt-download-btn" class="bg-primary/20 hover:bg-primary text-primary hover:text-on-primary border border-primary font-label-sm px-4 py-2 text-xs uppercase tracking-widest transition-colors rounded-sm">
+                    Open Full Image
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logic Script -->
+    <script type="module">
+        import { firebaseConfig, isFirebaseConfigured } from './firebase-config.js';
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js';
+        import { 
+            getFirestore, 
+            doc, 
+            setDoc, 
+            updateDoc,
+            deleteDoc,
+            collection, 
+            getDocs,
+            onSnapshot, 
+            query
+        } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
+        import SFX from './sounds.js';
+
+        window._SFX = SFX;
+
+        /* =========================================================
+           AUTHENTICATION GATE LOGIC
+           ========================================================= */
+        const MASTER_PIN = "VISION2026";
+        const authModal = document.getElementById('auth-gate-modal');
+        const authForm = document.getElementById('auth-form');
+        const adminPasscode = document.getElementById('admin-passcode');
+        const authErrorMsg = document.getElementById('auth-error-msg');
+        const terminalContent = document.getElementById('terminal-content');
+        const lockBtn = document.getElementById('lock-terminal-btn');
+
+        let failedAttempts = 0;
+        let lockoutUntil = 0;
+
+        function checkAuthSession() {
+            const isAuth = sessionStorage.getItem('vision_admin_auth') === 'true';
+            if (isAuth) {
+                authModal.classList.add('hidden');
+                terminalContent.classList.remove('hidden');
+                SFX.injectMarvelHUD();
+                SFX.attachClickSounds();
+            } else {
+                authModal.classList.remove('hidden');
+                terminalContent.classList.add('hidden');
+            }
+        }
+        checkAuthSession();
+
+        if (authForm) {
+            authForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const now = Date.now();
+                if (now < lockoutUntil) {
+                    const secsLeft = Math.ceil((lockoutUntil - now) / 1000);
+                    authErrorMsg.textContent = `// TOO MANY ATTEMPTS: LOCKOUT (${secsLeft}s)`;
+                    authErrorMsg.classList.remove('hidden');
+                    SFX.error();
+                    return;
+                }
+
+                if (adminPasscode.value.trim() === MASTER_PIN) {
+                    sessionStorage.setItem('vision_admin_auth', 'true');
+                    failedAttempts = 0;
+                    authModal.classList.add('hidden');
+                    terminalContent.classList.remove('hidden');
+                    SFX.success();
+                    SFX.injectMarvelHUD();
+                    SFX.attachClickSounds();
+                } else {
+                    failedAttempts++;
+                    SFX.error();
+                    if (failedAttempts >= 3) {
+                        lockoutUntil = Date.now() + 60000;
+                        authErrorMsg.textContent = `// 3 FAILED ATTEMPTS: LOCKED FOR 60s`;
+                    } else {
+                        authErrorMsg.textContent = `// ACCESS DENIED: INVALID PASSCODE (${3 - failedAttempts} tries left)`;
+                    }
+                    authErrorMsg.classList.remove('hidden');
+                    adminPasscode.value = '';
+                }
+            });
+        }
+
+        if (lockBtn) {
+            lockBtn.addEventListener('click', () => {
+                sessionStorage.removeItem('vision_admin_auth');
+                location.reload();
+            });
+        }
+
+        /* =========================================================
+           TERMINAL DATABASE & UI LOGIC
+           ========================================================= */
+        const adminSeats = document.getElementById('admin-seats');
+        const adminSeatsSub = document.getElementById('admin-seats-sub');
+        const adminTotal = document.getElementById('admin-total');
+        const statusBreakdown = document.getElementById('status-breakdown');
+        const tableBody = document.getElementById('teams-table-body');
+        const initBtn = document.getElementById('init-capacity-btn');
+        const purgeBtn = document.getElementById('purge-data-btn');
+        const exportBtn = document.getElementById('export-csv-btn');
+        const exportExcelBtn = document.getElementById('export-excel-btn');
+        const syncIndicator = document.getElementById('sync-indicator');
+        const searchInput = document.getElementById('search-input');
+        const statusFilter = document.getElementById('status-filter');
+
+        const receiptModal = document.getElementById('receipt-modal');
+        const receiptModalImg = document.getElementById('receipt-modal-img');
+        const closeReceiptBtn = document.getElementById('close-receipt-btn');
+        const receiptDownloadBtn = document.getElementById('receipt-download-btn');
+
+        let registeredTeams = [];
+        let db = null;
+
+        if (closeReceiptBtn) {
+            closeReceiptBtn.addEventListener('click', () => {
+                receiptModal.classList.add('hidden');
+            });
+        }
+
+        window.openReceipt = function(b64) {
+            receiptModalImg.src = b64;
+            receiptDownloadBtn.onclick = () => {
+                const win = window.open();
+                win.document.write(`<img src="${b64}" style="max-width:100%;height:auto;"/>`);
+            };
+            receiptModal.classList.remove('hidden');
+            SFX.click();
+        };
+
+        window.updateTeamStatus = async function(docId, newStatus) {
+            if (!db) return;
+            try {
+                await updateDoc(doc(db, 'registrations', docId), {
+                    status: newStatus
+                });
+                SFX.success();
+            } catch (err) {
+                alert('Status update failed: ' + err.message);
+                SFX.error();
+            }
+        };
+
+        window.resendPassEmail = function(teamName, leaderEmail, leaderName, txnId, m2Email, m3Email) {
+            SFX.click();
+            const subject = encodeURIComponent(`[VERIFIED] Vision 2026 Hackathon Official Admit Pass - Team ${teamName}`);
+            const body = encodeURIComponent(
+`Greetings Team ${teamName} (Leader: ${leaderName}),
+
+Your registration status has been verified by the Vision Hackathon Organizing Committee!
+
+=== ADMIT PASS SUMMARY ===
+Team: ${teamName}
+UTR / Txn ID: ${txnId}
+Status: VERIFIED & CONFIRMED
+
+=== EVENT DETAILS ===
+Dates: September 20-21, 2026
+Venue: Main Auditorium, Kongu Engineering College
+Reporting Time: 08:30 AM IST
+
+Please present this confirmation email at the campus check-in desk.
+
+Organizing Committee // Vision 2026
+terminal@vision.hack`
+            );
+            window.location.href = `mailto:${leaderEmail}?cc=${m2Email || ''},${m3Email || ''}&subject=${subject}&body=${body}`;
+        };
+
+        window.deleteSingleTeam = async function(docId, teamName) {
+            if (!confirm(`Delete registration for "${teamName}"? This will free up 1 slot.`)) return;
+            try {
+                await deleteDoc(doc(db, 'registrations', docId));
+                const newCount = Math.max(0, registeredTeams.length - 1);
+                await setDoc(doc(db, 'metadata', 'capacity'), {
+                    max_teams: 35,
+                    registered_count: newCount,
+                    seats_remaining: Math.max(0, 35 - newCount)
+                }, { merge: true });
+                SFX.click();
+            } catch (err) {
+                alert('Failed to delete team: ' + err.message);
+                SFX.error();
+            }
+        };
+
+        if (isFirebaseConfigured()) {
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+
+                // Listen to capacity
+                onSnapshot(doc(db, 'metadata', 'capacity'), (docSnap) => {
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        const rem = typeof data.seats_remaining === 'number' ? data.seats_remaining : 35;
+                        const reg = typeof data.registered_count === 'number' ? data.registered_count : 0;
+                        const max = typeof data.max_teams === 'number' ? data.max_teams : 35;
+                        adminSeats.textContent = `${rem} / ${max}`;
+                        adminSeatsSub.textContent = `${reg} teams registered (${rem} slots left)`;
+                    } else {
+                        adminSeats.textContent = 'UNINITIALIZED';
+                        adminSeatsSub.textContent = 'Click "Sync Capacity" button above.';
+                    }
+                });
+
+                // Listen to registrations
+                const regQuery = query(collection(db, 'registrations'));
+                onSnapshot(regQuery, (snapshot) => {
+                    registeredTeams = [];
+                    snapshot.forEach(docSnap => {
+                        registeredTeams.push({ id: docSnap.id, ...docSnap.data() });
+                    });
+
+                    adminTotal.textContent = registeredTeams.length;
+                    
+                    const verifiedCount = registeredTeams.filter(t => t.status === 'verified').length;
+                    const pendingCount = registeredTeams.filter(t => t.status !== 'verified' && t.status !== 'flagged').length;
+                    statusBreakdown.innerHTML = `
+                        <span class="text-primary font-bold">${verifiedCount} Verified</span> • 
+                        <span class="text-on-surface-variant">${pendingCount} Pending</span>
+                    `;
+
+                    applyFilterAndRender();
+                });
+
+                // Sync capacity button handler
+                initBtn.addEventListener('click', async () => {
+                    const count = registeredTeams.length;
+                    const rem = Math.max(0, 35 - count);
+                    if (confirm(`Sync capacity with current database count (${count} registered, ${rem} slots remaining)?`)) {
+                        initBtn.disabled = true;
+                        initBtn.textContent = 'SYNCING...';
+                        try {
+                            await setDoc(doc(db, 'metadata', 'capacity'), {
+                                max_teams: 35,
+                                registered_count: count,
+                                seats_remaining: rem
+                            });
+                            SFX.success();
+                        } catch (err) {
+                            alert('Failed to update: ' + err.message);
+                            SFX.error();
+                        } finally {
+                            initBtn.disabled = false;
+                            initBtn.textContent = 'Sync Capacity (35 Max)';
+                        }
+                    }
+                });
+
+                // Purge all test data button handler
+                purgeBtn.addEventListener('click', async () => {
+                    const pwd = prompt('DANGER: This will permanently delete ALL registration records and reset capacity to 35.\n\nType "PURGE" to confirm:');
+                    if (pwd === 'PURGE') {
+                        purgeBtn.disabled = true;
+                        purgeBtn.textContent = 'PURGING...';
+                        try {
+                            const snapshot = await getDocs(collection(db, 'registrations'));
+                            const deletePromises = [];
+                            snapshot.forEach(d => {
+                                deletePromises.push(deleteDoc(doc(db, 'registrations', d.id)));
+                            });
+                            await Promise.all(deletePromises);
+
+                            await setDoc(doc(db, 'metadata', 'capacity'), {
+                                max_teams: 35,
+                                registered_count: 0,
+                                seats_remaining: 35
+                            });
+                            SFX.success();
+                            alert('All registrations purged and capacity reset to 35!');
+                        } catch (err) {
+                            alert('Purge failed: ' + err.message);
+                            SFX.error();
+                        } finally {
+                            purgeBtn.disabled = false;
+                            purgeBtn.innerHTML = '<span class="material-symbols-outlined text-sm">delete_forever</span> Purge All Test Data';
+                        }
+                    }
+                });
+
+            } catch (err) {
+                console.error('Firebase Admin Error:', err);
+            }
+        }
+
+        function applyFilterAndRender() {
+            const queryText = (searchInput.value || '').trim().toLowerCase();
+            const filterVal = statusFilter.value;
+
+            const filtered = registeredTeams.filter(t => {
+                const matchesFilter = filterVal === 'all' || 
+                    (filterVal === 'verified' && t.status === 'verified') ||
+                    (filterVal === 'pending_verification' && (t.status === 'pending_verification' || !t.status || t.status === 'pending')) ||
+                    (filterVal === 'flagged' && t.status === 'flagged');
+
+                if (!matchesFilter) return false;
+
+                if (!queryText) return true;
+                const name = (t.team_name || '').toLowerCase();
+                const txn = (t.txn_id || '').toLowerCase();
+                const m1 = t.members && t.members[0] ? (t.members[0].name + ' ' + t.members[0].email).toLowerCase() : '';
+                return name.includes(queryText) || txn.includes(queryText) || m1.includes(queryText);
+            });
+
+            renderTable(filtered);
+        }
+
+        if (searchInput) searchInput.addEventListener('input', applyFilterAndRender);
+        if (statusFilter) statusFilter.addEventListener('change', applyFilterAndRender);
+
+        function renderTable(teams) {
+            if (teams.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="py-8 text-center text-outline-variant font-label-sm tracking-widest">
+                            NO MATCHING REGISTRATIONS FOUND.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tableBody.textContent = '';
+            teams.forEach((t, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-surface-container-high/50 transition-colors';
+
+                const m1 = t.members && t.members[0] ? `${t.members[0].name} (${t.members[0].email} / ${t.members[0].mobile})` : '--';
+                const m2 = t.members && t.members[1] ? `${t.members[1].name} (${t.members[1].email} / ${t.members[1].mobile})` : '--';
+                const m3 = t.members && t.members[2] ? `${t.members[2].name} (${t.members[2].email} / ${t.members[2].mobile})` : '--';
+
+                const leaderEmail = t.members && t.members[0] ? t.members[0].email : '';
+                const leaderName = t.members && t.members[0] ? t.members[0].name : '';
+                const m2Email = t.members && t.members[1] ? t.members[1].email : '';
+                const m3Email = t.members && t.members[2] ? t.members[2].email : '';
+
+                const currentStatus = t.status || 'pending_verification';
+
+                let statusBadge = '';
+                if (currentStatus === 'verified') {
+                    statusBadge = `<span class="inline-block px-2 py-0.5 text-[10px] uppercase font-label-sm rounded-xs bg-emerald-950 text-emerald-400 border border-emerald-500/40">Verified</span>`;
+                } else if (currentStatus === 'flagged') {
+                    statusBadge = `<span class="inline-block px-2 py-0.5 text-[10px] uppercase font-label-sm rounded-xs bg-error/20 text-error border border-error/40">Flagged</span>`;
+                } else {
+                    statusBadge = `<span class="inline-block px-2 py-0.5 text-[10px] uppercase font-label-sm rounded-xs bg-primary/10 text-primary border border-primary/30">Pending</span>`;
+                }
+
+                const screenshotBtn = t.screenshot ? `
+                    <button onclick="openReceipt('${t.screenshot}')" class="mt-1 flex items-center gap-1 text-[10px] text-primary hover:underline">
+                        <span class="material-symbols-outlined text-[12px]">image</span> View Receipt
+                    </button>
+                ` : '';
+
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-label-sm text-outline">${idx + 1}</td>
+                    <td class="py-3 px-4 font-bold text-primary">${escapeHtml(t.team_name || 'N/A')}</td>
+                    <td class="py-3 px-4">${escapeHtml(m1)}</td>
+                    <td class="py-3 px-4">${escapeHtml(m2)}</td>
+                    <td class="py-3 px-4">${escapeHtml(m3)}</td>
+                    <td class="py-3 px-4 font-label-sm uppercase text-outline-variant">
+                        <div>${escapeHtml(t.txn_id || 'N/A')}</div>
+                        ${screenshotBtn}
+                    </td>
+                    <td class="py-3 px-4">
+                        <div class="flex items-center gap-2">
+                            ${statusBadge}
+                            <select onchange="updateTeamStatus('${t.id}', this.value)" class="bg-surface-container border border-outline-variant/40 text-[10px] py-1 px-1.5 rounded-xs text-on-surface outline-none">
+                                <option value="pending_verification" ${currentStatus === 'pending_verification' ? 'selected' : ''}>Pending</option>
+                                <option value="verified" ${currentStatus === 'verified' ? 'selected' : ''}>Verify</option>
+                                <option value="flagged" ${currentStatus === 'flagged' ? 'selected' : ''}>Flag</option>
+                            </select>
+                        </div>
+                    </td>
+                    <td class="py-3 px-4 text-center">
+                        <div class="flex items-center justify-center gap-1">
+                            <button onclick="resendPassEmail('${escapeHtml(t.team_name || 'Team')}', '${escapeHtml(leaderEmail)}', '${escapeHtml(leaderName)}', '${escapeHtml(t.txn_id || '')}', '${escapeHtml(m2Email)}', '${escapeHtml(m3Email)}')" class="text-primary hover:bg-primary/10 p-1.5 rounded transition-colors" title="Send/Resend Admit Pass Email">
+                                <span class="material-symbols-outlined text-sm align-middle">mail</span>
+                            </button>
+                            <button onclick="deleteSingleTeam('${t.id}', '${escapeHtml(t.team_name || 'Team')}')" class="text-error/70 hover:text-error hover:bg-error/10 p-1.5 rounded transition-colors" title="Delete Team">
+                                <span class="material-symbols-outlined text-sm align-middle">delete</span>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function escapeHtml(str) {
+            if (typeof str !== 'string') return '';
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/'/g, '&#39;');
+        }
+
+        // CSV & Excel Exporters
+        exportBtn.addEventListener('click', () => {
+            if (registeredTeams.length === 0) return alert('No records to export.');
+            const headers = ['ID', 'Team Name', 'Member 1 Name', 'Member 1 Email', 'Member 1 Mobile', 'Member 2 Name', 'Member 2 Email', 'Member 2 Mobile', 'Member 3 Name', 'Member 3 Email', 'Member 3 Mobile', 'Transaction ID', 'Status'];
+            const rows = registeredTeams.map(t => {
+                const m1 = t.members && t.members[0] ? t.members[0] : {};
+                const m2 = t.members && t.members[1] ? t.members[1] : {};
+                const m3 = t.members && t.members[2] ? t.members[2] : {};
+                return [
+                    t.id || '',
+                    `"${(t.team_name || '').replace(/"/g, '""')}"`,
+                    `"${(m1.name || '').replace(/"/g, '""')}"`,
+                    m1.email || '',
+                    m1.mobile || '',
+                    `"${(m2.name || '').replace(/"/g, '""')}"`,
+                    m2.email || '',
+                    m2.mobile || '',
+                    `"${(m3.name || '').replace(/"/g, '""')}"`,
+                    m3.email || '',
+                    m3.mobile || '',
+                    t.txn_id || '',
+                    t.status || 'pending'
+                ];
+            });
+            const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+            const link = document.createElement('a');
+            link.href = encodeURI(csvContent);
+            link.download = `vision_hackathon_registrations_${new Date().toISOString().slice(0, 10)}.csv`;
+            link.click();
+        });
+
+        exportExcelBtn.addEventListener('click', () => {
+            if (registeredTeams.length === 0) return alert('No records to export.');
+            const rows = registeredTeams.map((t, idx) => {
+                const m1 = t.members && t.members[0] ? t.members[0] : {};
+                const m2 = t.members && t.members[1] ? t.members[1] : {};
+                const m3 = t.members && t.members[2] ? t.members[2] : {};
+                return {
+                    '#': idx + 1,
+                    'Team Name': t.team_name || '',
+                    'Leader Name': m1.name || '',
+                    'Leader Email': m1.email || '',
+                    'Leader Mobile': m1.mobile || '',
+                    'Member 2 Name': m2.name || '',
+                    'Member 2 Email': m2.email || '',
+                    'Member 2 Mobile': m2.mobile || '',
+                    'Member 3 Name': m3.name || '',
+                    'Member 3 Email': m3.email || '',
+                    'Member 3 Mobile': m3.mobile || '',
+                    'Transaction ID': t.txn_id || '',
+                    'Status': t.status || 'pending',
+                    'Doc ID': t.id || ''
+                };
+            });
+            const ws = XLSX.utils.json_to_sheet(rows);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Registrations');
+            XLSX.writeFile(wb, `vision_hackathon_${new Date().toISOString().slice(0, 10)}.xlsx`);
+        });
+    </script>
+</body>
+
+</html>

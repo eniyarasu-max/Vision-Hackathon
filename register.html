@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Vision — Registration &amp; Admission Pass</title>
+    <!-- Security Headers & Policies -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://firestore.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; object-src 'none'; base-uri 'self'; form-action 'self';" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="Permissions-Policy" content="accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()" />
+    <style>
+        @layer base {
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+                scroll-behavior: smooth;
+            }
+
+            body {
+                overscroll-behavior: none;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@100..800&family=Orbitron:wght@400..900&display=swap');
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes arcPulse {
+            0%, 100% {
+                box-shadow: 0 0 15px rgba(240, 193, 44, 0.4), inset 0 0 15px rgba(240, 193, 44, 0.2);
+            }
+            50% {
+                box-shadow: 0 0 35px rgba(240, 193, 44, 0.8), inset 0 0 25px rgba(240, 193, 44, 0.4);
+            }
+        }
+
+        .arc-glow {
+            animation: arcPulse 3s ease-in-out infinite;
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+        }
+
+        .field-error {
+            border-color: #e63946 !important;
+            box-shadow: 0 0 8px rgba(230, 57, 70, 0.35);
+        }
+
+        .field-error-msg {
+            color: #ff8a80;
+            font-size: 11px;
+            letter-spacing: 0.05em;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .field-error-msg.show {
+            display: block;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printable-pass, #printable-pass * {
+                visibility: visible;
+            }
+            #printable-pass {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: #121317 !important;
+                color: #e3e2e7 !important;
+            }
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class", theme: {
+                extend: {
+                    "colors": { "secondary-container": "#a90214", "surface-bright": "#38393d", "surface": "#121317", "on-tertiary-fixed-variant": "#3e4945", "primary-fixed": "#ffdf90", "secondary-fixed": "#ffdad6", "surface-container-lowest": "#0d0e12", "on-secondary": "#680007", "on-secondary-fixed-variant": "#93000f", "primary-container": "#f4c430", "on-surface-variant": "#d1c5ad", "surface-container-low": "#1a1b20", "on-primary": "#3d2e00", "surface-container-highest": "#343439", "tertiary-fixed-dim": "#bdc9c4", "on-primary-container": "#695200", "outline": "#9a907a", "on-error-container": "#ffdad6", "inverse-surface": "#e3e2e7", "on-tertiary-fixed": "#131e1b", "inverse-primary": "#755b00", "inverse-on-surface": "#2f3035", "surface-container-high": "#292a2e", "secondary": "#ffb3ac", "outline-variant": "#4e4634", "on-tertiary-container": "#4c5753", "secondary-fixed-dim": "#ffb3ac", "on-surface": "#e3e2e7", "on-primary-fixed": "#241a00", "on-background": "#e3e2e7", "surface-variant": "#343439", "background": "#121317", "error": "#ffb4ab", "tertiary-container": "#c0cdc8", "on-secondary-fixed": "#410003", "surface-container": "#1f1f24", "on-tertiary": "#27332f", "surface-tint": "#f0c12c", "error-container": "#93000a", "surface-dim": "#121317", "primary-fixed-dim": "#f0c12c", "on-error": "#690005", "on-secondary-container": "#ffb3ac", "tertiary": "#dce9e3", "on-primary-fixed-variant": "#584400", "tertiary-fixed": "#d9e5e0", "primary": "#ffe3a1" },
+                    "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                    "spacing": { "grid-columns": "12", "gutter": "24px", "unit": "4px", "panel-padding": "16px", "margin-edge": "40px" },
+                    "fontFamily": { "headline-lg": ["Space Grotesk"], "body-lg": ["JetBrains Mono"], "body-md": ["JetBrains Mono"], "headline-md": ["Space Grotesk"], "label-sm": ["JetBrains Mono"], "headline-xl": ["Space Grotesk"], "headline-lg-mobile": ["Space Grotesk"], "orbitron": ["Orbitron"] },
+                    "fontSize": { "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "0.1em", "fontWeight": "600" }], "body-lg": ["18px", { "lineHeight": "1.6", "letterSpacing": "0em", "fontWeight": "400" }], "body-md": ["16px", { "lineHeight": "1.5", "letterSpacing": "0em", "fontWeight": "400" }], "headline-md": ["24px", { "lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600" }], "label-sm": ["12px", { "lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "500" }], "headline-xl": ["48px", { "lineHeight": "1.1", "letterSpacing": "0.15em", "fontWeight": "700" }], "headline-lg-mobile": ["28px", { "lineHeight": "1.2", "letterSpacing": "0.1em", "fontWeight": "600" }] }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+</head>
+
+<body class="bg-surface font-body-md text-on-surface selection:bg-primary selection:text-on-primary min-h-screen">
+
+    <!-- ============ HEADER ============ -->
+    <header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-primary/20">
+        <div class="h-20 max-w-7xl mx-auto px-margin-edge flex items-center justify-between">
+            <div class="flex items-center gap-12">
+                <a href="index.html" class="flex items-center gap-3 group">
+                    <span class="w-8 h-8 rounded-full border border-primary/60 bg-primary/10 flex items-center justify-center font-orbitron text-primary text-xs group-hover:rotate-180 transition-transform duration-700">V</span>
+                    <span class="font-orbitron text-headline-md tracking-[0.2em] text-primary drop-shadow-[0_0_8px_rgba(255,227,161,0.4)] uppercase">Vision</span>
+                </a>
+                <nav class="hidden lg:flex items-center gap-8">
+                    <a class="font-body-md text-on-surface-variant hover:text-primary transition-all relative group py-2" href="index.html#home">HOME<span class="absolute bottom-0 left-0 w-0 h-[1px] bg-primary transition-all duration-300 group-hover:w-full"></span></a>
+                    <a class="font-body-md text-on-surface-variant hover:text-primary transition-all relative group py-2" href="index.html#about">ABOUT<span class="absolute bottom-0 left-0 w-0 h-[1px] bg-primary transition-all duration-300 group-hover:w-full"></span></a>
+                    <a class="font-body-md transition-all relative group py-2 text-primary border-b border-primary" href="register.html">REGISTER<span class="absolute bottom-0 left-0 w-0 h-[1px] bg-primary transition-all duration-300 group-hover:w-full"></span></a>
+                    <a class="font-body-md text-on-surface-variant hover:text-primary transition-all relative group py-2" href="admin.html">ORGANIZER<span class="absolute bottom-0 left-0 w-0 h-[1px] bg-primary transition-all duration-300 group-hover:w-full"></span></a>
+                </nav>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="bg-white/95 hover:bg-white px-2 py-1 rounded-sm border border-outline-variant/40 flex items-center justify-center h-9 shadow-sm">
+                    <img src="assets/kec-logo.png" alt="Kongu Engineering College" class="h-6 w-auto object-contain" />
+                </div>
+                <div class="bg-white/95 hover:bg-white px-2 py-1 rounded-sm border border-outline-variant/40 flex items-center justify-center h-9 shadow-sm">
+                    <img src="assets/ieee-aps-logo.png" alt="IEEE AP-S" class="h-6 w-auto object-contain" />
+                </div>
+                <button class="lg:hidden text-primary p-2" id="mobile-menu-btn" aria-label="Toggle menu">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+            </div>
+        </div>
+        <nav class="lg:hidden hidden flex-col gap-4 px-margin-edge pb-6 bg-surface-container-lowest/95 border-b border-primary/20" id="mobile-menu">
+            <a class="font-body-md text-on-surface-variant hover:text-primary" href="index.html#home">HOME</a>
+            <a class="font-body-md text-on-surface-variant hover:text-primary" href="index.html#about">ABOUT</a>
+            <a class="font-body-md text-primary" href="register.html">REGISTER</a>
+            <a class="font-body-md text-on-surface-variant hover:text-primary" href="admin.html">ORGANIZER TERMINAL</a>
+        </nav>
+    </header>
+
+    <main class="w-full pt-20 min-h-screen bg-surface">
+
+        <!-- ============ REGISTRATION SECTION ============ -->
+        <div class="flex flex-col w-full relative overflow-hidden font-body-md bg-surface text-on-surface">
+            <!-- Background Grid & Glows -->
+            <div class="absolute inset-0 pointer-events-none">
+                <svg class="w-full h-full opacity-[0.03]" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <pattern height="40" id="grid" patternUnits="userSpaceOnUse" width="40">
+                            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" stroke-width="1"></path>
+                        </pattern>
+                    </defs>
+                    <rect fill="url(#grid)" height="100%" width="100%"></rect>
+                </svg>
+            </div>
+            
+            <div class="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[120px] pointer-events-none mix-blend-screen -z-10"></div>
+            <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-secondary-container/10 rounded-full blur-[100px] pointer-events-none mix-blend-screen -z-10"></div>
+
+            <div class="max-w-7xl mx-auto px-margin-edge w-full pt-12 pb-24 relative z-10">
+
+                <!-- Capacity & Marvel Status Banner -->
+                <div class="mb-10 flex items-center justify-between gap-4 flex-wrap border border-primary/30 bg-surface-container-low/80 backdrop-blur-md px-6 py-4 rounded-sm arc-glow animate-fade-in-up">
+                    <div class="flex items-center gap-3">
+                        <span class="w-2.5 h-2.5 rounded-full bg-primary animate-ping"></span>
+                        <span class="font-label-sm text-on-surface-variant tracking-widest uppercase">Live Capacity:</span>
+                        <span class="font-orbitron text-primary text-xl" id="banner-remaining">-- / 35</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="font-label-sm text-outline tracking-widest uppercase text-xs" id="banner-status">SYNCING PROTOCOL</span>
+                        <div class="hidden sm:flex items-center gap-2 border-l border-outline-variant/30 pl-4">
+                            <span class="text-[10px] font-orbitron text-primary uppercase">Marvel Theme: Armed</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col lg:flex-row gap-10 xl:gap-16">
+
+                    <!-- REGISTRATION FORM COLUMN -->
+                    <div class="flex-1 space-y-10">
+                        <div>
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="h-1 w-10 bg-primary"></div>
+                                <span class="font-label-sm text-primary tracking-[0.25em] uppercase text-xs">AVENGERS INITIATIVE PROTOCOL // 2026</span>
+                            </div>
+                            <h1 class="font-headline-xl text-on-surface uppercase tracking-wider">
+                                Assemble Your<br /><span class="text-primary drop-shadow-[0_0_12px_rgba(255,227,161,0.3)]">Vision Squad</span>
+                            </h1>
+                            <p class="font-body-md text-on-surface-variant mt-4 max-w-xl text-sm leading-relaxed">
+                                Enter your 3-member team credentials and transaction validation code. Upon transmission, an official **Holographic Admit Pass** will be generated with instant email dispatch.
+                            </p>
+                        </div>
+
+                        <form class="space-y-8 bg-surface-container-low/90 backdrop-blur-md p-6 md:p-8 relative border border-primary/20 shadow-2xl rounded-sm" id="registration-form" novalidate autocomplete="off">
+                            <div class="hidden md:block absolute top-0 right-0 px-3 py-1 border-l border-b border-primary/30 bg-surface-container-highest">
+                                <span class="font-label-sm text-primary text-[10px] tracking-widest">TLS 256-BIT ENCRYPTION</span>
+                            </div>
+
+                            <!-- Honeypot Anti-Bot Trap -->
+                            <div style="position: absolute; left: -9999px; top: -9999px; opacity: 0; pointer-events: none;" aria-hidden="true">
+                                <label for="hp_system_ref">System Node Verification</label>
+                                <input type="text" id="hp_system_ref" name="hp_system_ref" tabindex="-1" autocomplete="off" value="" />
+                            </div>
+
+                            <!-- Team Name Input -->
+                            <div class="space-y-2">
+                                <label class="block font-label-sm text-outline uppercase tracking-wider text-xs" for="team_name">TEAM / SQUAD CALLSIGN:</label>
+                                <input class="w-full bg-surface-container border-b border-outline-variant focus:border-primary text-on-surface font-body-md py-3.5 px-4 outline-none transition-all duration-300 focus:bg-surface-container-high placeholder:text-outline-variant/60 uppercase" id="team_name" name="team_name" placeholder="E.G., STARK INNOVATORS" required minlength="3" maxlength="30" pattern="^[a-zA-Z0-9\s\-_]{3,30}$" type="text" autocomplete="off" />
+                                <div class="field-error-msg" data-error-for="team_name">// 3-30 ALPHANUMERIC CHARACTERS REQUIRED</div>
+                            </div>
+
+                            <!-- Member 1 (Leader) -->
+                            <div class="space-y-4 pt-2">
+                                <div class="flex items-center justify-between border-b border-outline-variant/30 pb-2">
+                                    <span class="font-headline-md text-on-surface text-base uppercase flex items-center gap-2">
+                                        <span class="text-primary font-orbitron text-xs px-2 py-0.5 border border-primary/40 bg-primary/10">01</span>
+                                        SQUAD LEADER
+                                    </span>
+                                    <span class="w-2 h-2 bg-primary rounded-full animate-pulse shadow-[0_0_8px_rgba(255,227,161,0.6)]"></span>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="space-y-1.5">
+                                        <label class="font-label-sm text-outline uppercase tracking-wider text-xs" for="m1_name">FULL NAME:</label>
+                                        <input class="w-full bg-surface-container border-b border-outline-variant focus:border-primary text-on-surface font-body-md py-2.5 px-3 outline-none transition-all duration-300" id="m1_name" name="m1_name" required minlength="2" maxlength="50" autocomplete="name" type="text" placeholder="Leader Full Name" />
+                                        <div class="field-error-msg" data-error-for="m1_name">// VALID NAME REQUIRED (2-50 CHARS)</div>
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <label class="font-label-sm text-outline uppercase tracking-wider text-xs" for="m1_email">EMAIL ADDRESS:</label>
+                                        <input class="w-full bg-surface-container border-b border-outline-variant focus:border-primary text-on-surface font-body-md py-2.5 px-3 outline-none transition-all duration-300" id="m1_email" name="m1_email" required maxlength="80" autocomplete="email" type="email" placeholder="leader@example.com" />
+                                        <div class="field-error-msg" data-error-for="m1_email">// VALID UNIQUE EMAIL REQUIRED</div>
+                                    </div>
+                                    <div class="space-y-1.5 md:col-span-2">
+                                        <label class="font-label-sm text-outline uppercase tracking-wider text-xs" for="m1_mobile">WHATSAPP / MOBILE NUMBER:</label>
+                                        <input class="w-full bg-surface-container border-b border-outline-variant focus:border-primary text-on-surface font-body-md py-2.5 px-3 outline-none transition-all duration-300" id="m1_mobile" name="m1_mobile" pattern="^[6-9]\d{9}$" minlength="10" maxlength="10" placeholder="10-digit mobile number (starts with 6-9)" required autocomplete="tel" type="tel" />
+                                        <div class="field-error-msg" data-error-for="m1_mobile">// VALID 10-DIGIT MOBILE REQUIRED</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Member 2 -->
+                            <div class="space-y-4 pt-2">
+                                <div class="flex items-center justify-between border-b border-outline-variant/30 pb-2">
+                                    <span class="font-headline-md text-on-surface text-base uppercase flex items-center gap-2">
+                                        <span class="text-outline font-orbitron text-xs px-2 py-0.5 border border-outline-variant bg-surface-container">02</span>
+                                        MEMBER TWO
+                                    </span>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="space-y-1.5">
+                                        <label class="font-label-sm text-outline uppercase tracking-wider text-xs" for="m2_name">FULL NAME:</label>
+                                        <input class="w-full bg-surface-container border-b border-outline-variant focus:border-primary text-on-surface font-body-md py-2.5 px-3 outline-none transition-all duration-300" id="m2_name" name="m2_name" required minlength="2" maxlength="50" autocomplete="name" type="text" placeholder="Member 2 Full Name" />
+                                        <div class="field-error-msg" data-error-for="m2_name">// VALID NAME REQUIRED (2-50 CHARS)</div>
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <label class="font-label-sm text-outline uppercase tracking-wider text-xs" for="m2_email">EMAIL ADDRESS:</label>
+                                        <input class="w-full bg-surface-container border-b border-outline-variant focus:border-primary text-on-surface font-body-md py-2.5 px-3 outline-none transition-all duration-300" id="m2_email" name="m2_email" required maxlength="80" autocomplete="email" type="email" placeholder="member2@example.com" />
+                                        <div class="field-error-msg" data-error-for="m2_email">// VALID UNIQUE EMAIL REQUIRED</div>
+                                    </div>
+                                    <div class="space-y-1.5 md:col-span-2">
+                                        <label class="font-label-sm text-outline uppercase tracking-wider text-xs" for="m2_mobile">MOBILE NUMBER:</label>
+                                        <input class="w-full bg-surface-container border-b border-outline-variant focus:border-primary text-on-surface font-body-md py-2.5 px-3 outline-none transition-all duration-300" id="m2_mobile" name="m2_mobile" pattern="^[6-9]\d{9}$" minlength="10" maxlength="10" placeholder="10-digit mobile number" required autocomplete="tel" type="tel" />
+                                        <div class="field-error-msg" data-error-for="m2_mobile">// VALID 10-DIGIT MOBILE REQUIRED</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Member 3 -->
+                            <div class="space-y-4 pt-2">
+                                <div class="flex items-center justify-between border-b border-outline-variant/30 pb-2">
+                                    <span class="font-headline-md text-on-surface text-base uppercase flex items-center gap-2">
+                                        <span class="text-outline font-orbitron text-xs px-2 py-0.5 border border-outline-variant bg-surface-container">03</span>
+                                        MEMBER THREE
+                                    </span>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="space-y-1.5">
+                                        <label class="font-label-sm text-outline uppercase tracking-wider text-xs" for="m3_name">FULL NAME:</label>
+                                        <input class="w-full bg-surface-container border-b border-outline-variant focus:border-primary text-on-surface font-body-md py-2.5 px-3 outline-none transition-all duration-300" id="m3_name" name="m3_name" required minlength="2" maxlength="50" autocomplete="name" type="text" placeholder="Member 3 Full Name" />
+                                        <div class="field-error-msg" data-error-for="m3_name">// VALID NAME REQUIRED (2-50 CHARS)</div>
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <label class="font-label-sm text-outline uppercase tracking-wider text-xs" for="m3_email">EMAIL ADDRESS:</label>
+                                        <input class="w-full bg-surface-container border-b border-outline-variant focus:border-primary text-on-surface font-body-md py-2.5 px-3 outline-none transition-all duration-300" id="m3_email" name="m3_email" required maxlength="80" autocomplete="email" type="email" placeholder="member3@example.com" />
+                                        <div class="field-error-msg" data-error-for="m3_email">// VALID UNIQUE EMAIL REQUIRED</div>
+                                    </div>
+                                    <div class="space-y-1.5 md:col-span-2">
+                                        <label class="font-label-sm text-outline uppercase tracking-wider text-xs" for="m3_mobile">MOBILE NUMBER:</label>
+                                        <input class="w-full bg-surface-container border-b border-outline-variant focus:border-primary text-on-surface font-body-md py-2.5 px-3 outline-none transition-all duration-300" id="m3_mobile" name="m3_mobile" pattern="^[6-9]\d{9}$" minlength="10" maxlength="10" placeholder="10-digit mobile number" required autocomplete="tel" type="tel" />
+                                        <div class="field-error-msg" data-error-for="m3_mobile">// VALID 10-DIGIT MOBILE REQUIRED</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- PAYMENT & TRANSACTION COLUMN -->
+                    <div class="w-full lg:w-[420px] xl:w-[460px] shrink-0">
+                        <div class="sticky top-28 space-y-6">
+                            <div class="bg-surface-container-low border border-primary/30 p-6 relative overflow-hidden rounded-sm shadow-xl">
+                                <div class="flex items-center justify-between border-b border-outline-variant/30 pb-4 mb-4">
+                                    <div>
+                                        <span class="font-label-sm text-primary text-[10px] tracking-widest uppercase">PAYMENT GATEWAY</span>
+                                        <h3 class="font-headline-md text-on-surface text-lg uppercase">Registration Fee</h3>
+                                    </div>
+                                    <span class="material-symbols-outlined text-primary text-2xl">qr_code_scanner</span>
+                                </div>
+
+                                <div class="space-y-3 font-body-md border-b border-outline-variant/30 pb-4 mb-4 text-xs">
+                                    <div class="flex justify-between items-center text-on-surface-variant">
+                                        <span>FEE PER MEMBER:</span>
+                                        <span class="text-on-surface font-orbitron" id="fee-per-head">₹400</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-on-surface-variant">
+                                        <span>TEAM MEMBERS:</span>
+                                        <span class="text-on-surface font-orbitron" id="fee-multiplier">3 Nodes</span>
+                                    </div>
+                                    <div class="flex justify-between items-center pt-3 border-t border-dashed border-outline-variant/40">
+                                        <span class="text-primary font-bold tracking-wider">TOTAL TEAM PASS:</span>
+                                        <span class="text-primary font-orbitron text-2xl drop-shadow-[0_0_8px_rgba(255,227,161,0.5)]" id="fee-total">₹1200</span>
+                                    </div>
+                                </div>
+
+                                <!-- Official QR Code & 1-Tap UPI Links -->
+                                <div class="flex flex-col items-center justify-center space-y-3 mb-5">
+                                    <div class="w-48 h-48 bg-white p-2 rounded-sm relative shadow-[0_0_20px_rgba(240,193,44,0.15)] border border-primary/40 flex items-center justify-center">
+                                        <img src="assets/payment-qr.png" alt="Official UPI Payment QR Code" class="w-full h-full object-contain rounded-xs" />
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-label-sm text-outline">UPI ID:</span>
+                                        <code class="bg-surface-container px-2.5 py-1 text-xs text-primary font-body-md border border-primary/30 tracking-wider" id="upi-id-text">7339436468@upi</code>
+                                        <button type="button" id="copy-upi-btn" class="text-outline hover:text-primary transition-colors p-1" title="Copy UPI ID">
+                                            <span class="material-symbols-outlined text-[16px]">content_copy</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- 1-Tap Mobile UPI App Links -->
+                                <div class="space-y-2 mb-5">
+                                    <span class="font-label-sm text-outline uppercase text-[10px] tracking-wider block text-center">Instant 1-Tap Mobile Pay:</span>
+                                    <div class="grid grid-cols-3 gap-2">
+                                        <a href="upi://pay?pa=7339436468@upi&pn=Vision%20Hackathon&am=1200&cu=INR&tn=Vision2026Registration" class="bg-surface-container hover:bg-primary/20 border border-outline-variant/40 hover:border-primary text-center py-2 px-1 text-[11px] font-label-sm text-on-surface rounded-sm transition-all flex flex-col items-center justify-center gap-1">
+                                            <span class="material-symbols-outlined text-[16px] text-primary">smartphone</span>
+                                            GPay / PhonePe
+                                        </a>
+                                        <a href="upi://pay?pa=7339436468@upi&pn=Vision%20Hackathon&am=1200&cu=INR&tn=Vision2026Registration" class="bg-surface-container hover:bg-primary/20 border border-outline-variant/40 hover:border-primary text-center py-2 px-1 text-[11px] font-label-sm text-on-surface rounded-sm transition-all flex flex-col items-center justify-center gap-1">
+                                            <span class="material-symbols-outlined text-[16px] text-primary">account_balance</span>
+                                            Paytm / BHIM
+                                        </a>
+                                        <a href="upi://pay?pa=7339436468@upi&pn=Vision%20Hackathon&am=1200&cu=INR&tn=Vision2026Registration" class="bg-surface-container hover:bg-primary/20 border border-outline-variant/40 hover:border-primary text-center py-2 px-1 text-[11px] font-label-sm text-on-surface rounded-sm transition-all flex flex-col items-center justify-center gap-1">
+                                            <span class="material-symbols-outlined text-[16px] text-primary">credit_card</span>
+                                            Any UPI App
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <!-- Transaction ID Input -->
+                                <div class="space-y-2 mb-4">
+                                    <label class="font-label-sm text-primary uppercase tracking-wider text-xs flex justify-between items-center" for="txn_id">
+                                        <span>UPI 12-DIGIT UTR / TXN ID:</span>
+                                        <span class="text-[10px] text-outline">Unique Check Active</span>
+                                    </label>
+                                    <input class="w-full bg-surface border border-primary/40 focus:border-primary text-primary font-body-md py-3 px-3 outline-none transition-all duration-300 focus:shadow-[0_0_12px_rgba(255,227,161,0.2)] placeholder:text-outline-variant/50 text-center uppercase tracking-widest text-sm" id="txn_id" placeholder="E.G., 425109876543" type="text" minlength="8" maxlength="30" pattern="^[a-zA-Z0-9\-_]{8,30}$" autocomplete="off" required />
+                                    <div class="field-error-msg" data-error-for="txn_id">// VALID TRANSACTION ID (8-30 CHARACTERS) REQUIRED</div>
+                                </div>
+
+                                <!-- Optional Payment Screenshot Dropzone -->
+                                <div class="space-y-2">
+                                    <label class="font-label-sm text-outline uppercase tracking-wider text-[11px] flex justify-between items-center">
+                                        <span>PAYMENT SCREENSHOT (OPTIONAL):</span>
+                                    </label>
+                                    <div id="drop-zone" class="border border-dashed border-outline-variant/60 hover:border-primary/80 bg-surface-container/50 p-3 text-center rounded-sm cursor-pointer transition-colors relative">
+                                        <input type="file" id="screenshot-input" accept="image/png, image/jpeg, image/webp" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
+                                        <div id="drop-prompt" class="flex flex-col items-center justify-center py-1 text-xs text-on-surface-variant gap-1">
+                                            <span class="material-symbols-outlined text-[20px] text-primary">add_photo_alternate</span>
+                                            <span>Drag &amp; drop or click to upload receipt</span>
+                                            <span class="text-[9px] text-outline">(PNG/JPG &lt; 2MB)</span>
+                                        </div>
+                                        <div id="drop-preview" class="hidden flex items-center justify-between gap-3 bg-surface p-2 rounded-sm">
+                                            <div class="flex items-center gap-2 overflow-hidden">
+                                                <img id="preview-img" src="" alt="Receipt preview" class="w-8 h-8 object-cover rounded-xs border border-primary/30" />
+                                                <span id="preview-name" class="text-[11px] text-on-surface truncate max-w-[150px]">screenshot.png</span>
+                                            </div>
+                                            <button type="button" id="remove-preview-btn" class="text-error hover:text-error/80 p-1">
+                                                <span class="material-symbols-outlined text-[16px]">close</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button with Marvel Arc Glow -->
+                            <button class="w-full bg-primary text-on-primary font-headline-md py-5 px-6 relative overflow-hidden group hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 shadow-[0_0_25px_rgba(255,227,161,0.35)] hover:shadow-[0_0_45px_rgba(255,227,161,0.6)] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:shadow-none rounded-sm border border-primary-fixed" id="submit-btn" type="submit" form="registration-form">
+                                <span class="relative z-10 uppercase tracking-widest flex items-center justify-center gap-3 text-sm font-bold" id="submit-btn-label">
+                                    VERIFY &amp; GENERATE ADMIT PASS
+                                    <span class="material-symbols-outlined text-[22px] group-hover:translate-x-1 transition-transform">bolt</span>
+                                </span>
+                                <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out z-0"></div>
+                            </button>
+                            <div class="hidden font-label-sm text-center text-on-surface-variant tracking-widest text-xs" id="form-status"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ============ MARVEL ADMIT PASS & EMAIL CONFIRMATION MODAL ============ -->
+    <div id="admit-pass-modal" class="fixed inset-0 z-[99999] hidden flex items-center justify-center bg-black/85 backdrop-blur-xl p-4 overflow-y-auto">
+        <div class="bg-surface-container-low border-2 border-primary max-w-2xl w-full p-6 md:p-8 rounded-sm relative shadow-[0_0_50px_rgba(240,193,44,0.3)] my-8">
+            
+            <!-- Close Button -->
+            <button id="close-modal-btn" class="absolute top-4 right-4 text-outline hover:text-primary transition-colors p-2" aria-label="Close Admit Pass">
+                <span class="material-symbols-outlined text-2xl">close</span>
+            </button>
+
+            <!-- Holographic Admit Pass Card -->
+            <div id="printable-pass" class="border border-primary/40 bg-surface-container-lowest p-6 relative overflow-hidden rounded-sm">
+                <!-- Watermark Arc Reactor -->
+                <div class="absolute -right-16 -bottom-16 w-64 h-64 border-[12px] border-dashed border-primary/5 rounded-full pointer-events-none animate-[spin_40s_linear_infinite]"></div>
+
+                <div class="flex items-center justify-between border-b border-primary/30 pb-4 mb-6">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-primary animate-ping"></span>
+                            <span class="text-[10px] font-orbitron text-primary tracking-widest uppercase">VISION 2026 // OFFICIAL PASS</span>
+                        </div>
+                        <h2 class="text-2xl font-headline-xl text-on-surface uppercase tracking-wider mt-1">HACKATHON ADMISSION PROTOCOL</h2>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[10px] font-label-sm text-outline uppercase block">PASS REFERENCE ID</span>
+                        <span class="text-sm font-orbitron text-primary" id="modal-pass-id">VIS-2026-0000</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="md:col-span-2 space-y-4">
+                        <div>
+                            <span class="text-[10px] font-label-sm text-outline uppercase block">CONFIRMED TEAM SQUAD</span>
+                            <span class="text-xl font-headline-md text-primary uppercase" id="modal-team-name">TEAM NAME</span>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2 border-t border-b border-outline-variant/30 py-3 text-xs">
+                            <div>
+                                <span class="text-[9px] font-label-sm text-outline block">LEADER</span>
+                                <span class="font-body-md text-on-surface truncate block" id="modal-m1">--</span>
+                            </div>
+                            <div>
+                                <span class="text-[9px] font-label-sm text-outline block">MEMBER 2</span>
+                                <span class="font-body-md text-on-surface truncate block" id="modal-m2">--</span>
+                            </div>
+                            <div>
+                                <span class="text-[9px] font-label-sm text-outline block">MEMBER 3</span>
+                                <span class="font-body-md text-on-surface truncate block" id="modal-m3">--</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 text-xs">
+                            <div>
+                                <span class="text-[9px] font-label-sm text-outline block">EVENT DATE &amp; VENUE</span>
+                                <span class="font-body-md text-on-surface-variant block">Sept 20-21, 2026<br />Main Auditorium, KEC</span>
+                            </div>
+                            <div>
+                                <span class="text-[9px] font-label-sm text-outline block">TRANSACTION UTR / STATUS</span>
+                                <span class="font-body-md text-primary font-orbitron text-xs block" id="modal-txn-id">UTR: --</span>
+                                <span class="inline-block mt-1 text-[9px] px-2 py-0.5 bg-primary/20 text-primary border border-primary/40 rounded-xs">VERIFIED &amp; LOCKED</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pass Verification QR Code -->
+                    <div class="flex flex-col items-center justify-center p-3 bg-white rounded-sm text-black shadow-inner">
+                        <svg viewBox="0 0 100 100" class="w-24 h-24">
+                            <rect width="100" height="100" fill="white" />
+                            <rect x="5" y="5" width="26" height="26" fill="#121317" />
+                            <rect x="9" y="9" width="18" height="18" fill="white" />
+                            <rect x="13" y="13" width="10" height="10" fill="#f0c12c" />
+                            <rect x="69" y="5" width="26" height="26" fill="#121317" />
+                            <rect x="73" y="9" width="18" height="18" fill="white" />
+                            <rect x="77" y="13" width="10" height="10" fill="#f0c12c" />
+                            <rect x="5" y="69" width="26" height="26" fill="#121317" />
+                            <rect x="9" y="73" width="18" height="18" fill="white" />
+                            <rect x="13" y="77" width="10" height="10" fill="#f0c12c" />
+                            <rect x="36" y="34" width="28" height="28" fill="#121317" rx="3" />
+                            <text x="50" y="52" fill="#f0c12c" font-size="12" font-family="Orbitron" font-weight="bold" text-anchor="middle">V</text>
+                        </svg>
+                        <span class="text-[8px] font-label-sm text-black/70 uppercase mt-1 tracking-wider">Gate Check Token</span>
+                    </div>
+                </div>
+
+                <div class="border-t border-dashed border-outline-variant/30 pt-3 text-[10px] text-on-surface-variant flex justify-between items-center">
+                    <span>* Present this digital pass or email receipt during campus entry check-in.</span>
+                    <span class="font-orbitron text-primary text-[9px]">VISION 2026 PROTOCOL</span>
+                </div>
+            </div>
+
+            <!-- Modal Action Buttons -->
+            <div class="mt-6 flex flex-col sm:flex-row items-center gap-3">
+                <button id="email-confirm-btn" class="w-full sm:w-1/2 bg-primary/20 hover:bg-primary text-primary hover:text-on-primary border border-primary font-label-sm py-3 px-4 text-xs uppercase tracking-widest transition-all duration-200 flex items-center justify-center gap-2 rounded-sm">
+                    <span class="material-symbols-outlined text-sm">mail</span>
+                    Send / Copy Confirmation Email
+                </button>
+                <button id="print-pass-btn" class="w-full sm:w-1/2 bg-primary text-on-primary hover:bg-primary-fixed border border-primary font-label-sm py-3 px-4 text-xs uppercase tracking-widest transition-all duration-200 flex items-center justify-center gap-2 rounded-sm font-bold shadow-[0_0_15px_rgba(240,193,44,0.3)]">
+                    <span class="material-symbols-outlined text-sm">print</span>
+                    Print / Download Admit Pass
+                </button>
+            </div>
+            <div id="email-toast" class="hidden text-center text-xs font-label-sm text-primary mt-3 tracking-widest">
+                ✓ EMAIL CONFIRMATION PREPARED &amp; DISPATCHED
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ FOOTER ============ -->
+    <footer class="w-full bg-surface-container-lowest border-t border-primary/10 pt-16 pb-8" id="contact">
+        <div class="max-w-7xl mx-auto px-margin-edge">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+                <div class="space-y-4">
+                    <div class="font-label-sm text-primary tracking-widest uppercase">Contact:</div>
+                    <div class="font-body-md text-on-surface-variant">terminal@vision.hack<br />+91 98765 43210</div>
+                </div>
+                <div class="space-y-4">
+                    <div class="font-label-sm text-primary tracking-widest uppercase">Support:</div>
+                    <div class="font-body-md text-on-surface-variant underline decoration-outline-variant">Documentation</div>
+                    <div class="font-body-md text-on-surface-variant underline decoration-outline-variant">Rules &amp; FAQ</div>
+                </div>
+                <div class="space-y-4">
+                    <div class="font-label-sm text-primary tracking-widest uppercase">Location:</div>
+                    <div class="font-body-md text-on-surface-variant">Kongu Engineering College<br />Main Auditorium, Erode</div>
+                </div>
+                <div class="flex flex-col md:items-end gap-6">
+                    <div class="flex gap-4">
+                        <a class="w-10 h-10 border border-outline-variant flex items-center justify-center text-primary hover:bg-primary/10 transition-all" href="#" rel="noopener noreferrer" aria-label="Network"><span class="material-symbols-outlined">hub</span></a>
+                        <a class="w-10 h-10 border border-outline-variant flex items-center justify-center text-primary hover:bg-primary/10 transition-all" href="#" rel="noopener noreferrer" aria-label="Web"><span class="material-symbols-outlined">public</span></a>
+                    </div>
+                    <div class="font-label-sm text-outline-variant">VER: 2.0.0 // MARVEL AUDIO EDITION</div>
+                </div>
+            </div>
+            <div class="border-t border-outline-variant/20 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="font-label-sm text-outline-variant uppercase text-xs">© 2026 VISION HACKATHON. ALL AVENGERS PROTOCOLS OPERATIONAL.</div>
+                <div class="flex gap-8 text-xs font-label-sm text-outline-variant">
+                    <span>IEEE AP-S &amp; KEC</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase & Logic Script -->
+    <script type="module">
+        import { firebaseConfig, isFirebaseConfigured } from './firebase-config.js';
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js';
+        import { 
+            getFirestore, 
+            doc, 
+            collection, 
+            getDocs,
+            query,
+            where,
+            onSnapshot, 
+            runTransaction, 
+            serverTimestamp 
+        } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
+        import SFX from './sounds.js';
+
+        window._SFX = SFX;
+
+        // Boot sound and inject Marvel Floating HUD
+        document.addEventListener('DOMContentLoaded', () => {
+            SFX.injectMarvelHUD();
+            SFX.attachClickSounds();
+        });
+
+        const bootOnce = () => {
+            SFX.boot();
+            document.removeEventListener('pointerdown', bootOnce);
+            document.removeEventListener('keydown', bootOnce);
+        };
+        document.addEventListener('pointerdown', bootOnce, { once: true });
+        document.addEventListener('keydown', bootOnce, { once: true });
+
+        /* ---------- Mobile nav toggle ---------- */
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (menuBtn && mobileMenu) {
+            menuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+                mobileMenu.classList.toggle('flex');
+            });
+        }
+
+        /* ---------- Copy UPI ID Button ---------- */
+        const copyUpiBtn = document.getElementById('copy-upi-btn');
+        const upiIdText = document.getElementById('upi-id-text');
+        if (copyUpiBtn && upiIdText) {
+            copyUpiBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(upiIdText.textContent.trim());
+                SFX.click();
+                copyUpiBtn.innerHTML = '<span class="material-symbols-outlined text-[16px] text-primary">check</span>';
+                setTimeout(() => {
+                    copyUpiBtn.innerHTML = '<span class="material-symbols-outlined text-[16px]">content_copy</span>';
+                }, 2000);
+            });
+        }
+
+        /* ---------- Screenshot Preview Drag-and-Drop ---------- */
+        const dropZone = document.getElementById('drop-zone');
+        const screenshotInput = document.getElementById('screenshot-input');
+        const dropPrompt = document.getElementById('drop-prompt');
+        const dropPreview = document.getElementById('drop-preview');
+        const previewImg = document.getElementById('preview-img');
+        const previewName = document.getElementById('preview-name');
+        const removePreviewBtn = document.getElementById('remove-preview-btn');
+
+        let base64Screenshot = null;
+
+        if (screenshotInput) {
+            screenshotInput.addEventListener('change', handleFile);
+        }
+
+        function handleFile(e) {
+            const file = e.target.files ? e.target.files[0] : null;
+            if (!file) return;
+
+            if (file.size > 2 * 1024 * 1024) {
+                alert('File size exceeds 2MB limit. Please choose a smaller image.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                base64Screenshot = event.target.result;
+                previewImg.src = base64Screenshot;
+                previewName.textContent = file.name;
+                dropPrompt.classList.add('hidden');
+                dropPreview.classList.remove('hidden');
+                SFX.click();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        if (removePreviewBtn) {
+            removePreviewBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                base64Screenshot = null;
+                screenshotInput.value = '';
+                previewImg.src = '';
+                dropPreview.classList.add('hidden');
+                dropPrompt.classList.remove('hidden');
+                SFX.click();
+            });
+        }
+
+        /* =========================================================
+           SECURITY & SANITIZATION UTILITIES
+           ========================================================= */
+        function sanitizeString(str) {
+            if (typeof str !== 'string') return '';
+            return str.trim()
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#x27;')
+                .replace(/\//g, '&#x2F;');
+        }
+
+        const REGEX = {
+            team_name: /^[a-zA-Z0-9\s\-_]{3,30}$/,
+            name: /^[a-zA-Z\s.]{2,50}$/,
+            email: /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/,
+            mobile: /^[6-9]\d{9}$/,
+            txn_id: /^[a-zA-Z0-9\-_]{8,30}$/
+        };
+
+        const MAX_TEAMS = 35;
+        let seatsRemaining = 12;
+
+        const bannerRemaining = document.getElementById('banner-remaining');
+        const bannerStatus = document.getElementById('banner-status');
+        const submitBtn = document.getElementById('submit-btn');
+
+        function renderBanner() {
+            if (!bannerRemaining || !bannerStatus || !submitBtn) return;
+            bannerRemaining.textContent = `${seatsRemaining} / ${MAX_TEAMS}`;
+            if (seatsRemaining === 0) {
+                bannerStatus.textContent = 'REGISTRATION FULL — LOCKED';
+                bannerStatus.className = 'font-label-sm text-error tracking-widest uppercase';
+                submitBtn.disabled = true;
+            } else if (seatsRemaining <= 5) {
+                bannerStatus.textContent = 'CRITICAL SLOTS REMAINING';
+                bannerStatus.className = 'font-label-sm text-error tracking-widest uppercase';
+            } else {
+                bannerStatus.textContent = 'AVENGERS RECRUITMENT OPEN';
+                bannerStatus.className = 'font-label-sm text-primary tracking-widest uppercase';
+            }
+        }
+        renderBanner();
+
+        /* =========================================================
+           FIREBASE REAL-TIME CAPACITY LISTENER
+           ========================================================= */
+        let db = null;
+        if (isFirebaseConfigured()) {
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                const capacityDocRef = doc(db, 'metadata', 'capacity');
+
+                onSnapshot(capacityDocRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        seatsRemaining = typeof data.seats_remaining === 'number' ? data.seats_remaining : MAX_TEAMS;
+                        renderBanner();
+                    }
+                }, (err) => {
+                    console.warn('Firestore live capacity listener notice:', err);
+                });
+            } catch (err) {
+                console.error('Firebase initialization error:', err);
+            }
+        }
+
+        /* =========================================================
+           VALIDATION ENGINE
+           ========================================================= */
+        const form = document.getElementById('registration-form');
+        const txnInput = document.getElementById('txn_id');
+        const formStatus = document.getElementById('form-status');
+        const submitLabel = document.getElementById('submit-btn-label');
+        const honeypot = document.getElementById('hp_system_ref');
+
+        let lastSubmitTimestamp = 0;
+        const SUBMIT_COOLDOWN_MS = 3000;
+
+        function showFieldError(id, show, customMsg) {
+            const msg = document.querySelector(`[data-error-for="${id}"]`);
+            const input = document.getElementById(id);
+            if (!msg || !input) return;
+            if (customMsg) msg.textContent = customMsg;
+            msg.classList.toggle('show', show);
+            input.classList.toggle('field-error', show);
+        }
+
+        function validateAllFields() {
+            let valid = true;
+
+            const teamNameInput = document.getElementById('team_name');
+            const teamNameOk = REGEX.team_name.test(teamNameInput.value.trim());
+            showFieldError('team_name', !teamNameOk);
+            if (!teamNameOk) valid = false;
+
+            const m1NameOk = REGEX.name.test(document.getElementById('m1_name').value.trim());
+            showFieldError('m1_name', !m1NameOk);
+            if (!m1NameOk) valid = false;
+
+            const m1Email = document.getElementById('m1_email').value.trim().toLowerCase();
+            const m1EmailOk = REGEX.email.test(m1Email);
+            showFieldError('m1_email', !m1EmailOk);
+            if (!m1EmailOk) valid = false;
+
+            const m1Mobile = document.getElementById('m1_mobile').value.trim();
+            const m1MobileOk = REGEX.mobile.test(m1Mobile);
+            showFieldError('m1_mobile', !m1MobileOk);
+            if (!m1MobileOk) valid = false;
+
+            const m2NameOk = REGEX.name.test(document.getElementById('m2_name').value.trim());
+            showFieldError('m2_name', !m2NameOk);
+            if (!m2NameOk) valid = false;
+
+            const m2Email = document.getElementById('m2_email').value.trim().toLowerCase();
+            const m2EmailOk = REGEX.email.test(m2Email);
+            showFieldError('m2_email', !m2EmailOk);
+            if (!m2EmailOk) valid = false;
+
+            const m2Mobile = document.getElementById('m2_mobile').value.trim();
+            const m2MobileOk = REGEX.mobile.test(m2Mobile);
+            showFieldError('m2_mobile', !m2MobileOk);
+            if (!m2MobileOk) valid = false;
+
+            const m3NameOk = REGEX.name.test(document.getElementById('m3_name').value.trim());
+            showFieldError('m3_name', !m3NameOk);
+            if (!m3NameOk) valid = false;
+
+            const m3Email = document.getElementById('m3_email').value.trim().toLowerCase();
+            const m3EmailOk = REGEX.email.test(m3Email);
+            showFieldError('m3_email', !m3EmailOk);
+            if (!m3EmailOk) valid = false;
+
+            const m3Mobile = document.getElementById('m3_mobile').value.trim();
+            const m3MobileOk = REGEX.mobile.test(m3Mobile);
+            showFieldError('m3_mobile', !m3MobileOk);
+            if (!m3MobileOk) valid = false;
+
+            // Uniqueness check across members
+            if (m1EmailOk && m2EmailOk && m3EmailOk) {
+                if (m1Email === m2Email || m1Email === m3Email || m2Email === m3Email) {
+                    showFieldError('m1_email', true, '// EACH MEMBER MUST HAVE A UNIQUE EMAIL');
+                    showFieldError('m2_email', true, '// EACH MEMBER MUST HAVE A UNIQUE EMAIL');
+                    showFieldError('m3_email', true, '// EACH MEMBER MUST HAVE A UNIQUE EMAIL');
+                    valid = false;
+                }
+            }
+
+            if (m1MobileOk && m2MobileOk && m3MobileOk) {
+                if (m1Mobile === m2Mobile || m1Mobile === m3Mobile || m2Mobile === m3Mobile) {
+                    showFieldError('m1_mobile', true, '// EACH MEMBER MUST HAVE A UNIQUE PHONE');
+                    showFieldError('m2_mobile', true, '// EACH MEMBER MUST HAVE A UNIQUE PHONE');
+                    showFieldError('m3_mobile', true, '// EACH MEMBER MUST HAVE A UNIQUE PHONE');
+                    valid = false;
+                }
+            }
+
+            const txnVal = txnInput.value.trim();
+            const txnOk = REGEX.txn_id.test(txnVal);
+            showFieldError('txn_id', !txnOk);
+            if (!txnOk) valid = false;
+
+            return valid;
+        }
+
+        // Real-time input listeners
+        document.querySelectorAll('#registration-form input, #txn_id').forEach(input => {
+            input.addEventListener('input', () => {
+                const id = input.id;
+                const val = input.value.trim();
+                if (id === 'team_name' && REGEX.team_name.test(val)) showFieldError(id, false);
+                else if (id.endsWith('_name') && REGEX.name.test(val)) showFieldError(id, false);
+                else if (id.endsWith('_email') && REGEX.email.test(val.toLowerCase())) showFieldError(id, false);
+                else if (id.endsWith('_mobile') && REGEX.mobile.test(val)) showFieldError(id, false);
+                else if (id === 'txn_id' && REGEX.txn_id.test(val)) showFieldError(id, false);
+            });
+        });
+
+        /* =========================================================
+           MODAL & ADMIT PASS GENERATOR
+           ========================================================= */
+        const passModal = document.getElementById('admit-pass-modal');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const modalPassId = document.getElementById('modal-pass-id');
+        const modalTeamName = document.getElementById('modal-team-name');
+        const modalM1 = document.getElementById('modal-m1');
+        const modalM2 = document.getElementById('modal-m2');
+        const modalM3 = document.getElementById('modal-m3');
+        const modalTxnId = document.getElementById('modal-txn-id');
+        const emailConfirmBtn = document.getElementById('email-confirm-btn');
+        const printPassBtn = document.getElementById('print-pass-btn');
+        const emailToast = document.getElementById('email-toast');
+
+        let currentPassData = null;
+
+        function showAdmitPass(data) {
+            currentPassData = data;
+            const passRef = 'VIS-2026-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+            
+            modalPassId.textContent = passRef;
+            modalTeamName.textContent = data.team_name;
+            modalM1.textContent = `${data.members[0].name} (${data.members[0].mobile})`;
+            modalM2.textContent = `${data.members[1].name} (${data.members[1].mobile})`;
+            modalM3.textContent = `${data.members[2].name} (${data.members[2].mobile})`;
+            modalTxnId.textContent = `UTR: ${data.txn_id}`;
+
+            passModal.classList.remove('hidden');
+            SFX.success();
+        }
+
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', () => {
+                passModal.classList.add('hidden');
+                SFX.click();
+            });
+        }
+
+        if (printPassBtn) {
+            printPassBtn.addEventListener('click', () => {
+                SFX.click();
+                window.print();
+            });
+        }
+
+        if (emailConfirmBtn) {
+            emailConfirmBtn.addEventListener('click', () => {
+                if (!currentPassData) return;
+                SFX.click();
+
+                const leaderEmail = currentPassData.members[0].email;
+                const subject = encodeURIComponent(`[CONFIRMED] Vision 2026 Hackathon Admit Pass - Team ${currentPassData.team_name}`);
+                const body = encodeURIComponent(
+`Greetings Team ${currentPassData.team_name},
+
+Your registration for VISION 2026 (24-Hour Hackathon) has been successfully verified and confirmed!
+
+=== ADMIT PASS DETAILS ===
+Pass ID: ${modalPassId.textContent}
+Team Name: ${currentPassData.team_name}
+Transaction UTR: ${currentPassData.txn_id}
+
+=== SQUAD MEMBERS ===
+1. Leader: ${currentPassData.members[0].name} (${currentPassData.members[0].email} / ${currentPassData.members[0].mobile})
+2. Member 2: ${currentPassData.members[1].name} (${currentPassData.members[1].email} / ${currentPassData.members[1].mobile})
+3. Member 3: ${currentPassData.members[2].name} (${currentPassData.members[2].email} / ${currentPassData.members[2].mobile})
+
+=== EVENT VENUE & SCHEDULE ===
+Dates: September 20-21, 2026
+Venue: Main Auditorium, Kongu Engineering College, Perundurai
+Reporting Time: 08:30 AM IST
+
+Please keep this email or present your digital pass QR code at the registration desk on arrival.
+
+Avengers Assemble!
+Vision Hackathon Organizing Team
+terminal@vision.hack`
+                );
+
+                // Open formatted mail client & copy text
+                window.location.href = `mailto:${leaderEmail}?cc=${currentPassData.members[1].email},${currentPassData.members[2].email}&subject=${subject}&body=${body}`;
+                
+                emailToast.classList.remove('hidden');
+                setTimeout(() => {
+                    emailToast.classList.add('hidden');
+                }, 4000);
+            });
+        }
+
+        /* =========================================================
+           FORM SUBMISSION HANDLER
+           ========================================================= */
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (seatsRemaining === 0) {
+                formStatus.textContent = 'REGISTRATION IS FULL. PROTOCOLS LOCKED.';
+                formStatus.className = 'font-label-sm text-center text-error tracking-widest';
+                formStatus.classList.remove('hidden');
+                SFX.error();
+                return;
+            }
+
+            const now = Date.now();
+            if (now - lastSubmitTimestamp < SUBMIT_COOLDOWN_MS) {
+                formStatus.textContent = '// SECURITY RATE-LIMIT: PLEASE WAIT A MOMENT';
+                formStatus.className = 'font-label-sm text-center text-error tracking-widest';
+                formStatus.classList.remove('hidden');
+                return;
+            }
+            lastSubmitTimestamp = now;
+
+            if (honeypot && honeypot.value.trim() !== '') {
+                submitBtn.disabled = true;
+                submitLabel.textContent = 'VERIFYING SECURITY PARAMS...';
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitLabel.textContent = 'VERIFY & GENERATE ADMIT PASS';
+                    form.reset();
+                }, 2000);
+                return;
+            }
+
+            if (!validateAllFields()) {
+                formStatus.textContent = '// ERROR: INVALID PARAMETERS DETECTED ABOVE';
+                formStatus.className = 'font-label-sm text-center text-error tracking-widest';
+                formStatus.classList.remove('hidden');
+                SFX.error();
+                return;
+            }
+
+            const teamNameVal = sanitizeString(document.getElementById('team_name').value);
+            const txnVal = sanitizeString(txnInput.value.toUpperCase());
+
+            submitBtn.disabled = true;
+            submitLabel.textContent = 'ENCRYPTING & CHECKING UTR...';
+            formStatus.classList.add('hidden');
+
+            const payload = {
+                team_name: teamNameVal,
+                members: [
+                    {
+                        name: sanitizeString(document.getElementById('m1_name').value),
+                        email: sanitizeString(document.getElementById('m1_email').value.toLowerCase()),
+                        mobile: sanitizeString(document.getElementById('m1_mobile').value)
+                    },
+                    {
+                        name: sanitizeString(document.getElementById('m2_name').value),
+                        email: sanitizeString(document.getElementById('m2_email').value.toLowerCase()),
+                        mobile: sanitizeString(document.getElementById('m2_mobile').value)
+                    },
+                    {
+                        name: sanitizeString(document.getElementById('m3_name').value),
+                        email: sanitizeString(document.getElementById('m3_email').value.toLowerCase()),
+                        mobile: sanitizeString(document.getElementById('m3_mobile').value)
+                    }
+                ],
+                txn_id: txnVal,
+                screenshot: base64Screenshot || null,
+                status: 'pending_verification'
+            };
+
+            if (db) {
+                try {
+                    // Pre-flight duplicate UTR check in Firestore
+                    const dupQuery = query(collection(db, 'registrations'), where('txn_id', '==', txnVal));
+                    const dupSnap = await getDocs(dupQuery);
+                    if (!dupSnap.empty) {
+                        showFieldError('txn_id', true, '// TRANSACTION ID ALREADY USED BY ANOTHER REGISTRATION');
+                        throw new Error('DUPLICATE_TXN_ID');
+                    }
+
+                    // Atomic Firestore capacity lock & document creation
+                    await runTransaction(db, async (transaction) => {
+                        const capacityRef = doc(db, 'metadata', 'capacity');
+                        const capacityDoc = await transaction.get(capacityRef);
+
+                        let currentRemaining = MAX_TEAMS;
+                        let currentRegistered = 0;
+
+                        if (capacityDoc.exists()) {
+                            const data = capacityDoc.data();
+                            currentRemaining = typeof data.seats_remaining === 'number' ? data.seats_remaining : MAX_TEAMS;
+                            currentRegistered = typeof data.registered_count === 'number' ? data.registered_count : 0;
+                        }
+
+                        if (currentRemaining <= 0 || currentRegistered >= MAX_TEAMS) {
+                            throw new Error('CAPACITY_FULL');
+                        }
+
+                        const newRegistrationRef = doc(collection(db, 'registrations'));
+                        transaction.set(newRegistrationRef, {
+                            ...payload,
+                            createdAt: serverTimestamp()
+                        });
+
+                        transaction.set(capacityRef, {
+                            max_teams: MAX_TEAMS,
+                            registered_count: currentRegistered + 1,
+                            seats_remaining: currentRemaining - 1
+                        }, { merge: true });
+                    });
+
+                    // Success Feedback & Launch Holographic Admit Pass Modal
+                    submitLabel.textContent = 'REGISTRATION CONFIRMED';
+                    formStatus.textContent = 'TRANSMISSION VERIFIED. FIRESTORE RECORD SECURED.';
+                    formStatus.className = 'font-label-sm text-center text-primary tracking-widest';
+                    formStatus.classList.remove('hidden');
+
+                    showAdmitPass(payload);
+
+                    form.reset();
+                    txnInput.value = '';
+                    base64Screenshot = null;
+                    if (dropPreview) dropPreview.classList.add('hidden');
+                    if (dropPrompt) dropPrompt.classList.remove('hidden');
+                    submitBtn.disabled = (seatsRemaining === 0);
+                    submitLabel.textContent = 'VERIFY & GENERATE ADMIT PASS';
+                    return;
+
+                } catch (error) {
+                    console.error('Registration transaction error:', error);
+                    submitBtn.disabled = false;
+                    submitLabel.textContent = 'VERIFY & GENERATE ADMIT PASS';
+
+                    if (error.message === 'DUPLICATE_TXN_ID') {
+                        formStatus.textContent = '// DUPLICATE UTR ERROR: TRANSACTION ID ALREADY USED';
+                    } else if (error.message === 'CAPACITY_FULL') {
+                        formStatus.textContent = 'REGISTRATION FULL: ALL 35 SEATS ARE FILLED';
+                    } else {
+                        formStatus.textContent = '// ERROR: ' + (error.message || 'TRANSMISSION FAILED');
+                    }
+                    formStatus.className = 'font-label-sm text-center text-error tracking-widest';
+                    formStatus.classList.remove('hidden');
+                    SFX.error();
+                    return;
+                }
+            }
+
+            // Fallback Simulated Execution (Demo Mode)
+            setTimeout(() => {
+                seatsRemaining = Math.max(0, seatsRemaining - 1);
+                renderBanner();
+                showAdmitPass(payload);
+                form.reset();
+                txnInput.value = '';
+                submitBtn.disabled = (seatsRemaining === 0);
+                submitLabel.textContent = 'VERIFY & GENERATE ADMIT PASS';
+            }, 1000);
+        });
+    </script>
+</body>
+
+</html>

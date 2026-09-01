@@ -1,0 +1,41 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions for data format validation
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidMobile(phone) {
+      return phone is string && phone.matches("^[6-9][0-9]{9}$");
+    }
+
+    function isValidMember(member) {
+      return member is map &&
+             member.keys().hasAll(['name', 'email', 'mobile']) &&
+             member.name is string && member.name.size() >= 2 &&
+             isValidEmail(member.email) &&
+             isValidMobile(member.mobile);
+    }
+
+    // Capacity Node: readable & updatable for live tracking & initialization
+    match /metadata/capacity {
+      allow read, write: if true;
+    }
+
+    // Registrations Collection: public create, admin read, update status & delete
+    match /registrations/{registrationId} {
+      allow create: if request.resource.data.team_name is string &&
+                       request.resource.data.txn_id is string &&
+                       request.resource.data.members is list &&
+                       request.resource.data.members.size() == 3 &&
+                       isValidMember(request.resource.data.members[0]) &&
+                       isValidMember(request.resource.data.members[1]) &&
+                       isValidMember(request.resource.data.members[2]);
+      
+      allow read, update, delete: if true;
+    }
+  }
+}
