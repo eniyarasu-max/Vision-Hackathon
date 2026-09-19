@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Vision 2K26 — Organiser Terminal &amp; Gate Scanner | IEEE AP-S KEC</title>
+    <!-- Security Headers & Policies -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com https://*.googletagmanager.com https://cdnjs.cloudflare.com https://cdn.sheetjs.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://firestore.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://api.telegram.org https://api.callmebot.com https://api.qrserver.com; object-src 'none'; base-uri 'self'; form-action 'self';" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="Permissions-Policy" content="accelerometer=(), camera=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()" />
+
+    <!-- Instant Auth Guard: redirect to admin.html if not authenticated -->
+    <script>
+        if (sessionStorage.getItem('vision_admin_auth') !== 'true') {
+            window.location.replace('admin.html');
+        }
+    </script>
+
+    <style>
+        @layer base {
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+                scroll-behavior: smooth;
+            }
+
+            body {
+                overscroll-behavior: none;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(240, 193, 44, 0.4);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0b0c10;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.4s ease-out forwards;
+        }
+
+        /* Scanner viewfinder reticle & autofocus pulses */
+        #qr-reader {
+            border: none !important;
+            background: #000;
+        }
+
+        #qr-reader video {
+            border-radius: 4px;
+            object-fit: cover !important;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .tap-focus-box {
+            position: absolute;
+            width: 56px;
+            height: 56px;
+            border: 2px solid #f0c12c;
+            border-radius: 6px;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            box-shadow: 0 0 12px rgba(240, 193, 44, 0.8), inset 0 0 8px rgba(240, 193, 44, 0.4);
+            animation: focusPulse 0.6s ease-out forwards;
+            z-index: 40;
+        }
+
+        @keyframes focusPulse {
+            0% { transform: translate(-50%, -50%) scale(1.4); opacity: 1; }
+            70% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.9; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+        }
+
+        .gold-glow {
+            text-shadow: 0 0 15px rgba(240, 193, 44, 0.6), 0 0 30px rgba(240, 193, 44, 0.3);
+        }
+    </style>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#f0c12c",
+                        "primary-container": "#f4c430",
+                        "on-primary": "#241a00",
+                        surface: "#0b0c10",
+                        "surface-container": "#121318",
+                        "surface-container-low": "#161820",
+                        "surface-container-lowest": "#07080b",
+                        "surface-container-high": "#1f212a",
+                        "surface-container-highest": "#2a2d39",
+                        "on-surface": "#e3e2e7",
+                        "on-surface-variant": "#c4b897",
+                        outline: "#9a907a",
+                        "outline-variant": "#4e4634",
+                        error: "#ffb4ab",
+                        "error-container": "#93000a"
+                    },
+                    fontFamily: {
+                        orbitron: ["Orbitron", "sans-serif"],
+                        mono: ["JetBrains Mono", "monospace"],
+                        space: ["Space Grotesk", "sans-serif"]
+                    }
+                }
+            }
+        };
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+
+    <!-- External SheetJS & Html5Qrcode -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+</head>
+
+<body class="bg-surface font-space text-on-surface selection:bg-primary selection:text-on-primary min-h-screen">
+
+    <!-- ============ MAIN TERMINAL INTERFACE ============ -->
+    <div id="terminal-content" class="min-h-screen flex flex-col justify-between">
+        
+        <!-- Header -->
+        <header class="bg-surface-container-lowest border-b border-primary/20 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-4 md:px-8 h-20 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                    <div>
+                        <h1 class="font-orbitron text-lg md:text-xl font-black text-primary gold-glow tracking-wider uppercase">
+                            VISION 2K26 // ORGANISER TERMINAL
+                        </h1>
+                        <div class="font-mono text-[10px] text-zinc-400">INTRA-COLLEGE SYMPOSIUM • 5 OCTOBER 2026 • KEC</div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button id="open-scanner-btn" class="bg-primary hover:bg-primary-container text-black font-mono font-bold text-xs uppercase px-4 py-2 rounded-xs transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(240,193,44,0.3)] cursor-pointer">
+                        <span class="material-symbols-outlined text-sm">qr_code_scanner</span> On-Day Gate Scanner
+                    </button>
+                    <button id="lock-terminal-btn" class="bg-surface-container hover:bg-surface-container-high text-outline hover:text-white border border-outline-variant/40 font-mono text-xs px-3 py-2 rounded-xs transition-colors flex items-center gap-1 cursor-pointer" title="Lock &amp; Exit Terminal">
+                        <span class="material-symbols-outlined text-sm">lock</span>
+                        <span class="hidden sm:inline">Lock</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Body -->
+        <main class="max-w-7xl mx-auto px-4 md:px-8 py-8 space-y-8 flex-1 w-full animate-fade-in-up">
+            
+            <!-- KPI Overview Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                
+                <!-- Card 1: Total Registered Squads -->
+                <div class="bg-surface-container border border-primary/30 p-5 rounded-xs flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-mono text-xs text-zinc-400 uppercase tracking-wider">TOTAL SQUADS</span>
+                            <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                        </div>
+                        <div class="font-orbitron text-3xl text-primary font-bold" id="admin-total">0</div>
+                    </div>
+                    <div class="mt-3 font-mono text-[11px] text-zinc-400" id="admin-seats-sub">
+                        Open registration • No squad limit
+                    </div>
+                </div>
+
+                <!-- Card 2: Gate Attendance -->
+                <div class="bg-surface-container border border-primary/30 p-5 rounded-xs flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-mono text-xs text-zinc-400 uppercase tracking-wider">GATE ATTENDANCE</span>
+                            <span class="font-mono text-xs text-emerald-400 font-bold" id="attendance-pct">0%</span>
+                        </div>
+                        <div class="font-orbitron text-3xl text-emerald-400 font-bold" id="admin-checked-in">0 / 0</div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden mb-1">
+                            <div id="attendance-bar" class="bg-emerald-400 h-full transition-all duration-500" style="width: 0%;"></div>
+                        </div>
+                        <div class="font-mono text-[10px] text-zinc-400" id="admin-checked-in-sub">0 admitted squads</div>
+                    </div>
+                </div>
+
+                <!-- Card 3: Top Event Track -->
+                <div class="bg-surface-container border border-primary/30 p-5 rounded-xs flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-mono text-xs text-zinc-400 uppercase tracking-wider">ACTIVE EVENTS</span>
+                            <span class="font-mono text-[10px] text-primary">5 TRACKS</span>
+                        </div>
+                        <div class="font-orbitron text-xl text-white font-bold truncate" id="admin-top-event">ALL 5 ACTIVE</div>
+                    </div>
+                    <div class="mt-3 flex items-center gap-1.5 flex-wrap font-mono text-[10px]" id="event-stats-chips">
+                        <span class="bg-primary/15 text-primary px-2 py-0.5 rounded border border-primary/30" id="chip-paper">Paper: 0</span>
+                        <span class="bg-primary/15 text-primary px-2 py-0.5 rounded border border-primary/30" id="chip-project">Project: 0</span>
+                        <span class="bg-primary/15 text-primary px-2 py-0.5 rounded border border-primary/30" id="chip-ai">AI Sprint: 0</span>
+                        <span class="bg-primary/15 text-primary px-2 py-0.5 rounded border border-primary/30" id="chip-bid">ElectroBid: 0</span>
+                        <span class="bg-primary/15 text-primary px-2 py-0.5 rounded border border-primary/30" id="chip-robot">Robot: 0</span>
+                    </div>
+                </div>
+
+                <!-- Card 4: Quick Actions & Exporters -->
+                <div class="bg-surface-container border border-primary/30 p-5 rounded-xs flex flex-col justify-between">
+                    <div>
+                        <div class="font-mono text-xs text-zinc-400 uppercase tracking-wider mb-1">DATA EXPORTS</div>
+                        <div class="font-orbitron text-base text-white font-bold">PER-EVENT SHEETS</div>
+                    </div>
+                    <div class="mt-3 flex items-center gap-2 font-mono text-xs">
+                        <button id="export-excel-btn" class="flex-1 bg-surface-container-high hover:bg-primary hover:text-black text-white border border-outline-variant/40 px-2 py-1.5 rounded-xs transition-colors flex items-center justify-center gap-1 cursor-pointer font-bold" title="Export all registrations">
+                            <span class="material-symbols-outlined text-sm">table_chart</span> All Events
+                        </button>
+                        <button id="export-csv-btn" class="flex-1 bg-surface-container-high hover:bg-primary hover:text-black text-white border border-outline-variant/40 px-2 py-1.5 rounded-xs transition-colors flex items-center justify-center gap-1 cursor-pointer font-bold" title="Export CSV">
+                            <span class="material-symbols-outlined text-sm">download</span> CSV
+                        </button>
+                    </div>
+                    <div class="mt-2 font-mono text-[10px] text-zinc-400 leading-relaxed">↓ Per-event Excel below ↓</div>
+                </div>
+
+            </div>
+
+            <!-- Per-Event Excel Download Row -->
+            <div class="bg-surface-container border border-primary/20 p-4 rounded-xs">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="material-symbols-outlined text-primary text-base">table_chart</span>
+                    <span class="font-orbitron text-xs font-bold text-primary uppercase tracking-wider">Download Registrations by Event</span>
+                </div>
+                <div class="flex flex-wrap gap-2 font-mono text-xs">
+                    <button onclick="exportEventExcel('paper-presentation','Paper Presentation')"    class="bg-surface-container-high hover:bg-primary hover:text-black text-white border border-outline-variant/40 px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-bold">
+                        <span class="material-symbols-outlined text-sm">download</span> Paper Presentation
+                    </button>
+                    <button onclick="exportEventExcel('project-presentation','Project Presentation')" class="bg-surface-container-high hover:bg-primary hover:text-black text-white border border-outline-variant/40 px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-bold">
+                        <span class="material-symbols-outlined text-sm">download</span> Project Presentation
+                    </button>
+                    <button onclick="exportEventExcel('ai-sprint','AI Sprint')"                     class="bg-surface-container-high hover:bg-primary hover:text-black text-white border border-outline-variant/40 px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-bold">
+                        <span class="material-symbols-outlined text-sm">download</span> AI Sprint
+                    </button>
+                    <button onclick="exportEventExcel('electrobid','ElectroBid')"                   class="bg-surface-container-high hover:bg-primary hover:text-black text-white border border-outline-variant/40 px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-bold">
+                        <span class="material-symbols-outlined text-sm">download</span> ElectroBid
+                    </button>
+                    <button onclick="exportEventExcel('line-following-robot','Line Following Robot')" class="bg-surface-container-high hover:bg-primary hover:text-black text-white border border-outline-variant/40 px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-bold">
+                        <span class="material-symbols-outlined text-sm">download</span> Line Following Robot
+                    </button>
+                    <button onclick="exportAllExcelSheets()" class="bg-primary/15 hover:bg-primary hover:text-black text-primary border border-primary/50 px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-bold">
+                        <span class="material-symbols-outlined text-sm">table_chart</span> All Events (Multi-Sheet)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Toolbar: Search, Filters & Bulk Actions -->
+            <div class="bg-surface-container border border-primary/30 p-5 rounded-xs space-y-4">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+                    <div>
+                        <h2 class="font-orbitron text-base font-bold text-white uppercase">SQUAD REGISTRATIONS LOG</h2>
+                        <div class="font-mono text-xs text-primary tracking-widest mt-0.5">INTRA-COLLEGE MASTER DATABASE</div>
+                    </div>
+
+                    <!-- Search & Filter Bar -->
+                    <div class="flex items-center gap-3 w-full md:w-auto flex-wrap font-mono text-xs">
+                        <!-- Search Box -->
+                        <div class="relative flex-1 md:w-60">
+                            <input type="text" id="search-input" placeholder="Search squad, leader, contact..." class="w-full bg-surface-container-lowest border border-outline-variant/50 focus:border-primary text-xs py-2 pl-8 pr-3 text-white outline-none rounded-xs" />
+                            <span class="material-symbols-outlined text-zinc-500 text-sm absolute left-2.5 top-2.5">search</span>
+                        </div>
+
+                        <!-- Event Track Filter -->
+                        <select id="event-filter" class="bg-surface-container-lowest border border-outline-variant/50 focus:border-primary text-xs py-2 px-3 text-white outline-none rounded-xs cursor-pointer">
+                            <option value="all">Track: All 5 Events</option>
+                            <option value="Paper Presentation">Paper Presentation</option>
+                            <option value="Project Presentation">Project Presentation</option>
+                            <option value="AI Sprint">AI Sprint</option>
+                            <option value="ElectroBid">ElectroBid</option>
+                            <option value="Line Following Robot">Line Following Robot</option>
+                        </select>
+
+                        <!-- Status Filter -->
+                        <select id="status-filter" class="bg-surface-container-lowest border border-outline-variant/50 focus:border-primary text-xs py-2 px-3 text-white outline-none rounded-xs cursor-pointer">
+                            <option value="all">Status: All Squads</option>
+                            <option value="checked_in">Checked-In Only</option>
+                            <option value="pending_checkin">Not Yet Checked-In</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Bulk Action Bar (Visible on Selection) -->
+                <div id="bulk-toolbar" class="hidden bg-surface-container-high border border-primary p-3 rounded-xs flex items-center justify-between gap-3 font-mono text-xs">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-base">checklist</span>
+                        <span class="font-bold text-primary" id="bulk-count">0 Squads Selected</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button id="bulk-checkin-btn" class="bg-emerald-900 hover:bg-emerald-800 text-emerald-300 border border-emerald-500/50 px-3 py-1 rounded-xs transition-colors cursor-pointer">
+                            Mark Checked-In
+                        </button>
+                        <button id="bulk-delete-btn" class="bg-error-container hover:bg-error text-white px-3 py-1 rounded-xs transition-colors cursor-pointer">
+                            Delete Selected
+                        </button>
+                        <button id="bulk-cancel-btn" class="text-zinc-400 hover:text-white px-2 py-1 transition-colors cursor-pointer">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left font-mono text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-surface-container-lowest border-b border-primary/20 text-zinc-400 uppercase tracking-wider text-[11px]">
+                                <th class="py-3 px-3 text-center w-8">
+                                    <input type="checkbox" id="select-all-checkbox" class="accent-primary cursor-pointer" title="Select All" />
+                                </th>
+                                <th class="py-3 px-3">#</th>
+                                <th class="py-3 px-4">Squad Name</th>
+                                <th class="py-3 px-4">Event Track</th>
+                                <th class="py-3 px-4">Leader (Member 1)</th>
+                                <th class="py-3 px-4">Member 2</th>
+                                <th class="py-3 px-4">Member 3</th>
+                                <th class="py-3 px-4">Topic / Project</th>
+                                <th class="py-3 px-4">Gate Check-In</th>
+                                <th class="py-3 px-4 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teams-table-body" class="divide-y divide-outline-variant/15 text-white">
+                            <tr>
+                                <td colspan="10" class="py-8 text-center text-zinc-500 tracking-widest">
+                                    Loading registrations from database...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-[#050608] border-t border-primary/20 py-4 text-center font-mono text-xs text-zinc-500">
+            <div>VISION 2K26 • IEEE ANTENNAS AND PROPAGATION SOCIETY (IEEE APS) KEC</div>
+        </footer>
+    </div>
+
+    <!-- ============ ON-DAY GATE QR CAMERA SCANNER MODAL ============ -->
+    <div id="scanner-modal" class="fixed inset-0 z-[999999] hidden flex items-center justify-center bg-black/90 backdrop-blur-md p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-surface-container-low border-2 border-primary max-w-lg w-full p-5 sm:p-6 rounded-xs relative shadow-[0_0_50px_rgba(240,193,44,0.35)] my-8 animate-fade-in-up">
+            
+            <div class="flex items-center justify-between border-b border-outline-variant/30 pb-3 mb-3">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                    <h3 class="font-orbitron text-sm font-bold text-primary uppercase tracking-wider">
+                        GATE ENTRY SCANNER // VISION 2K26
+                    </h3>
+                </div>
+                <button id="close-scanner-btn" class="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white rounded cursor-pointer">
+                    <span class="material-symbols-outlined text-xl">close</span>
+                </button>
+            </div>
+
+            <!-- Viewfinder Area -->
+            <div class="relative overflow-hidden rounded-xs border border-primary/50 bg-black min-h-[260px] flex items-center justify-center" id="qr-viewfinder-container">
+                <div id="qr-reader" class="w-full h-full"></div>
+            </div>
+
+            <!-- Scanner Controls -->
+            <div class="mt-3 flex items-center justify-between gap-2 font-mono text-xs">
+                <button id="scanner-flip-cam-btn" class="bg-surface-container hover:bg-surface-container-high border border-outline-variant/40 px-2.5 py-1 rounded text-zinc-300 flex items-center gap-1 cursor-pointer">
+                    <span class="material-symbols-outlined text-sm">flip_camera_ios</span> Switch Cam
+                </button>
+                <button id="tts-toggle-btn" class="bg-surface-container hover:bg-surface-container-high border border-outline-variant/40 px-2.5 py-1 rounded text-primary flex items-center gap-1 cursor-pointer font-bold">
+                    <span class="material-symbols-outlined text-sm">volume_up</span> <span id="tts-toggle-label">Voice ON</span>
+                </button>
+            </div>
+
+            <!-- Manual Lookup Input -->
+            <div class="mt-3 flex gap-2 font-mono text-xs">
+                <input type="text" id="scanner-manual-input" placeholder="Enter Squad Name or Pass ID..." class="flex-1 bg-surface-container-lowest border border-outline-variant/50 px-3 py-1.5 rounded-xs text-white outline-none focus:border-primary" />
+                <button id="scanner-manual-btn" class="bg-primary hover:bg-primary-container text-black font-bold px-3 py-1.5 rounded-xs cursor-pointer">
+                    Lookup
+                </button>
+            </div>
+
+            <!-- Scanned Result Card -->
+            <div id="scanner-result" class="hidden mt-4 p-4 bg-black border border-primary rounded-xs space-y-2.5 font-mono text-xs animate-fade-in-up">
+                <div class="flex items-center justify-between border-b border-primary/30 pb-1.5">
+                    <div class="font-orbitron text-sm font-bold text-primary" id="scan-team-name">SQUAD NAME</div>
+                    <span id="scan-event-badge" class="bg-primary/20 text-primary border border-primary/40 px-2 py-0.5 rounded text-[10px] font-bold">EVENT TRACK</span>
+                </div>
+                <div class="space-y-1 text-zinc-300">
+                    <div><strong>Leader:</strong> <span id="scan-leader">--</span></div>
+                    <div><strong>Squad Members:</strong> <span id="scan-members">--</span></div>
+                    <div><strong>Gate Status:</strong> <span id="scan-checkin-status">--</span></div>
+                </div>
+
+                <div class="pt-2 flex items-center gap-2">
+                    <button id="scan-checkin-btn" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xs flex items-center justify-center gap-1.5 cursor-pointer">
+                        <span class="material-symbols-outlined text-base">how_to_reg</span> Admit Entry &amp; Check-In
+                    </button>
+                    <button id="scan-print-badge-btn" class="bg-surface-container border border-primary/50 text-primary hover:bg-primary/10 px-3 py-2 rounded-xs flex items-center gap-1 cursor-pointer">
+                        <span class="material-symbols-outlined text-base">badge</span> Badge
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module">
+        import { firebaseConfig, isFirebaseConfigured, organizerConfig } from './firebase-config.js';
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js';
+        import { 
+            getFirestore, 
+            doc, 
+            updateDoc,
+            deleteDoc,
+            collection, 
+            onSnapshot, 
+            query
+        } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
+        import SFX from './sounds.js';
+
+        window._SFX = SFX;
+
+        /* =========================================================
+           AUTH VERIFICATION & LOCK LOGIC
+           ========================================================= */
+        if (sessionStorage.getItem('vision_admin_auth') !== 'true') {
+            window.location.replace('admin.html');
+        }
+
+        const lockBtn = document.getElementById('lock-terminal-btn');
+        if (lockBtn) {
+            lockBtn.addEventListener('click', () => {
+                sessionStorage.removeItem('vision_admin_auth');
+                SFX.click();
+                window.location.replace('admin.html');
+            });
+        }
+
+        /* =========================================================
+           FIRESTORE DATABASE & METRICS
+           ========================================================= */
+        let db = null;
+        let registeredTeams = [];
+
+        const adminTotal = document.getElementById('admin-total');
+        const adminCheckedIn = document.getElementById('admin-checked-in');
+        const attendancePct = document.getElementById('attendance-pct');
+        const attendanceBar = document.getElementById('attendance-bar');
+        const adminCheckedInSub = document.getElementById('admin-checked-in-sub');
+        const tableBody = document.getElementById('teams-table-body');
+        const searchInput = document.getElementById('search-input');
+        const eventFilter = document.getElementById('event-filter');
+        const statusFilter = document.getElementById('status-filter');
+        const exportExcelBtn = document.getElementById('export-excel-btn');
+        const exportCsvBtn = document.getElementById('export-csv-btn');
+
+        // Event Chips for all 5 events
+        const chipPaper   = document.getElementById('chip-paper');
+        const chipProject = document.getElementById('chip-project');
+        const chipAi      = document.getElementById('chip-ai');
+        const chipBid     = document.getElementById('chip-bid');
+        const chipRobot   = document.getElementById('chip-robot');
+
+        // Event ID map — mirrors register.html
+        const EVENTS = [
+            { id: 'paper-presentation',   label: 'Paper Presentation',   short: 'Paper'   },
+            { id: 'project-presentation', label: 'Project Presentation', short: 'Project' },
+            { id: 'ai-sprint',            label: 'AI Sprint',            short: 'AI'      },
+            { id: 'electrobid',           label: 'ElectroBid',           short: 'Bid'     },
+            { id: 'line-following-robot', label: 'Line Following Robot', short: 'Robot'   }
+        ];
+
+        // Per-event team buckets (keyed by event id)
+        const teamsByEvent = {};
+        EVENTS.forEach(ev => { teamsByEvent[ev.id] = []; });
+
+        if (isFirebaseConfigured()) {
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+
+                // Attach one real-time listener PER EVENT subcollection
+                EVENTS.forEach(ev => {
+                    const colRef = collection(db, 'events', ev.id, 'registrations');
+                    onSnapshot(query(colRef), (snapshot) => {
+                        // Rebuild this event's bucket
+                        teamsByEvent[ev.id] = [];
+                        snapshot.forEach(d => {
+                            teamsByEvent[ev.id].push({ id: d.id, _colId: ev.id, ...d.data() });
+                        });
+
+                        // Merge all buckets → registeredTeams (sorted by createdAt desc)
+                        registeredTeams = [];
+                        EVENTS.forEach(e => {
+                            registeredTeams = registeredTeams.concat(teamsByEvent[e.id]);
+                        });
+                        registeredTeams.sort((a, b) => {
+                            const ta = a.createdAt?.seconds || 0;
+                            const tb = b.createdAt?.seconds || 0;
+                            return tb - ta;
+                        });
+
+                        updateMetrics();
+                        applyFilterAndRender();
+                    });
+                });
+
+            } catch (err) {
+                console.error('Firebase error:', err);
+            }
+        }
+
+        function updateMetrics() {
+            const total = registeredTeams.length;
+            if (adminTotal) adminTotal.textContent = total;
+
+            const checkedIn = registeredTeams.filter(t => t.checked_in === true).length;
+            if (adminCheckedIn) adminCheckedIn.textContent = `${checkedIn} / ${total}`;
+            const pct = total > 0 ? Math.round((checkedIn / total) * 100) : 0;
+            if (attendancePct) attendancePct.textContent = `${pct}%`;
+            if (attendanceBar) attendanceBar.style.width = `${pct}%`;
+            if (adminCheckedInSub) adminCheckedInSub.textContent = `${checkedIn} admitted squad${checkedIn !== 1 ? 's' : ''}`;
+
+            // Count per event (from per-event buckets)
+            if (chipPaper)   chipPaper.textContent   = `Paper: ${teamsByEvent['paper-presentation'].length}`;
+            if (chipProject) chipProject.textContent = `Project: ${teamsByEvent['project-presentation'].length}`;
+            if (chipAi)      chipAi.textContent      = `AI Sprint: ${teamsByEvent['ai-sprint'].length}`;
+            if (chipBid)     chipBid.textContent     = `ElectroBid: ${teamsByEvent['electrobid'].length}`;
+            if (chipRobot)   chipRobot.textContent   = `Robot: ${teamsByEvent['line-following-robot'].length}`;
+        }
+
+        /* ---------- Filtering & Table Rendering ---------- */
+        function applyFilterAndRender() {
+            const q = (searchInput.value || '').trim().toLowerCase();
+            const ev = eventFilter.value;
+            const st = statusFilter.value;
+
+            const filtered = registeredTeams.filter(t => {
+                // Event filter
+                if (ev !== 'all' && t.event_name !== ev) return false;
+
+                // Status filter
+                if (st === 'checked_in' && t.checked_in !== true) return false;
+                if (st === 'pending_checkin' && t.checked_in === true) return false;
+
+                // Text search
+                if (!q) return true;
+                const team = (t.team_name || '').toLowerCase();
+                const eventName = (t.event_name || '').toLowerCase();
+                const m1 = t.members && t.members[0] ? (t.members[0].name + ' ' + t.members[0].email + ' ' + t.members[0].mobile).toLowerCase() : '';
+                return team.includes(q) || eventName.includes(q) || m1.includes(q);
+            });
+
+            renderTable(filtered);
+        }
+
+        if (searchInput) searchInput.addEventListener('input', applyFilterAndRender);
+        if (eventFilter) eventFilter.addEventListener('change', applyFilterAndRender);
+        if (statusFilter) statusFilter.addEventListener('change', applyFilterAndRender);
+
+        function renderTable(teams) {
+            if (!tableBody) return;
+            if (teams.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="10" class="py-8 text-center text-zinc-500 tracking-widest font-mono text-xs">
+                            NO MATCHING REGISTRATIONS FOUND.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tableBody.innerHTML = '';
+            teams.forEach((t, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-surface-container-high/50 transition-colors';
+
+                const m1 = t.members && t.members[0] ? `${t.members[0].name} (${t.members[0].mobile})` : '--';
+                const m2 = t.members && t.members[1] ? `${t.members[1].name} (${t.members[1].mobile})` : '--';
+                const m3 = t.members && t.members[2] ? `${t.members[2].name} (${t.members[2].mobile})` : '--';
+
+                const isCheckedIn = t.checked_in === true;
+                const checkinBadge = isCheckedIn
+                    ? `<button onclick="toggleCheckIn('${t.id}', true)" class="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 hover:bg-emerald-500/30 cursor-pointer"><span class="material-symbols-outlined text-[12px]">check_circle</span> Checked-In</button>`
+                    : `<button onclick="toggleCheckIn('${t.id}', false)" class="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded bg-surface-container text-zinc-400 border border-outline-variant/40 hover:border-primary hover:text-primary cursor-pointer"><span class="material-symbols-outlined text-[12px]">how_to_reg</span> Admit Entry</button>`;
+
+                tr.innerHTML = `
+                    <td class="py-3 px-3 text-center">
+                        <input type="checkbox" data-id="${t.id}" class="team-select-checkbox accent-primary cursor-pointer" />
+                    </td>
+                    <td class="py-3 px-3 text-zinc-500">${idx + 1}</td>
+                    <td class="py-3 px-4 font-bold text-primary">${escapeHtml(t.team_name || 'N/A')}</td>
+                    <td class="py-3 px-4">
+                        <span class="inline-block px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/30 text-[10px] font-bold uppercase">
+                            ${escapeHtml(t.event_name || 'Event')}
+                        </span>
+                    </td>
+                    <td class="py-3 px-4">${escapeHtml(m1)}</td>
+                    <td class="py-3 px-4 text-zinc-400">${escapeHtml(m2)}</td>
+                    <td class="py-3 px-4 text-zinc-400">${escapeHtml(m3)}</td>
+                    <td class="py-3 px-4 text-zinc-400 text-[11px] max-w-[150px] truncate" title="${escapeHtml(t.project_title || '')}">
+                        ${escapeHtml(t.project_title || '--')}
+                    </td>
+                    <td class="py-3 px-4">${checkinBadge}</td>
+                    <td class="py-3 px-4 text-center">
+                        <div class="flex items-center justify-center gap-1.5">
+                            <button onclick="printLanyardBadge('${t.id}')" class="p-1 rounded text-primary hover:bg-primary/15 transition-colors cursor-pointer" title="Print Lanyard Badge">
+                                <span class="material-symbols-outlined text-base">badge</span>
+                            </button>
+                            <button onclick="notifyWhatsApp('${t.id}')" class="p-1 rounded text-[#25D366] hover:bg-[#25D366]/15 transition-colors cursor-pointer" title="WhatsApp Message">
+                                <svg class="w-4 h-4 inline-block" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                            </button>
+                            <button onclick="deleteSquad('${t.id}', '${escapeHtml(t.team_name || '')}')" class="p-1 rounded text-error hover:bg-error/15 transition-colors cursor-pointer" title="Delete Squad">
+                                <span class="material-symbols-outlined text-base">delete</span>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function escapeHtml(str) {
+            if (typeof str !== 'string') return '';
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/'/g, '&#39;');
+        }
+
+        window.toggleCheckIn = async function(docId, currentState) {
+            if (!db) return;
+            // Find the team to get its _colId (Firestore event subcollection)
+            const team = registeredTeams.find(t => t.id === docId);
+            const colId = team?._colId || 'paper-presentation';
+            try {
+                await updateDoc(doc(db, 'events', colId, 'registrations', docId), {
+                    checked_in: !currentState,
+                    check_in_timestamp: !currentState ? new Date().toISOString() : null
+                });
+                SFX.success();
+            } catch (err) {
+                alert('Update failed: ' + err.message);
+            }
+        };
+
+        window.deleteSquad = async function(docId, teamName) {
+            if (!confirm(`Delete registration for "${teamName}"?`)) return;
+            if (!db) return;
+            const team = registeredTeams.find(t => t.id === docId);
+            const colId = team?._colId || 'paper-presentation';
+            try {
+                await deleteDoc(doc(db, 'events', colId, 'registrations', docId));
+                SFX.click();
+            } catch (err) {
+                alert('Delete failed: ' + err.message);
+            }
+        };
+
+        window.notifyWhatsApp = function(docId) {
+            const t = registeredTeams.find(x => x.id === docId);
+            if (!t || !t.members || !t.members[0]) return;
+            const mobile = (t.members[0].mobile || '').replace(/\D/g, '');
+            const cleanPhone = mobile.length === 10 ? '91' + mobile : mobile;
+            const msg = `⚡ *VISION 2K26 — IEEE AP-S KEC*\n\nGreetings Team *${t.team_name}*!\n\nYour registration for *${t.event_name}* is confirmed for *October 5, 2026* at Kongu Engineering College.\n\nPlease report to the venue on event day. See you at the symposium!`;
+            window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+        };
+
+        /* =========================================================
+           LANYARD BADGE PRINT WINDOW
+           ========================================================= */
+        window.printLanyardBadge = function(docId) {
+            const team = registeredTeams.find(x => x.id === docId);
+            if (!team) return;
+
+            const m1 = team.members && team.members[0] ? team.members[0].name : 'Leader';
+            const m2 = team.members && team.members[1] ? team.members[1].name : '';
+            const m3 = team.members && team.members[2] ? team.members[2].name : '';
+            const members = [m2, m3].filter(Boolean).join(' • ') || 'Solo Squad';
+
+            const qrToken = encodeURIComponent(team.id || team.team_name);
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${qrToken}&margin=2&bgcolor=0b0c10&color=f0c12c`;
+
+            const badgeHtml = `<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<title>Badge: ${team.team_name}</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Space+Grotesk:wght@500;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  @page { size: 2.5in 3.5in; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { width: 2.5in; height: 3.5in; overflow: hidden; background: #0b0c10; color: #fff; font-family: 'Space Grotesk', sans-serif; display: flex; flex-direction: column; }
+  .hdr { background: linear-gradient(135deg,#1a1200,rgba(240,193,44,.15)); border-bottom: 2.5px solid #f0c12c; padding: 8px 10px; text-align: center; }
+  .hdr-t { font-family: 'Orbitron', sans-serif; font-size: 10pt; font-weight: 900; color: #f0c12c; letter-spacing: .12em; }
+  .hdr-s { font-family: 'JetBrains Mono', monospace; font-size: 6pt; color: #c4b897; margin-top: 1px; }
+  .body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6px 10px; gap: 3px; }
+  .track { font-family: 'JetBrains Mono', monospace; font-size: 6pt; font-weight: 800; padding: 2px 8px; border-radius: 2px; border: 1px solid #f0c12c; color: #f0c12c; text-transform: uppercase; }
+  .team { font-size: 12pt; font-weight: 800; color: #fff; text-align: center; text-transform: uppercase; margin-top: 2px; }
+  .leader { font-size: 9.5pt; font-weight: 700; color: #f0c12c; text-align: center; }
+  .div { width: 70%; height: 1px; background: rgba(240,193,44,.4); margin: 3px 0; }
+  .members { font-family: 'JetBrains Mono', monospace; font-size: 6.5pt; color: #c4b897; text-align: center; }
+  .qr { background: #fff; padding: 3px; border-radius: 2px; border: 2px solid #f0c12c; margin-top: 3px; }
+  .qr img { display: block; width: 72px; height: 72px; }
+  .ftr { background: #f0c12c; color: #0b0c10; font-family: 'Orbitron', sans-serif; font-size: 6.5pt; font-weight: 900; text-align: center; padding: 4px; letter-spacing: .1em; }
+</style>
+</head><body>
+  <div class="hdr"><div class="hdr-t">VISION 2K26</div><div class="hdr-s">IEEE AP-S • KONGU ENGG COLLEGE • 5 OCT 2026</div></div>
+  <div class="body">
+    <div class="track">${team.event_name || 'SYMPOSIUM'}</div>
+    <div class="team">${team.team_name}</div>
+    <div class="leader">${m1}</div>
+    <div class="div"></div>
+    <div class="members">${members}</div>
+    <div class="qr"><img src="${qrUrl}" alt="QR" /></div>
+  </div>
+  <div class="ftr">OFFICIAL ADMIT BADGE</div>
+  <script>
+    var img=document.querySelector('.qr img');
+    if(img){img.onload=function(){setTimeout(function(){window.print();},250);};}
+    else{setTimeout(function(){window.print();},500);}
+  <\/script>
+</body></html>`;
+
+            const win = window.open('', '_blank', 'width=320,height=460');
+            if (win) {
+                win.document.write(badgeHtml);
+                win.document.close();
+            }
+        };
+
+        /* =========================================================
+           GATE SCANNER CHECK-IN (uses _colId for subcollection)
+           ========================================================= */
+        const scannerModal = document.getElementById('scanner-modal');
+        const openScannerBtn = document.getElementById('open-scanner-btn');
+        const closeScannerBtn = document.getElementById('close-scanner-btn');
+        const scannerManualInput = document.getElementById('scanner-manual-input');
+        const scannerManualBtn = document.getElementById('scanner-manual-btn');
+        const scannerResult = document.getElementById('scanner-result');
+        const scanTeamName = document.getElementById('scan-team-name');
+        const scanEventBadge = document.getElementById('scan-event-badge');
+        const scanLeader = document.getElementById('scan-leader');
+        const scanMembers = document.getElementById('scan-members');
+        const scanCheckinStatus = document.getElementById('scan-checkin-status');
+        const scanCheckinBtn = document.getElementById('scan-checkin-btn');
+        const scanPrintBadgeBtn = document.getElementById('scan-print-badge-btn');
+        const ttsToggleBtn = document.getElementById('tts-toggle-btn');
+        const ttsToggleLabel = document.getElementById('tts-toggle-label');
+
+        let html5Scanner = null;
+        let activeScannedTeam = null;
+        let ttsEnabled = true;
+
+        if (ttsToggleBtn) {
+            ttsToggleBtn.addEventListener('click', () => {
+                ttsEnabled = !ttsEnabled;
+                ttsToggleLabel.textContent = ttsEnabled ? 'Voice ON' : 'Voice OFF';
+                if (ttsEnabled) speak('Voice announcements enabled.');
+            });
+        }
+
+        function speak(text) {
+            if (!ttsEnabled || !window.speechSynthesis) return;
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            u.rate = 0.95;
+            window.speechSynthesis.speak(u);
+        }
+
+        async function openScanner() {
+            scannerModal.classList.remove('hidden');
+            scannerResult.classList.add('hidden');
+            activeScannedTeam = null;
+
+            if (window.Html5Qrcode) {
+                try {
+                    html5Scanner = new Html5Qrcode("qr-reader");
+                    await html5Scanner.start(
+                        { facingMode: "environment" },
+                        { fps: 20, qrbox: 220 },
+                        onQrScanned,
+                        () => {}
+                    );
+                } catch (e) {
+                    console.warn('Camera failed:', e);
+                }
+            }
+        }
+
+        async function closeScanner() {
+            if (html5Scanner) {
+                try { await html5Scanner.stop(); } catch (_) {}
+                html5Scanner = null;
+            }
+            scannerModal.classList.add('hidden');
+        }
+
+        if (openScannerBtn) openScannerBtn.addEventListener('click', openScanner);
+        if (closeScannerBtn) closeScannerBtn.addEventListener('click', closeScanner);
+
+        function onQrScanned(token) {
+            findScannedTeam(token.trim());
+        }
+
+        if (scannerManualBtn) {
+            scannerManualBtn.addEventListener('click', () => {
+                const q = scannerManualInput.value.trim();
+                if (q) findScannedTeam(q);
+            });
+        }
+
+        function findScannedTeam(queryText) {
+            const q = queryText.toLowerCase();
+            const team = registeredTeams.find(t => 
+                (t.id && t.id.toLowerCase().includes(q)) ||
+                (t.team_name && t.team_name.toLowerCase().includes(q)) ||
+                (t.members && t.members.some(m => m.name.toLowerCase().includes(q) || m.mobile?.includes(q)))
+            );
+
+            if (!team) {
+                alert(`No squad matching "${queryText}" was found.`);
+                return;
+            }
+
+            activeScannedTeam = team;
+            scanTeamName.textContent = team.team_name;
+            scanEventBadge.textContent = team.event_name || 'EVENT';
+            scanLeader.textContent = team.members && team.members[0] ? `${team.members[0].name} (${team.members[0].mobile})` : 'N/A';
+            scanMembers.textContent = (team.members || []).slice(1).map(m => m.name).join(', ') || 'Solo';
+
+            const checkedIn = team.checked_in === true;
+            scanCheckinStatus.innerHTML = checkedIn
+                ? `<span class="text-emerald-400 font-bold">ALREADY CHECKED-IN</span>`
+                : `<span class="text-amber-400 font-bold">NOT YET CHECKED-IN</span>`;
+
+            scannerResult.classList.remove('hidden');
+            SFX.success();
+
+            const leaderFirst = (team.members && team.members[0] ? team.members[0].name : 'Leader').split(' ')[0];
+            speak(`Squad ${team.team_name} verified for ${team.event_name}! Welcome ${leaderFirst}!`);
+        }
+
+        // Gate scanner check-in — uses _colId for per-event subcollection
+        if (scanCheckinBtn) {
+            scanCheckinBtn.addEventListener('click', async () => {
+                if (!activeScannedTeam || !db) return;
+                const colId = activeScannedTeam._colId || 'paper-presentation';
+                try {
+                    await updateDoc(doc(db, 'events', colId, 'registrations', activeScannedTeam.id), {
+                        checked_in: true,
+                        check_in_timestamp: new Date().toISOString()
+                    });
+                    scanCheckinStatus.innerHTML = `<span class="text-emerald-400 font-bold">✓ CHECKED-IN NOW!</span>`;
+                    SFX.success();
+                    speak(`Squad ${activeScannedTeam.team_name} checked in successfully!`);
+                } catch (e) {
+                    alert('Check-in error: ' + e.message);
+                }
+            });
+        }
+
+        if (scanPrintBadgeBtn) {
+            scanPrintBadgeBtn.addEventListener('click', () => {
+                if (activeScannedTeam) printLanyardBadge(activeScannedTeam.id);
+            });
+        }
+
+        /* =========================================================
+           EXPORTERS (EXCEL & CSV)
+           Helper: build row array from a team object
+           ========================================================= */
+        function buildRow(t, idx) {
+            const m1 = t.members && t.members[0] ? t.members[0] : {};
+            const m2 = t.members && t.members[1] ? t.members[1] : {};
+            const m3 = t.members && t.members[2] ? t.members[2] : {};
+            return {
+                '#': idx + 1,
+                'Squad Name': t.team_name || '',
+                'Event Track': t.event_name || '',
+                'Topic / Title': t.project_title || '',
+                'Leader Name': m1.name || '',
+                'Leader Email': m1.email || '',
+                'Leader Mobile': m1.mobile || '',
+                'Member 2 Name': m2.name || '',
+                'Member 2 Mobile': m2.mobile || '',
+                'Member 3 Name': m3.name || '',
+                'Member 3 Mobile': m3.mobile || '',
+                'Gate Checked In': t.checked_in ? 'YES' : 'NO',
+                'Check In Time': t.check_in_timestamp || '',
+                'Doc ID': t.id || ''
+            };
+        }
+
+        // Export a SINGLE event's registrations as Excel
+        window.exportEventExcel = function(eventColId, eventLabel) {
+            const teams = teamsByEvent[eventColId] || [];
+            if (teams.length === 0) return alert(`No registrations found for ${eventLabel}.`);
+            const rows = teams.map((t, i) => buildRow(t, i));
+            const ws = XLSX.utils.json_to_sheet(rows);
+            const wb = XLSX.utils.book_new();
+            const sheetName = eventLabel.replace(/[\\/:*?[\]]/g, '').substring(0, 31);
+            XLSX.utils.book_append_sheet(wb, ws, sheetName);
+            const filename = `Vision2K26_${eventColId}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+            XLSX.writeFile(wb, filename);
+        };
+
+        // Export ALL events as a multi-sheet Excel workbook (one sheet per event)
+        window.exportAllExcelSheets = function() {
+            if (registeredTeams.length === 0) return alert('No registrations to export.');
+            const wb = XLSX.utils.book_new();
+            EVENTS.forEach(ev => {
+                const teams = teamsByEvent[ev.id] || [];
+                const rows = teams.map((t, i) => buildRow(t, i));
+                const ws = XLSX.utils.json_to_sheet(rows.length > 0 ? rows : [{ 'Note': 'No registrations yet' }]);
+                const sheetName = ev.label.replace(/[\\/:*?[\]]/g, '').substring(0, 31);
+                XLSX.utils.book_append_sheet(wb, ws, sheetName);
+            });
+            XLSX.writeFile(wb, `Vision2K26_ALL_Events_${new Date().toISOString().slice(0, 10)}.xlsx`);
+        };
+
+        // Combined "All Events" single-sheet Excel (via the KPI card button)
+        if (exportExcelBtn) {
+            exportExcelBtn.addEventListener('click', () => exportAllExcelSheets());
+        }
+
+        // CSV Export (all events, combined)
+        if (exportCsvBtn) {
+            exportCsvBtn.addEventListener('click', () => {
+                if (registeredTeams.length === 0) return alert('No registrations to export.');
+                const headers = ['#', 'Squad Name', 'Event Track', 'Topic', 'Leader Name', 'Leader Email', 'Leader Mobile', 'Member 2 Name', 'Member 2 Mobile', 'Member 3 Name', 'Member 3 Mobile', 'Checked In'];
+                const rows = registeredTeams.map((t, idx) => {
+                    const m1 = t.members && t.members[0] ? t.members[0] : {};
+                    const m2 = t.members && t.members[1] ? t.members[1] : {};
+                    const m3 = t.members && t.members[2] ? t.members[2] : {};
+                    return [
+                        idx + 1,
+                        `"${(t.team_name || '').replace(/"/g, '""')}"`,
+                        `"${(t.event_name || '').replace(/"/g, '""')}"`,
+                        `"${(t.project_title || '').replace(/"/g, '""')}"`,
+                        `"${(m1.name || '').replace(/"/g, '""')}"`,
+                        m1.email || '',
+                        m1.mobile || '',
+                        `"${(m2.name || '').replace(/"/g, '""')}"`,
+                        m2.mobile || '',
+                        `"${(m3.name || '').replace(/"/g, '""')}"`,
+                        m3.mobile || '',
+                        t.checked_in ? 'YES' : 'NO'
+                    ];
+                });
+                const csv = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+                const link = document.createElement('a');
+                link.href = encodeURI(csv);
+                link.download = `vision_2k26_registrations_${new Date().toISOString().slice(0, 10)}.csv`;
+                link.click();
+            });
+        }
+    </script>
+</body>
+
+</html>
