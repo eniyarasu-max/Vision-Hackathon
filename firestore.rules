@@ -3,41 +3,67 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper functions for data format validation
+    // Helper functions for student data format validation
     function isValidEmail(email) {
-      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+      return email is string && 
+             email.size() >= 5 &&
+             email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
     }
 
     function isValidMobile(phone) {
-      return phone is string && phone.matches("^[6-9][0-9]{9}$");
+      return phone is string && 
+             phone.matches("^[6-9][0-9]{9}$");
     }
 
     function isValidMember(member) {
       return member is map &&
-             member.keys().hasAll(['name', 'email', 'mobile']) &&
-             member.name is string && member.name.size() >= 2 &&
+             member.name is string && 
+             member.name.size() >= 2 &&
              isValidEmail(member.email) &&
              isValidMobile(member.mobile);
     }
 
-    // Capacity Node: readable & updatable for live tracking & initialization
-    match /metadata/capacity {
-      allow read, write: if true;
-    }
-
-    // Per-Event Registrations: stored under events/{eventId}/registrations/{docId}
-    // Supported eventIds: paper-presentation, project-presentation, ai-sprint, electrobid, line-following-robot
+    // =================================================================
+    // 1. Per-Event Registrations: events/{eventId}/registrations/{docId}
+    // Tracks: paper-presentation, project-presentation, ai-sprint,
+    //         electrobid, line-following-robot
+    // =================================================================
     match /events/{eventId}/registrations/{registrationId} {
+      // Public / Organizer terminal read access
+      allow read: if true;
+
+      // Student registration creation: validated schema (1-3 members, valid leader)
       allow create: if request.resource.data.team_name is string &&
-                       request.resource.data.team_name_lower is string &&
-                       request.resource.data.team_name_key is string &&
+                       request.resource.data.team_name.size() >= 2 &&
                        request.resource.data.event_name is string &&
                        request.resource.data.members is list &&
                        request.resource.data.members.size() >= 1 &&
                        request.resource.data.members.size() <= 3 &&
                        isValidMember(request.resource.data.members[0]);
 
-      allow read, update, delete: if true;
+      // Organizer terminal check-in status updates & clear/delete operations
+      allow update, delete: if true;
+    }
+
+    // Event container documents (e.g. metadata/settings per track)
+    match /events/{eventId} {
+      allow read, write: if true;
+    }
+
+    // =================================================================
+    // 2. Metadata & Capacity Counter Node
+    // Stored under metadata/capacity for real-time seat tracking
+    // =================================================================
+    match /metadata/{metaDoc} {
+      allow read, write: if true;
+    }
+
+    // =================================================================
+    // 3. Fallback / Legacy Collections
+    // Keeps backwards compatibility safe during any migrations
+    // =================================================================
+    match /registrations/{registrationId} {
+      allow read, write: if true;
     }
   }
 }
