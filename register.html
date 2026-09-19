@@ -860,9 +860,9 @@
             reader.onload = (e) => {
                 const img = new Image();
                 img.onload = () => {
-                    // Downscale and compress image to keep Firestore payload ultra-fast & light
+                    // Aggressively compress image client-side so Firestore write is instant
                     const canvas = document.createElement('canvas');
-                    const MAX_DIM = 1200;
+                    const MAX_DIM = 800; // Keep small for fast Firestore storage
                     let width = img.width;
                     let height = img.height;
 
@@ -879,12 +879,16 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.80);
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.65); // 65% quality = ~50-80KB
                     uploadedScreenshotData = compressedDataUrl;
                     uploadedScreenshotName = file.name || 'payment_screenshot.jpg';
 
                     if (thumbImg) thumbImg.src = compressedDataUrl;
                     if (filenameEl) filenameEl.textContent = uploadedScreenshotName;
+                    // Show compressed size
+                    const sizeKb = Math.round(compressedDataUrl.length * 0.75 / 1024);
+                    const sizeEl = document.getElementById('screenshot-filesize');
+                    if (sizeEl) sizeEl.textContent = `Compressed: ~${sizeKb} KB`;
                     if (placeholder) placeholder.classList.add('hidden');
                     if (previewContainer) previewContainer.classList.remove('hidden');
                     showFieldError('payment_screenshot', false);
@@ -1488,18 +1492,8 @@
             submitBtnLabel.textContent = 'CONFIRMING REGISTRATION...';
             formStatus.classList.add('hidden');
 
-            let screenshotDownloadUrl = uploadedScreenshotData || '';
-            if (storage && uploadedScreenshotData) {
-                try {
-                    submitBtnLabel.textContent = 'UPLOADING PAYMENT PROOF...';
-                    const sFileRef = sRef(storage, `payment_receipts/${teamName.toLowerCase().replace(/\s+/g, '')}_${transactionId.toUpperCase()}_${Date.now()}.jpg`);
-                    await uploadString(sFileRef, uploadedScreenshotData, 'data_url');
-                    const downUrl = await getDownloadURL(sFileRef);
-                    if (downUrl) screenshotDownloadUrl = downUrl;
-                } catch (stErr) {
-                    console.warn('Storage upload fallback to data URL:', stErr);
-                }
-            }
+            // Screenshot is already compressed client-side — store directly, no Storage upload needed
+            const screenshotDownloadUrl = uploadedScreenshotData || '';
 
             const payload = {
                 team_name: teamName,
@@ -1510,9 +1504,8 @@
                 paper_title: paperTitle,
                 project_title: projectTitle,
                 transaction_id: transactionId,
-                payment_screenshot: uploadedScreenshotData || null,
                 payment_screenshot_name: uploadedScreenshotName || null,
-                payment_screenshot_url: screenshotDownloadUrl || uploadedScreenshotData || null,
+                payment_screenshot_url: screenshotDownloadUrl || null,
                 members: members,
                 status: 'pending',
                 payment_status: 'pending',
