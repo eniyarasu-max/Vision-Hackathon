@@ -1209,7 +1209,44 @@
             if (!t || !t.members || !t.members[0]) return;
             const mobile = (t.members[0].mobile || '').replace(/\D/g, '');
             const cleanPhone = mobile.length === 10 ? '91' + mobile : mobile;
-            const msg = `⚡ *VISION 2K26 — IEEE AP-S KEC*\n\nGreetings Team *${t.team_name}*!\n\nYour registration for *${t.event_name}* is confirmed for *October 5, 2026* at Kongu Engineering College.\n\nPlease report to the venue on event day. See you at the symposium!`;
+            const memberCount = getSquadMemberCount(t);
+            const feeTotal = memberCount * 100;
+            const isPayVer = (t.payment_status === 'verified' || t.status === 'verified');
+            const payStatusBadge = isPayVer ? '✅ VERIFIED & CONFIRMED' : '⏳ PENDING ON-SPOT VERIFICATION';
+            const roster = (t.members || []).map((m, idx) => `   ${idx + 1}. *${m.name}* (${m.mobile})`).join('\n');
+
+            const msg = 
+`🚀🔥 *VISION 2K26 — SQUAD MISSION CONFIRMED!* 🔥🚀
+*IEEE Antennas & Propagation Society (AP-S) • Kongu Engineering College*
+
+Greetings Commander *${(t.team_name || 'Squad').toUpperCase()}*! ⚡
+Your squad is officially locked and loaded for the grand stage at *VISION 2K26*! 💥
+
+━━━━━━━━━━━━━━━━━━━━━
+📋 *MISSION DOSSIER & SQUAD BRIEFING*
+━━━━━━━━━━━━━━━━━━━━━
+🎯 *Track / Event:* ${t.event_name || 'Technical Track'}
+🛡️ *Squad Callsign:* ${t.team_name}
+🆔 *Digital Pass ID:* ${t.id}
+👥 *Squad Size:* ${memberCount} Delegate${memberCount > 1 ? 's' : ''}
+${roster}
+💰 *Total Registration:* ₹${feeTotal} (₹100/delegate)
+💳 *Payment Status:* ${payStatusBadge}
+${t.transaction_id ? `🔢 *UPI Txn ID:* \`${t.transaction_id}\`\n` : ''}
+━━━━━━━━━━━━━━━━━━━━━
+📍 *REPORTING PROTOCOL*
+━━━━━━━━━━━━━━━━━━━━━
+📅 *Date:* Monday, October 5, 2026
+⏰ *Reporting Time:* 08:30 AM IST Sharp
+🏛️ *Venue:* Department of ECE, Kongu Engineering College, Perundurai, Erode
+📌 *Mandatory:* College Physical ID Card & Digital QR Pass
+
+Gear up to innovate, compete, and conquer! May the sharpest minds lead the future. 🔥⚡
+
+See you on the battlefield! 🏁
+— *Team VISION 2K26 | IEEE AP-S KEC*
+🌐 *Helpline / Support:* +91 73394 36468`;
+
             window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
         };
 

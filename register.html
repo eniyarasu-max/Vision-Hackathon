@@ -1404,15 +1404,38 @@
             whatsappShareBtn.addEventListener('click', () => {
                 if (!currentPassData) return;
                 SFX.click();
-                const membersList = currentPassData.members.map((m, i) => `${i + 1}. ${m.name} (${m.mobile})`).join('\n');
-                const msg = `⚡ *VISION 2K26 // OFFICIAL ADMIT PASS* ⚡\n\n` +
-                    `🎯 *Event:* ${currentPassData.event_name}\n` +
-                    `🛡️ *Squad:* ${currentPassData.team_name}\n` +
-                    `🎟️ *Pass ID:* ${modalPassId.textContent}\n` +
-                    `📅 *Date:* October 5, 2026\n` +
-                    `📍 *Venue:* Kongu Engineering College, Perundurai\n\n` +
-                    `👥 *Squad Members:*\n${membersList}\n\n` +
-                    `See you at the symposium! 🚀`;
+                const membersList = currentPassData.members.map((m, i) => `   ${i + 1}. *${m.name}* (${m.mobile})`).join('\n');
+                const feeTotal = currentPassData.members.length * 100;
+                const passId = modalPassId ? modalPassId.textContent.trim() : 'PASS-2K26';
+
+                const msg = 
+`🚀🔥 *WE ARE HEADING TO VISION 2K26!* 🔥🚀
+*National Level Technical Symposium • IEEE AP-S | Kongu Engineering College*
+
+Our squad *${(currentPassData.team_name || 'Squad').toUpperCase()}* has officially registered to compete at *VISION 2K26*! ⚡🏆
+
+━━━━━━━━━━━━━━━━━━━━━
+🎫 *OFFICIAL SQUAD ADMIT PASS*
+━━━━━━━━━━━━━━━━━━━━━
+🎯 *Track / Event:* ${currentPassData.event_name}
+🛡️ *Squad Callsign:* ${currentPassData.team_name}
+🎟️ *Pass ID:* ${passId}
+👥 *Squad Roster:*
+${membersList}
+💰 *Total Fee:* ₹${feeTotal} (₹100/delegate)
+${currentPassData.transaction_id ? `🔢 *UPI Ref ID:* \`${currentPassData.transaction_id}\`\n` : ''}
+━━━━━━━━━━━━━━━━━━━━━
+📍 *MISSION LOGISTICS*
+━━━━━━━━━━━━━━━━━━━━━
+📅 *Date:* Monday, October 5, 2026
+⏰ *Reporting Time:* 08:30 AM IST Sharp
+🏛️ *Venue:* Department of ECE, Kongu Engineering College, Perundurai, Erode
+📌 *Mandatory:* Physical College ID Card & QR Admit Pass
+
+⚡ Ready to innovate, engineer, and conquer the frontier! See you all on October 5th! 🚀💥
+
+#Vision2K26 #IEEEAPS #KonguEngineeringCollege #TechSymposium #Engineering`;
+
                 window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
             });
         }
