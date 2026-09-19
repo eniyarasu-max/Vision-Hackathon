@@ -4,23 +4,18 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Vision 2026 — Registration &amp; Admission Pass</title>
-    <meta name="description" content="Register your 4-member team for Vision 2026 — the 24-hour hackathon at Kongu Engineering College on September 20-21, 2026. Fill in team details, pay ₹1600 via UPI, and receive your official holographic admit pass instantly." />
-    <link rel="canonical" href="https://vision-hackathon-f153c.web.app/register" />
-    <!-- Open Graph -->
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Vision 2026 — Team Registration" />
-    <meta property="og:description" content="Register your 4-member squad for Vision 2026 Hackathon at Kongu Engineering College." />
-    <meta property="og:url" content="https://vision-hackathon-f153c.web.app/register" />
+    <title>Vision 2K26 — Official Registration Portal | IEEE AP-S KEC</title>
+    <meta name="description" content="Register your squad (1 to 3 members) for Vision 2K26 Intra-College Symposium at Kongu Engineering College on October 5, 2026. Choose from 5 signature events." />
     <!-- Security Headers & Policies -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com https://*.googletagmanager.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://firestore.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; object-src 'none'; base-uri 'self'; form-action 'self';" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com https://*.googletagmanager.com https://cdnjs.cloudflare.com https://cdn.sheetjs.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://firestore.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://api.telegram.org https://api.callmebot.com https://api.qrserver.com; object-src 'none'; base-uri 'self'; form-action 'self';" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <meta http-equiv="Permissions-Policy" content="accelerometer=(), camera=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()" />
+
+    <!-- External Canvas & QR Libraries for 4K Pass Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
     <style>
         @layer base {
             html,
@@ -50,622 +45,470 @@
             }
         }
 
-        @keyframes arcPulse {
-            0%, 100% {
-                box-shadow: 0 0 15px rgba(240, 193, 44, 0.4), inset 0 0 15px rgba(240, 193, 44, 0.2);
-            }
-            50% {
-                box-shadow: 0 0 35px rgba(240, 193, 44, 0.8), inset 0 0 25px rgba(240, 193, 44, 0.4);
-            }
-        }
-
-        .arc-glow {
-            animation: arcPulse 3s ease-in-out infinite;
-        }
-
         .animate-fade-in-up {
-            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            opacity: 0;
+            animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         .field-error {
-            border-color: #e63946 !important;
-            box-shadow: 0 0 8px rgba(230, 57, 70, 0.35);
+            border-color: #ffb4ab !important;
+            box-shadow: 0 0 10px rgba(255, 180, 171, 0.3) !important;
         }
 
-        .field-error-msg {
-            color: #ff8a80;
-            font-size: 11px;
-            letter-spacing: 0.05em;
-            margin-top: 4px;
+        .error-msg {
             display: none;
         }
 
-        .field-error-msg.show {
+        .error-msg.show {
             display: block;
         }
 
-        @media print {
-            body * {
-                visibility: hidden;
-            }
-            #printable-pass, #printable-pass * {
-                visibility: visible;
-            }
-            #printable-pass {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                background: #121317 !important;
-                color: #e3e2e7 !important;
-            }
+        .hud-card {
+            background: rgba(18, 19, 23, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(240, 193, 44, 0.3);
+        }
+
+        .gold-glow {
+            text-shadow: 0 0 15px rgba(240, 193, 44, 0.6), 0 0 30px rgba(240, 193, 44, 0.3);
         }
     </style>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script id="tailwind-config">
         tailwind.config = {
-            darkMode: "class", theme: {
+            darkMode: "class",
+            theme: {
                 extend: {
-                    "colors": { "secondary-container": "#a90214", "surface-bright": "#38393d", "surface": "#121317", "on-tertiary-fixed-variant": "#3e4945", "primary-fixed": "#ffdf90", "secondary-fixed": "#ffdad6", "surface-container-lowest": "#0d0e12", "on-secondary": "#680007", "on-secondary-fixed-variant": "#93000f", "primary-container": "#f4c430", "on-surface-variant": "#d1c5ad", "surface-container-low": "#1a1b20", "on-primary": "#3d2e00", "surface-container-highest": "#343439", "tertiary-fixed-dim": "#bdc9c4", "on-primary-container": "#695200", "outline": "#9a907a", "on-error-container": "#ffdad6", "inverse-surface": "#e3e2e7", "on-tertiary-fixed": "#131e1b", "inverse-primary": "#755b00", "inverse-on-surface": "#2f3035", "surface-container-high": "#292a2e", "secondary": "#ffb3ac", "outline-variant": "#4e4634", "on-tertiary-container": "#4c5753", "secondary-fixed-dim": "#ffb3ac", "on-surface": "#e3e2e7", "on-primary-fixed": "#241a00", "on-background": "#e3e2e7", "surface-variant": "#343439", "background": "#121317", "error": "#ffb4ab", "tertiary-container": "#c0cdc8", "on-secondary-fixed": "#410003", "surface-container": "#1f1f24", "on-tertiary": "#27332f", "surface-tint": "#f0c12c", "error-container": "#93000a", "surface-dim": "#121317", "primary-fixed-dim": "#f0c12c", "on-error": "#690005", "on-secondary-container": "#ffb3ac", "tertiary": "#dce9e3", "on-primary-fixed-variant": "#584400", "tertiary-fixed": "#d9e5e0", "primary": "#ffe3a1" },
-                    "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
-                    "spacing": { "grid-columns": "12", "gutter": "24px", "unit": "4px", "panel-padding": "16px", "margin-edge": "40px" },
-                    "fontFamily": { "headline-lg": ["Space Grotesk"], "body-lg": ["JetBrains Mono"], "body-md": ["JetBrains Mono"], "headline-md": ["Space Grotesk"], "label-sm": ["JetBrains Mono"], "headline-xl": ["Space Grotesk"], "headline-lg-mobile": ["Space Grotesk"], "orbitron": ["Orbitron"] },
-                    "fontSize": { "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "0.1em", "fontWeight": "600" }], "body-lg": ["18px", { "lineHeight": "1.6", "letterSpacing": "0em", "fontWeight": "400" }], "body-md": ["16px", { "lineHeight": "1.5", "letterSpacing": "0em", "fontWeight": "400" }], "headline-md": ["24px", { "lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600" }], "label-sm": ["12px", { "lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "500" }], "headline-xl": ["48px", { "lineHeight": "1.1", "letterSpacing": "0.15em", "fontWeight": "700" }], "headline-lg-mobile": ["28px", { "lineHeight": "1.2", "letterSpacing": "0.1em", "fontWeight": "600" }] }
+                    colors: {
+                        primary: "#f0c12c",
+                        "primary-container": "#f4c430",
+                        "on-primary": "#241a00",
+                        surface: "#0b0c10",
+                        "surface-container": "#121318",
+                        "surface-container-low": "#161820",
+                        "surface-container-lowest": "#07080b",
+                        "surface-container-high": "#1f212a",
+                        "surface-container-highest": "#2a2d39",
+                        "on-surface": "#e3e2e7",
+                        "on-surface-variant": "#c4b897",
+                        outline: "#9a907a",
+                        "outline-variant": "#4e4634",
+                        error: "#ffb4ab",
+                        "error-container": "#93000a"
+                    },
+                    fontFamily: {
+                        orbitron: ["Orbitron", "sans-serif"],
+                        mono: ["JetBrains Mono", "monospace"],
+                        space: ["Space Grotesk", "sans-serif"]
+                    }
                 }
             }
-        }
+        };
     </script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
 </head>
 
-<body class="bg-surface font-body-md text-on-surface selection:bg-primary selection:text-on-primary min-h-screen">
+<body class="bg-surface font-space text-on-surface selection:bg-primary selection:text-on-primary min-h-screen flex flex-col justify-between">
 
     <!-- ============ HEADER ============ -->
     <header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-primary/20">
-        <div class="h-20 max-w-7xl mx-auto px-margin-edge flex items-center justify-between">
-            <div class="flex items-center gap-12">
-                <a href="index.html" class="flex items-center gap-3 group">
-                    <span class="w-8 h-8 rounded-full border border-primary/60 bg-primary/10 flex items-center justify-center font-orbitron text-primary text-xs group-hover:rotate-180 transition-transform duration-700">V</span>
-                    <span class="font-orbitron text-headline-md tracking-[0.2em] text-primary drop-shadow-[0_0_8px_rgba(255,227,161,0.4)] uppercase">Vision</span>
+        <div class="h-20 max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between">
+            <div class="flex items-center gap-8 md:gap-12">
+                <a href="index.html" class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></span>
+                    <span class="font-orbitron text-xl md:text-2xl font-black tracking-[0.2em] text-primary gold-glow uppercase">Vision 2K26</span>
                 </a>
-                <nav class="hidden lg:flex items-center gap-8">
-                    <a class="font-body-md text-on-surface-variant hover:text-primary transition-all relative group py-2" href="index.html#home">HOME<span class="absolute bottom-0 left-0 w-0 h-[1px] bg-primary transition-all duration-300 group-hover:w-full"></span></a>
-                    <a class="font-body-md text-on-surface-variant hover:text-primary transition-all relative group py-2" href="index.html#about">ABOUT<span class="absolute bottom-0 left-0 w-0 h-[1px] bg-primary transition-all duration-300 group-hover:w-full"></span></a>
-                    <a class="font-body-md transition-all relative group py-2 text-primary border-b border-primary" href="register.html">REGISTER<span class="absolute bottom-0 left-0 w-0 h-[1px] bg-primary transition-all duration-300 group-hover:w-full"></span></a>
-                    <a class="font-body-md text-on-surface-variant hover:text-primary transition-all relative group py-2" href="admin.html">ORGANIZER<span class="absolute bottom-0 left-0 w-0 h-[1px] bg-primary transition-all duration-300 group-hover:w-full"></span></a>
+                <nav class="hidden lg:flex items-center gap-8 font-mono text-xs tracking-wider">
+                    <a class="text-on-surface-variant hover:text-primary transition-all relative group py-2" href="index.html#home">HOME</a>
+                    <a class="text-on-surface-variant hover:text-primary transition-all relative group py-2" href="index.html#events">5 EVENTS</a>
+                    <a class="text-on-surface-variant hover:text-primary transition-all relative group py-2" href="brochure.html" target="_blank">FLYER</a>
+                    <a class="text-primary font-bold transition-all relative group py-2 border-b border-primary" href="register.html">REGISTER</a>
+                    <a class="text-on-surface-variant hover:text-primary transition-all relative group py-2" href="admin.html">ORGANIZER</a>
                 </nav>
             </div>
             <div class="flex items-center gap-3">
-                <div class="bg-white/95 hover:bg-white px-2 py-1 rounded-sm border border-outline-variant/40 flex items-center justify-center h-9 shadow-sm">
-                    <img src="assets/kec-logo.png" alt="Kongu Engineering College" class="h-6 w-auto object-contain" />
+                <div class="bg-white/95 px-2.5 py-1 rounded-sm border border-outline-variant/40 flex items-center justify-center h-9 md:h-10 shadow-sm">
+                    <img src="assets/kec-logo.png" alt="Kongu Engineering College" class="h-6 md:h-7 w-auto object-contain" />
                 </div>
-                <div class="bg-white/95 hover:bg-white px-2 py-1 rounded-sm border border-outline-variant/40 flex items-center justify-center h-9 shadow-sm">
-                    <img src="assets/ieee-aps-logo.png" alt="IEEE AP-S" class="h-6 w-auto object-contain" />
+                <div class="bg-white/95 px-2.5 py-1 rounded-sm border border-outline-variant/40 flex items-center justify-center h-9 md:h-10 shadow-sm">
+                    <img src="assets/ieee-aps-logo.png" alt="IEEE AP-S" class="h-6 md:h-7 w-auto object-contain" />
                 </div>
-                <button class="lg:hidden text-primary p-2" id="mobile-menu-btn" aria-label="Toggle menu">
+                <button class="lg:hidden text-primary p-2 cursor-pointer" id="mobile-menu-btn" aria-label="Toggle menu">
                     <span class="material-symbols-outlined">menu</span>
                 </button>
             </div>
         </div>
-        <nav class="lg:hidden hidden flex-col gap-4 px-margin-edge pb-6 bg-surface-container-lowest/95 border-b border-primary/20" id="mobile-menu">
-            <a class="font-body-md text-on-surface-variant hover:text-primary" href="index.html#home">HOME</a>
-            <a class="font-body-md text-on-surface-variant hover:text-primary" href="index.html#about">ABOUT</a>
-            <a class="font-body-md text-primary" href="register.html">REGISTER</a>
-            <a class="font-body-md text-on-surface-variant hover:text-primary" href="admin.html">ORGANIZER TERMINAL</a>
+        <nav class="lg:hidden hidden flex-col gap-4 px-6 pb-6 bg-surface-container-lowest/98 border-b border-primary/30 font-mono text-sm" id="mobile-menu">
+            <a class="text-on-surface-variant hover:text-primary" href="index.html#home">HOME</a>
+            <a class="text-on-surface-variant hover:text-primary" href="index.html#events">5 EVENTS</a>
+            <a class="text-on-surface-variant hover:text-primary" href="brochure.html" target="_blank">FLYER</a>
+            <a class="text-primary font-bold" href="register.html">REGISTER SQUAD</a>
+            <a class="text-on-surface-variant hover:text-primary" href="admin.html">ORGANIZER TERMINAL</a>
         </nav>
     </header>
 
-    <main class="w-full pt-20 min-h-screen bg-surface">
-
-        <!-- ============ REGISTRATION SECTION ============ -->
-        <div class="flex flex-col w-full relative overflow-hidden font-body-md bg-surface text-on-surface">
-            <!-- Background Grid & Glows -->
-            <div class="absolute inset-0 pointer-events-none">
-                <svg class="w-full h-full opacity-[0.03]" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <pattern height="40" id="grid" patternUnits="userSpaceOnUse" width="40">
-                            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" stroke-width="1"></path>
-                        </pattern>
-                    </defs>
-                    <rect fill="url(#grid)" height="100%" width="100%"></rect>
-                </svg>
+    <!-- ============ MAIN CONTAINER ============ -->
+    <main class="w-full pt-28 pb-16 flex-1 max-w-4xl mx-auto px-4 sm:px-6 animate-fade-in-up">
+        
+        <!-- Live Open Registration Banner -->
+        <div class="hud-card p-4 rounded-xs mb-8 flex flex-col sm:flex-row items-center justify-between gap-3 border-primary/40 bg-surface-container/60">
+            <div class="flex items-center gap-3 text-left">
+                <span class="w-3 h-3 rounded-full bg-emerald-400 animate-ping shrink-0"></span>
+                <div>
+                    <div class="font-mono text-[10px] text-zinc-400 uppercase tracking-widest font-bold">INTRA-COLLEGE SYMPOSIUM • 5 OCTOBER 2026</div>
+                    <div class="font-orbitron text-base font-bold text-white tracking-wider">OFFICIAL SQUAD REGISTRATION</div>
+                </div>
             </div>
-            
-            <div class="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[120px] pointer-events-none mix-blend-screen -z-10"></div>
-            <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-secondary-container/10 rounded-full blur-[100px] pointer-events-none mix-blend-screen -z-10"></div>
-
-            <div class="max-w-7xl mx-auto px-margin-edge w-full pt-12 pb-24 relative z-10">
-
-                <!-- Capacity & Marvel Status Banner -->
-                <div class="mb-10 flex items-center justify-between gap-4 flex-wrap border border-primary/30 bg-surface-container-low/80 backdrop-blur-md px-6 py-4 rounded-sm arc-glow animate-fade-in-up">
-                    <div class="flex items-center gap-3">
-                        <span class="w-2.5 h-2.5 rounded-full bg-primary animate-ping"></span>
-                        <span class="font-label-sm text-on-surface-variant tracking-widest uppercase">Live Capacity:</span>
-                        <span class="font-orbitron text-primary text-xl" id="banner-remaining">-- / 35</span>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <span class="font-label-sm text-outline tracking-widest uppercase text-xs" id="banner-status">SYNCING PROTOCOL</span>
-                        <div class="hidden sm:flex items-center gap-2 border-l border-outline-variant/30 pl-4">
-                            <span class="text-[10px] font-orbitron text-primary uppercase">Marvel Theme: Armed</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex flex-col lg:flex-row gap-10 xl:gap-16">
-
-                    <!-- REGISTRATION FORM COLUMN -->
-                    <div class="flex-1 space-y-10">
-                        <div>
-                            <div class="flex items-center gap-3 mb-3">
-                                <div class="h-1 w-10 bg-primary"></div>
-                                <span class="font-label-sm text-primary tracking-[0.25em] uppercase text-xs">AVENGERS INITIATIVE PROTOCOL // 2026</span>
-                            </div>
-                            <h1 class="font-headline-xl text-on-surface uppercase tracking-wider">
-                                Assemble Your<br /><span class="text-primary drop-shadow-[0_0_12px_rgba(255,227,161,0.3)]">Vision Squad</span>
-                            </h1>
-                            <p class="font-body-md text-on-surface-variant mt-4 max-w-xl text-sm leading-relaxed">
-                                Enter your 4-member team credentials and transaction validation code. Upon transmission, an official **Holographic Admit Pass** will be generated with instant email dispatch.
-                            </p>
-                        </div>
-
-                        <form class="space-y-8 bg-surface-container-low/90 backdrop-blur-md p-6 md:p-8 relative border border-primary/20 shadow-2xl rounded-sm" id="registration-form" novalidate autocomplete="off">
-                            <div class="hidden md:block absolute top-0 right-0 px-3 py-1 border-l border-b border-primary/30 bg-surface-container-highest">
-                                <span class="font-label-sm text-primary text-[10px] tracking-widest">TLS 256-BIT ENCRYPTION</span>
-                            </div>
-
-                            <!-- Honeypot Anti-Bot Trap -->
-                            <div style="position: absolute; left: -9999px; top: -9999px; opacity: 0; pointer-events: none;" aria-hidden="true">
-                                <label for="hp_system_ref">System Node Verification</label>
-                                <input type="text" id="hp_system_ref" name="hp_system_ref" tabindex="-1" autocomplete="off" value="" />
-                            </div>
-
-                            <!-- Team Name Input -->
-                            <div class="space-y-2">
-                                <label class="block font-label-sm text-outline uppercase tracking-wider text-xs" for="team_name">TEAM / SQUAD CALLSIGN:</label>
-                                <input class="w-full bg-surface-container border-b border-outline-variant focus:border-primary text-on-surface font-body-md py-3.5 px-4 outline-none transition-all duration-300 focus:bg-surface-container-high placeholder:text-outline-variant/60 uppercase" id="team_name" name="team_name" placeholder="E.G., STARK INNOVATORS" required minlength="3" maxlength="30" pattern="^[a-zA-Z0-9\s\-_]{3,30}$" type="text" autocomplete="off" />
-                                <div class="field-error-msg" data-error-for="team_name">// 3-30 ALPHANUMERIC CHARACTERS REQUIRED</div>
-                            </div>
-
-                            <!-- Member 1 (Leader) -->
-                            <div class="space-y-4 pt-2">
-                                <div class="flex items-center justify-between border-b border-outline-variant/30 pb-2">
-                                    <span class="font-headline-md text-on-surface text-base uppercase flex items-center gap-2">
-                                        <span class="text-primary font-orbitron text-xs px-2 py-0.5 border border-primary/40 bg-primary/10">01</span>
-                                        SQUAD LEADER
-                                    </span>
-                                    <span class="w-2 h-2 bg-primary rounded-full animate-pulse shadow-[0_0_8px_rgba(255,227,161,0.6)]"></span>
-                                </div>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="space-y-1.5">
-                                        <label class="font-label-sm text-outline uppercase tracking-wider text-xs" for="m1_name">FULL NAME:</label>
-                                        <input class="w-full bg-surface-container border-b border-outline-variant focus:border-primary text-on-surface font-body-md py-2.5 px-3 outline-none transition-all duration-300" id="m1_name" name="m1_name" required minlength="2" maxlength="50" autocomplete="name" type="text" placeholder="Leader Full Name" />
-                                        <div class="field-error-msg" data-error-for="m1_name">// VALID NAME REQUIRED (2-50 CHARS)</div>
-                                    </div>
-                                    <div class="space-y-1.5">
-                                        <label class="font-label-sm text-outline uppercase tracking-wider text-xs" for="m1_email">EMAIL ADDRESS:</label>
-                                        <input class="w-full bg-surface-container border-b border-outline-variant focus:border-primary text-on-surface font-body-md py-2.5 px-3 outline-none transition-all duration-300" id="m1_email" name="m1_email" required maxlength="80" autocomplete="email" type="email" placeholder="leader@example.com" />
-                                        <div class="field-error-msg" data-error-for="m1_email">// VALID UNIQUE EMAIL REQUIRED</div>
-                                    </div>
-                                    <div class="space-y-1.5 md:col-span-2">
-                                        <label class="font-label-sm text-outline uppercase tracking-wider text-xs" for="m1_mobile">WHATSAPP / MOBILE NUMBER:</label>
-                                        <input class="w-full bg-surface-container border-b border-outline-variant focus:border-primary text-on-surface font-body-md py-2.5 px-3 outline-none transition-all duration-300" id="m1_mobile" name="m1_mobile" pattern="^[6-9]\d{9}$" minlength="10" maxlength="10" placeholder="10-digit mobile number (starts with 6-9)" required autocomplete="tel" type="tel" />
-                                        <div class="field-error-msg" data-error-for="m1_mobile">// VALID 10-DIGIT MOBILE REQUIRED</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Member 2 -->
-                            <div class="space-y-4 pt-2">
-                                <div class="flex items-center justify-between border-b border-outline-variant/30 pb-2">
-                                    <span class="font-headline-md text-on-surface text-base uppercase flex items-center gap-2">
-                                        <span class="text-outline font-orbitron text-xs px-2 py-0.5 border border-outline-variant bg-surface-container">02</span>
-                                        MEMBER TWO
-                                    </span>
-                                </div>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="space-y-1.5">
-                                        <label class="font-label-sm text-outline uppercase tracking-wider text-xs" for="m2_name">FULL NAME:</label>
-                                        <input class="w-full bg-surface-container border-b border-outline-variant focus:border-primary text-on-surface font-body-md py-2.5 px-3 outline-none transition-all duration-300" id="m2_name" name="m2_name" required minlength="2" maxlength="50" autocomplete="name" type="text" placeholder="Member 2 Full Name" />
-                                        <div class="field-error-msg" data-error-for="m2_name">// VALID NAME REQUIRED (2-50 CHARS)</div>
-                                    </div>
-                                    <div class="space-y-1.5">
-                                        <label class="font-label-sm text-outline uppercase tracking-wider text-xs" for="m2_email">EMAIL ADDRESS:</label>
-                                        <input class="w-full bg-surface-container border-b border-outline-variant focus:border-primary text-on-surface font-body-md py-2.5 px-3 outline-none transition-all duration-300" id="m2_email" name="m2_email" required maxlength="80" autocomplete="email" type="email" placeholder="member2@example.com" />
-                                        <div class="field-error-msg" data-error-for="m2_email">// VALID UNIQUE EMAIL REQUIRED</div>
-                                    </div>
-                                    <div class="space-y-1.5 md:col-span-2">
-                                        <label class="font-label-sm text-outline uppercase tracking-wider text-xs" for="m2_mobile">MOBILE NUMBER:</label>
-                                        <input class="w-full bg-surface-container border-b border-outline-variant focus:border-primary text-on-surface font-body-md py-2.5 px-3 outline-none transition-all duration-300" id="m2_mobile" name="m2_mobile" pattern="^[6-9]\d{9}$" minlength="10" maxlength="10" placeholder="10-digit mobile number" required autocomplete="tel" type="tel" />
-                                        <div class="field-error-msg" data-error-for="m2_mobile">// VALID 10-DIGIT MOBILE REQUIRED</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Member 3 -->
-                            <div class="space-y-4 pt-2">
-                                <div class="flex items-center justify-between border-b border-outline-variant/30 pb-2">
-                                    <span class="font-headline-md text-on-surface text-base uppercase flex items-center gap-2">
-                                        <span class="text-outline font-orbitron text-xs px-2 py-0.5 border border-outline-variant bg-surface-container">03</span>
-                                        MEMBER THREE
-                                    </span>
-                                </div>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="space-y-1.5">
-                                        <label class="font-label-sm text-outline uppercase tracking-wider text-xs" for="m3_name">FULL NAME:</label>
-                                        <input class="w-full bg-surface-container border-b border-outline-variant focus:border-primary text-on-surface font-body-md py-2.5 px-3 outline-none transition-all duration-300" id="m3_name" name="m3_name" required minlength="2" maxlength="50" autocomplete="name" type="text" placeholder="Member 3 Full Name" />
-                                        <div class="field-error-msg" data-error-for="m3_name">// VALID NAME REQUIRED (2-50 CHARS)</div>
-                                    </div>
-                                    <div class="space-y-1.5">
-                                        <label class="font-label-sm text-outline uppercase tracking-wider text-xs" for="m3_email">EMAIL ADDRESS:</label>
-                                        <input class="w-full bg-surface-container border-b border-outline-variant focus:border-primary text-on-surface font-body-md py-2.5 px-3 outline-none transition-all duration-300" id="m3_email" name="m3_email" required maxlength="80" autocomplete="email" type="email" placeholder="member3@example.com" />
-                                        <div class="field-error-msg" data-error-for="m3_email">// VALID UNIQUE EMAIL REQUIRED</div>
-                                    </div>
-                                    <div class="space-y-1.5 md:col-span-2">
-                                        <label class="font-label-sm text-outline uppercase tracking-wider text-xs" for="m3_mobile">MOBILE NUMBER:</label>
-                                        <input class="w-full bg-surface-container border-b border-outline-variant focus:border-primary text-on-surface font-body-md py-2.5 px-3 outline-none transition-all duration-300" id="m3_mobile" name="m3_mobile" pattern="^[6-9]\d{9}$" minlength="10" maxlength="10" placeholder="10-digit mobile number" required autocomplete="tel" type="tel" />
-                                        <div class="field-error-msg" data-error-for="m3_mobile">// VALID 10-DIGIT MOBILE REQUIRED</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Member 4 -->
-                            <div class="space-y-4 pt-2">
-                                <div class="flex items-center justify-between border-b border-outline-variant/30 pb-2">
-                                    <span class="font-headline-md text-on-surface text-base uppercase flex items-center gap-2">
-                                        <span class="text-outline font-orbitron text-xs px-2 py-0.5 border border-outline-variant bg-surface-container">04</span>
-                                        MEMBER FOUR
-                                    </span>
-                                </div>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="space-y-1.5">
-                                        <label class="font-label-sm text-outline uppercase tracking-wider text-xs" for="m4_name">FULL NAME:</label>
-                                        <input class="w-full bg-surface-container border-b border-outline-variant focus:border-primary text-on-surface font-body-md py-2.5 px-3 outline-none transition-all duration-300" id="m4_name" name="m4_name" required minlength="2" maxlength="50" autocomplete="name" type="text" placeholder="Member 4 Full Name" />
-                                        <div class="field-error-msg" data-error-for="m4_name">// VALID NAME REQUIRED (2-50 CHARS)</div>
-                                    </div>
-                                    <div class="space-y-1.5">
-                                        <label class="font-label-sm text-outline uppercase tracking-wider text-xs" for="m4_email">EMAIL ADDRESS:</label>
-                                        <input class="w-full bg-surface-container border-b border-outline-variant focus:border-primary text-on-surface font-body-md py-2.5 px-3 outline-none transition-all duration-300" id="m4_email" name="m4_email" required maxlength="80" autocomplete="email" type="email" placeholder="member4@example.com" />
-                                        <div class="field-error-msg" data-error-for="m4_email">// VALID UNIQUE EMAIL REQUIRED</div>
-                                    </div>
-                                    <div class="space-y-1.5 md:col-span-2">
-                                        <label class="font-label-sm text-outline uppercase tracking-wider text-xs" for="m4_mobile">MOBILE NUMBER:</label>
-                                        <input class="w-full bg-surface-container border-b border-outline-variant focus:border-primary text-on-surface font-body-md py-2.5 px-3 outline-none transition-all duration-300" id="m4_mobile" name="m4_mobile" pattern="^[6-9]\d{9}$" minlength="10" maxlength="10" placeholder="10-digit mobile number" required autocomplete="tel" type="tel" />
-                                        <div class="field-error-msg" data-error-for="m4_mobile">// VALID 10-DIGIT MOBILE REQUIRED</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-
-                    <!-- PAYMENT & TRANSACTION COLUMN -->
-                    <div class="w-full lg:w-[420px] xl:w-[460px] shrink-0">
-                        <div class="sticky top-28 space-y-6">
-                            <div class="bg-surface-container-low border border-primary/30 p-6 relative overflow-hidden rounded-sm shadow-xl">
-                                <div class="flex items-center justify-between border-b border-outline-variant/30 pb-4 mb-4">
-                                    <div>
-                                        <span class="font-label-sm text-primary text-[10px] tracking-widest uppercase">PAYMENT GATEWAY</span>
-                                        <h3 class="font-headline-md text-on-surface text-lg uppercase">Registration Fee</h3>
-                                    </div>
-                                    <span class="material-symbols-outlined text-primary text-2xl">qr_code_scanner</span>
-                                </div>
-
-                                <div class="space-y-3 font-body-md border-b border-outline-variant/30 pb-4 mb-4 text-xs">
-                                    <div class="flex justify-between items-center text-on-surface-variant">
-                                        <span>FEE PER MEMBER:</span>
-                                        <span class="text-on-surface font-orbitron" id="fee-per-head">₹400</span>
-                                    </div>
-                                    <div class="flex justify-between items-center text-on-surface-variant">
-                                        <span>TEAM MEMBERS:</span>
-                                        <span class="text-on-surface font-orbitron" id="fee-multiplier">4 Nodes</span>
-                                    </div>
-                                    <div class="flex justify-between items-center pt-3 border-t border-dashed border-outline-variant/40">
-                                        <span class="text-primary font-bold tracking-wider">TOTAL TEAM PASS:</span>
-                                        <span class="text-primary font-orbitron text-2xl drop-shadow-[0_0_8px_rgba(255,227,161,0.5)]" id="fee-total">₹1600</span>
-                                    </div>
-                                </div>
-
-                                <!-- Official QR Code & 1-Tap UPI Links -->
-                                <div class="flex flex-col items-center justify-center space-y-3 mb-5">
-                                    <div id="payment-qr-card" class="w-48 h-48 bg-white p-2 rounded-sm relative shadow-[0_0_20px_rgba(240,193,44,0.15)] border border-primary/40 flex items-center justify-center transition-all duration-300">
-                                        <img src="assets/payment-qr.png" alt="Official UPI Payment QR Code" class="w-full h-full object-contain rounded-xs" />
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-xs font-label-sm text-outline">UPI ID:</span>
-                                        <code class="bg-surface-container px-2.5 py-1 text-xs text-primary font-body-md border border-primary/30 tracking-wider" id="upi-id-text">7339436468@upi</code>
-                                        <button type="button" id="copy-upi-btn" class="text-outline hover:text-primary transition-colors p-1" title="Copy UPI ID">
-                                            <span class="material-symbols-outlined text-[16px]">content_copy</span>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- 1-Tap Mobile UPI App Links -->
-                                <div class="space-y-2 mb-5">
-                                    <span class="font-label-sm text-outline uppercase text-[10px] tracking-wider block text-center">Instant 1-Tap Mobile Pay:</span>
-                                    <div class="grid grid-cols-4 gap-1.5">
-                                        <button type="button" onclick="triggerUpiPayment('gpay')" class="bg-surface-container hover:bg-primary/20 border border-outline-variant/40 hover:border-primary text-center py-2 px-1 text-[10px] font-label-sm text-on-surface rounded-sm transition-all flex flex-col items-center justify-center gap-1 cursor-pointer">
-                                            <span class="material-symbols-outlined text-[16px] text-primary">smartphone</span>
-                                            GPay
-                                        </button>
-                                        <button type="button" onclick="triggerUpiPayment('phonepe')" class="bg-surface-container hover:bg-primary/20 border border-outline-variant/40 hover:border-primary text-center py-2 px-1 text-[10px] font-label-sm text-on-surface rounded-sm transition-all flex flex-col items-center justify-center gap-1 cursor-pointer">
-                                            <span class="material-symbols-outlined text-[16px] text-primary">payments</span>
-                                            PhonePe
-                                        </button>
-                                        <button type="button" onclick="triggerUpiPayment('paytm')" class="bg-surface-container hover:bg-primary/20 border border-outline-variant/40 hover:border-primary text-center py-2 px-1 text-[10px] font-label-sm text-on-surface rounded-sm transition-all flex flex-col items-center justify-center gap-1 cursor-pointer">
-                                            <span class="material-symbols-outlined text-[16px] text-primary">account_balance_wallet</span>
-                                            Paytm
-                                        </button>
-                                        <button type="button" onclick="triggerUpiPayment('generic')" class="bg-surface-container hover:bg-primary/20 border border-outline-variant/40 hover:border-primary text-center py-2 px-1 text-[10px] font-label-sm text-on-surface rounded-sm transition-all flex flex-col items-center justify-center gap-1 cursor-pointer">
-                                            <span class="material-symbols-outlined text-[16px] text-primary">credit_card</span>
-                                            Other UPI
-                                        </button>
-                                    </div>
-                                    <div id="upi-notice" class="hidden text-[11px] font-label-sm bg-surface-container border border-primary/30 p-2 text-center text-on-surface rounded-xs"></div>
-                                </div>
-
-                                <!-- Transaction ID Input -->
-                                <div class="space-y-2 mb-4">
-                                    <label class="font-label-sm text-primary uppercase tracking-wider text-xs flex justify-between items-center" for="txn_id">
-                                        <span>UPI 12-DIGIT UTR / TXN ID:</span>
-                                        <span class="text-[10px] text-outline">Unique Check Active</span>
-                                    </label>
-                                    <input class="w-full bg-surface border border-primary/40 focus:border-primary text-primary font-body-md py-3 px-3 outline-none transition-all duration-300 focus:shadow-[0_0_12px_rgba(255,227,161,0.2)] placeholder:text-outline-variant/50 text-center uppercase tracking-widest text-sm" id="txn_id" placeholder="E.G., 425109876543" type="text" minlength="8" maxlength="30" pattern="^[a-zA-Z0-9\-_]{8,30}$" autocomplete="off" required />
-                                    <div class="field-error-msg" data-error-for="txn_id">// VALID TRANSACTION ID (8-30 CHARACTERS) REQUIRED</div>
-                                </div>
-
-                                <!-- Optional Payment Screenshot Dropzone -->
-                                <div class="space-y-2">
-                                    <label class="font-label-sm text-outline uppercase tracking-wider text-[11px] flex justify-between items-center">
-                                        <span>PAYMENT SCREENSHOT (OPTIONAL):</span>
-                                    </label>
-                                    <div id="drop-zone" class="border border-dashed border-outline-variant/60 hover:border-primary/80 bg-surface-container/50 p-3 text-center rounded-sm cursor-pointer transition-colors relative">
-                                        <input type="file" id="screenshot-input" accept="image/png, image/jpeg, image/webp" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
-                                        <div id="drop-prompt" class="flex flex-col items-center justify-center py-1 text-xs text-on-surface-variant gap-1">
-                                            <span class="material-symbols-outlined text-[20px] text-primary">add_photo_alternate</span>
-                                            <span>Drag &amp; drop or click to upload receipt</span>
-                                            <span class="text-[9px] text-outline">(PNG/JPG &lt; 2MB)</span>
-                                        </div>
-                                        <div id="drop-preview" class="hidden flex items-center justify-between gap-3 bg-surface p-2 rounded-sm">
-                                            <div class="flex items-center gap-2 overflow-hidden">
-                                                <img id="preview-img" src="" alt="Receipt preview" class="w-8 h-8 object-cover rounded-xs border border-primary/30" />
-                                                <span id="preview-name" class="text-[11px] text-on-surface truncate max-w-[150px]">screenshot.png</span>
-                                            </div>
-                                            <button type="button" id="remove-preview-btn" class="text-error hover:text-error/80 p-1">
-                                                <span class="material-symbols-outlined text-[16px]">close</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Submit Button with Marvel Arc Glow -->
-                            <button class="w-full bg-primary text-on-primary font-headline-md py-5 px-6 relative overflow-hidden group hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 shadow-[0_0_25px_rgba(255,227,161,0.35)] hover:shadow-[0_0_45px_rgba(255,227,161,0.6)] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:shadow-none rounded-sm border border-primary-fixed" id="submit-btn" type="submit" form="registration-form">
-                                <span class="relative z-10 uppercase tracking-widest flex items-center justify-center gap-3 text-sm font-bold" id="submit-btn-label">
-                                    VERIFY &amp; GENERATE ADMIT PASS
-                                    <span class="material-symbols-outlined text-[22px] group-hover:translate-x-1 transition-transform">bolt</span>
-                                </span>
-                                <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out z-0"></div>
-                            </button>
-                            <div class="hidden font-label-sm text-center text-on-surface-variant tracking-widest text-xs" id="form-status"></div>
-                        </div>
-                    </div>
-                </div>
+            <div class="flex items-center gap-2 bg-black/60 px-3.5 py-1.5 rounded-xs border border-primary/30 font-mono text-xs">
+                <span class="text-zinc-400">TEAM LIMIT:</span>
+                <span class="text-primary font-bold">MAX 3 MEMBERS</span>
             </div>
         </div>
+
+        <!-- Registration Form Shell -->
+        <form id="registration-form" class="space-y-8" novalidate>
+            
+            <!-- Honeypot anti-spam -->
+            <input type="text" name="hp_system_ref" id="hp_system_ref" class="hidden" tabindex="-1" autocomplete="off" />
+
+            <!-- ============ SECTION 1: EVENT SELECTION ============ -->
+            <div class="hud-card p-6 rounded-xs space-y-4">
+                <div class="flex items-center gap-2 border-b border-primary/25 pb-3">
+                    <span class="material-symbols-outlined text-primary text-xl">stars</span>
+                    <h2 class="font-orbitron text-sm sm:text-base font-bold text-primary uppercase tracking-wider">01. CHOOSE YOUR EVENT</h2>
+                </div>
+
+                <p class="font-mono text-xs text-zinc-400">
+                    Select the symposium track your squad is competing in (Maximum 3 members per squad for all events):
+                </p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" id="event-selector-grid">
+                    <!-- Paper Presentation -->
+                    <label class="event-card-label relative flex flex-col p-3.5 rounded-xs border border-primary/30 bg-surface-container-low cursor-pointer hover:border-primary transition-all">
+                        <input type="radio" name="event_choice" value="Paper Presentation" class="sr-only" checked />
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="font-orbitron text-xs font-bold text-white event-title">Paper Presentation</span>
+                            <span class="w-3.5 h-3.5 rounded-full border border-primary check-circle flex items-center justify-center">
+                                <span class="w-2 h-2 rounded-full bg-primary dot hidden"></span>
+                            </span>
+                        </div>
+                        <div class="font-mono text-[10px] text-zinc-400">7m Presentation + 3m Q&amp;A • 100-mark rubric</div>
+                    </label>
+
+                    <!-- Project Presentation -->
+                    <label class="event-card-label relative flex flex-col p-3.5 rounded-xs border border-outline-variant/40 bg-surface-container-low cursor-pointer hover:border-primary transition-all">
+                        <input type="radio" name="event_choice" value="Project Presentation" class="sr-only" />
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="font-orbitron text-xs font-bold text-white event-title">Project Presentation</span>
+                            <span class="w-3.5 h-3.5 rounded-full border border-primary check-circle flex items-center justify-center">
+                                <span class="w-2 h-2 rounded-full bg-primary dot hidden"></span>
+                            </span>
+                        </div>
+                        <div class="font-mono text-[10px] text-zinc-400">Hardware, Software, AI/IoT • Live demo encouraged</div>
+                    </label>
+
+                    <!-- AI Sprint -->
+                    <label class="event-card-label relative flex flex-col p-3.5 rounded-xs border border-outline-variant/40 bg-surface-container-low cursor-pointer hover:border-primary transition-all">
+                        <input type="radio" name="event_choice" value="AI Sprint" class="sr-only" />
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="font-orbitron text-xs font-bold text-white event-title">AI Sprint</span>
+                            <span class="w-3.5 h-3.5 rounded-full border border-primary check-circle flex items-center justify-center">
+                                <span class="w-2 h-2 rounded-full bg-primary dot hidden"></span>
+                            </span>
+                        </div>
+                        <div class="font-mono text-[10px] text-amber-300 font-bold">⚡ Problem statement on the spot!</div>
+                    </label>
+
+                    <!-- ElectroBid -->
+                    <label class="event-card-label relative flex flex-col p-3.5 rounded-xs border border-outline-variant/40 bg-surface-container-low cursor-pointer hover:border-primary transition-all">
+                        <input type="radio" name="event_choice" value="ElectroBid" class="sr-only" />
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="font-orbitron text-xs font-bold text-white event-title">ElectroBid</span>
+                            <span class="w-3.5 h-3.5 rounded-full border border-primary check-circle flex items-center justify-center">
+                                <span class="w-2 h-2 rounded-full bg-primary dot hidden"></span>
+                            </span>
+                        </div>
+                        <div class="font-mono text-[10px] text-zinc-400">600 credits auction + prototype build</div>
+                    </label>
+
+                    <!-- Line Following Robot -->
+                    <label class="event-card-label relative flex flex-col p-3.5 rounded-xs border border-outline-variant/40 bg-surface-container-low cursor-pointer hover:border-primary transition-all">
+                        <input type="radio" name="event_choice" value="Line Following Robot" class="sr-only" />
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="font-orbitron text-xs font-bold text-white event-title">Line Following Robot</span>
+                            <span class="w-3.5 h-3.5 rounded-full border border-primary check-circle flex items-center justify-center">
+                                <span class="w-2 h-2 rounded-full bg-primary dot hidden"></span>
+                            </span>
+                        </div>
+                        <div class="font-mono text-[10px] text-zinc-400">Autonomous speed &amp; precision track arena</div>
+                    </label>
+                </div>
+
+                <!-- Dynamic Notice for AI Sprint -->
+                <div id="ai-sprint-notice" class="hidden bg-amber-400/15 border border-amber-400/50 p-3 rounded-xs font-mono text-xs text-amber-300 flex items-start gap-2.5">
+                    <span class="material-symbols-outlined text-base shrink-0 mt-0.5">info</span>
+                    <div>
+                        <strong>AI SPRINT NOTICE:</strong> The problem statements will be distributed <strong>ON THE SPOT</strong> at the venue on October 5, 2026. Teams may bring their own laptops with free-tier AI tools &amp; APIs (Gemini, HuggingFace, etc.) ready!
+                    </div>
+                </div>
+
+                <!-- Dynamic Input for Paper/Project Title -->
+                <div id="presentation-topic-wrap" class="space-y-1.5">
+                    <label for="project_title" class="font-mono text-xs text-zinc-300 font-bold block">
+                        TOPIC / PRESENTATION TITLE <span class="text-zinc-500 font-normal">(Optional, or can be submitted before deadline)</span>
+                    </label>
+                    <input type="text" id="project_title" placeholder="e.g. Autonomous Drone Navigation using Computer Vision" class="w-full bg-surface-container-lowest border border-outline-variant/50 focus:border-primary rounded-xs px-3.5 py-2.5 font-mono text-xs text-white outline-none transition-colors" />
+                </div>
+            </div>
+
+            <!-- ============ SECTION 2: SQUAD DETAILS ============ -->
+            <div class="hud-card p-6 rounded-xs space-y-6">
+                <div class="flex items-center justify-between border-b border-primary/25 pb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-xl">badge</span>
+                        <h2 class="font-orbitron text-sm sm:text-base font-bold text-primary uppercase tracking-wider">02. SQUAD CALLSIGN &amp; MEMBERS</h2>
+                    </div>
+                    <span class="font-mono text-[10px] text-zinc-400 uppercase">1 TO 3 MEMBERS</span>
+                </div>
+
+                <!-- Team Name -->
+                <div class="space-y-1.5">
+                    <label for="team_name" class="font-mono text-xs text-zinc-300 font-bold block">
+                        SQUAD / TEAM NAME <span class="text-primary">*</span>
+                    </label>
+                    <input type="text" id="team_name" placeholder="e.g. CyberKnights" maxlength="35" class="w-full bg-surface-container-lowest border border-outline-variant/50 focus:border-primary rounded-xs px-3.5 py-2.5 font-mono text-xs text-white outline-none transition-colors" required />
+                    <div class="error-msg font-mono text-[11px] text-error" data-error-for="team_name">
+                        // SQUAD NAME MUST BE 3–35 CHARACTERS (LETTERS, NUMBERS, HYPHENS)
+                    </div>
+                </div>
+
+                <!-- Leader (Member 1) -->
+                <div class="p-4 bg-surface-container-lowest border border-primary/30 rounded-xs space-y-3">
+                    <div class="flex items-center justify-between border-b border-outline-variant/30 pb-2">
+                        <div class="font-mono text-xs font-bold text-primary uppercase flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-base">military_tech</span> SQUAD LEADER (MEMBER 1) <span class="text-error">*</span>
+                        </div>
+                        <span class="font-mono text-[9px] bg-primary/20 text-primary px-2 py-0.5 rounded font-bold">PRIMARY CONTACT</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="space-y-1">
+                            <label for="m1_name" class="font-mono text-[11px] text-zinc-300 block">Full Name *</label>
+                            <input type="text" id="m1_name" placeholder="Leader Full Name" class="w-full bg-surface-container border border-outline-variant/40 focus:border-primary rounded-xs px-3 py-2 font-mono text-xs text-white outline-none" required />
+                            <div class="error-msg font-mono text-[10px] text-error" data-error-for="m1_name">// 2–50 letters required</div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label for="m1_email" class="font-mono text-[11px] text-zinc-300 block">College Email *</label>
+                            <input type="email" id="m1_email" placeholder="student@kongu.edu" class="w-full bg-surface-container border border-outline-variant/40 focus:border-primary rounded-xs px-3 py-2 font-mono text-xs text-white outline-none" required />
+                            <div class="error-msg font-mono text-[10px] text-error" data-error-for="m1_email">// Valid email required</div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label for="m1_mobile" class="font-mono text-[11px] text-zinc-300 block">WhatsApp Mobile *</label>
+                            <input type="tel" id="m1_mobile" placeholder="10-digit number" maxlength="10" class="w-full bg-surface-container border border-outline-variant/40 focus:border-primary rounded-xs px-3 py-2 font-mono text-xs text-white outline-none" required />
+                            <div class="error-msg font-mono text-[10px] text-error" data-error-for="m1_mobile">// 10-digit mobile required</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Member 2 (Optional) -->
+                <div class="p-4 bg-surface-container-lowest border border-outline-variant/30 rounded-xs space-y-3" id="member-2-card">
+                    <div class="flex items-center justify-between border-b border-outline-variant/30 pb-2">
+                        <div class="font-mono text-xs font-bold text-zinc-300 uppercase flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-base text-zinc-400">person</span> MEMBER 2 <span class="text-zinc-500 font-normal">(Optional)</span>
+                        </div>
+                        <span class="font-mono text-[9px] text-zinc-500">LEAVE BLANK IF SOLO</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="space-y-1">
+                            <label for="m2_name" class="font-mono text-[11px] text-zinc-400 block">Full Name</label>
+                            <input type="text" id="m2_name" placeholder="Member 2 Name" class="w-full bg-surface-container border border-outline-variant/40 focus:border-primary rounded-xs px-3 py-2 font-mono text-xs text-white outline-none" />
+                            <div class="error-msg font-mono text-[10px] text-error" data-error-for="m2_name">// Valid name required</div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label for="m2_email" class="font-mono text-[11px] text-zinc-400 block">Email</label>
+                            <input type="email" id="m2_email" placeholder="member2@kongu.edu" class="w-full bg-surface-container border border-outline-variant/40 focus:border-primary rounded-xs px-3 py-2 font-mono text-xs text-white outline-none" />
+                            <div class="error-msg font-mono text-[10px] text-error" data-error-for="m2_email">// Valid email required</div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label for="m2_mobile" class="font-mono text-[11px] text-zinc-400 block">Mobile</label>
+                            <input type="tel" id="m2_mobile" placeholder="10-digit number" maxlength="10" class="w-full bg-surface-container border border-outline-variant/40 focus:border-primary rounded-xs px-3 py-2 font-mono text-xs text-white outline-none" />
+                            <div class="error-msg font-mono text-[10px] text-error" data-error-for="m2_mobile">// 10-digit mobile required</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Member 3 (Optional) -->
+                <div class="p-4 bg-surface-container-lowest border border-outline-variant/30 rounded-xs space-y-3" id="member-3-card">
+                    <div class="flex items-center justify-between border-b border-outline-variant/30 pb-2">
+                        <div class="font-mono text-xs font-bold text-zinc-300 uppercase flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-base text-zinc-400">person</span> MEMBER 3 <span class="text-zinc-500 font-normal">(Optional)</span>
+                        </div>
+                        <span class="font-mono text-[9px] text-zinc-500">MAX TEAM SIZE IS 3</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="space-y-1">
+                            <label for="m3_name" class="font-mono text-[11px] text-zinc-400 block">Full Name</label>
+                            <input type="text" id="m3_name" placeholder="Member 3 Name" class="w-full bg-surface-container border border-outline-variant/40 focus:border-primary rounded-xs px-3 py-2 font-mono text-xs text-white outline-none" />
+                            <div class="error-msg font-mono text-[10px] text-error" data-error-for="m3_name">// Valid name required</div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label for="m3_email" class="font-mono text-[11px] text-zinc-400 block">Email</label>
+                            <input type="email" id="m3_email" placeholder="member3@kongu.edu" class="w-full bg-surface-container border border-outline-variant/40 focus:border-primary rounded-xs px-3 py-2 font-mono text-xs text-white outline-none" />
+                            <div class="error-msg font-mono text-[10px] text-error" data-error-for="m3_email">// Valid email required</div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label for="m3_mobile" class="font-mono text-[11px] text-zinc-400 block">Mobile</label>
+                            <input type="tel" id="m3_mobile" placeholder="10-digit number" maxlength="10" class="w-full bg-surface-container border border-outline-variant/40 focus:border-primary rounded-xs px-3 py-2 font-mono text-xs text-white outline-none" />
+                            <div class="error-msg font-mono text-[10px] text-error" data-error-for="m3_mobile">// 10-digit mobile required</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Status & Submission Action -->
+            <div class="space-y-4">
+                <div id="form-status" class="hidden font-mono text-xs text-center py-2 px-4 rounded border border-error/40 bg-error/10 text-error"></div>
+
+                <button type="submit" id="submit-btn" class="w-full bg-primary hover:bg-primary-container text-black font-mono font-bold text-sm tracking-widest uppercase py-4 rounded-xs border border-primary shadow-[0_0_30px_rgba(240,193,44,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer">
+                    <span class="material-symbols-outlined text-lg">verified</span>
+                    <span id="submit-btn-label">CONFIRM REGISTRATION &amp; GENERATE PASS</span>
+                </button>
+
+                <p class="font-mono text-[11px] text-zinc-500 text-center">
+                    By submitting, your squad commits to reporting on October 5, 2026 at Kongu Engineering College.
+                </p>
+            </div>
+
+        </form>
+
     </main>
 
-    <!-- ============ MARVEL ADMIT PASS & EMAIL CONFIRMATION MODAL ============ -->
-    <div id="admit-pass-modal" class="fixed inset-0 z-[99999] hidden flex items-center justify-center bg-black/85 backdrop-blur-xl p-4 overflow-y-auto">
-        <div class="bg-surface-container-low border-2 border-primary max-w-2xl w-full p-6 md:p-8 rounded-sm relative shadow-[0_0_50px_rgba(240,193,44,0.3)] my-8">
-            
-            <!-- Close Button -->
-            <button id="close-modal-btn" class="absolute top-4 right-4 text-outline hover:text-primary transition-colors p-2" aria-label="Close Admit Pass">
-                <span class="material-symbols-outlined text-2xl">close</span>
-            </button>
-
-            <!-- Ultra-HD Holographic Admit Pass Card -->
-            <div id="printable-pass" class="border-2 border-primary bg-[#0b0c10] p-6 sm:p-7 relative overflow-hidden rounded-sm text-white shadow-[0_0_50px_rgba(240,193,44,0.35)]" style="font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                <!-- Subtle Watermark -->
-                <div class="absolute -right-20 -bottom-20 w-80 h-80 border-[16px] border-dashed border-primary/10 rounded-full pointer-events-none"></div>
-
-                <!-- Pass Top Header -->
-                <div class="flex items-center justify-between border-b-2 border-primary/50 pb-4 mb-4 flex-wrap gap-3">
-                    <div>
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="w-2.5 h-2.5 rounded-full bg-primary animate-ping"></span>
-                            <span class="text-xs font-bold text-primary uppercase" style="font-family: 'Orbitron', sans-serif; letter-spacing: 0.12em;">VISION 2026 // OFFICIAL PASS</span>
-                        </div>
-                        <h2 class="text-2xl sm:text-3xl font-extrabold text-white uppercase tracking-wider" style="font-family: 'Space Grotesk', sans-serif; letter-spacing: 0.05em;">HACKATHON ADMISSION PROTOCOL</h2>
-                    </div>
-                    <div class="text-left sm:text-right bg-surface-container/80 border border-primary/40 py-2 px-3.5 rounded-xs">
-                        <span class="text-[10px] text-primary uppercase block font-bold tracking-wider" style="font-family: 'JetBrains Mono', monospace;">PASS REFERENCE ID</span>
-                        <span class="text-base text-white font-bold tracking-widest" style="font-family: 'Orbitron', sans-serif;" id="modal-pass-id">VIS-2026-0000</span>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-4">
-                    <div class="md:col-span-2 space-y-3.5">
-                        <!-- Confirmed Squad Box -->
-                        <div class="bg-surface-container/60 p-3 rounded-xs border border-outline-variant/60">
-                            <span class="text-[10px] text-primary uppercase block font-bold tracking-widest" style="font-family: 'JetBrains Mono', monospace;">CONFIRMED TEAM SQUAD</span>
-                            <span class="text-2xl sm:text-3xl text-primary uppercase font-black tracking-wide block mt-0.5" style="font-family: 'Space Grotesk', sans-serif;" id="modal-team-name">TEAM NAME</span>
-                        </div>
-
-                        <!-- 2x2 Squad Members Grid - High-Legibility Cards -->
-                        <div>
-                            <span class="text-[10px] text-primary uppercase block font-bold tracking-wider mb-1.5" style="font-family: 'JetBrains Mono', monospace;">CONFIRMED SQUAD MEMBERS:</span>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                <!-- Leader (M1) -->
-                                <div class="bg-[#14161d] border border-primary/40 p-2.5 rounded-xs space-y-1">
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-[10px] text-primary font-bold uppercase tracking-wider" style="font-family: 'Orbitron', sans-serif;">LEADER (M1)</span>
-                                        <span class="text-[9px] px-1.5 py-0.2 bg-primary/20 text-primary border border-primary/40 rounded-xs font-bold uppercase">CAPTAIN</span>
-                                    </div>
-                                    <div class="text-sm font-extrabold text-white leading-tight break-words" id="modal-m1-name">--</div>
-                                    <div class="text-[11px] font-mono text-[#f0c12c] font-semibold" id="modal-m1-contact">--</div>
-                                </div>
-
-                                <!-- Member 2 -->
-                                <div class="bg-[#14161d] border border-outline-variant/40 p-2.5 rounded-xs space-y-1">
-                                    <span class="text-[10px] text-on-surface-variant font-bold uppercase tracking-wider block" style="font-family: 'Orbitron', sans-serif;">MEMBER 2</span>
-                                    <div class="text-sm font-extrabold text-white leading-tight break-words" id="modal-m2-name">--</div>
-                                    <div class="text-[11px] font-mono text-[#d1c5ad] font-semibold" id="modal-m2-contact">--</div>
-                                </div>
-
-                                <!-- Member 3 -->
-                                <div class="bg-[#14161d] border border-outline-variant/40 p-2.5 rounded-xs space-y-1">
-                                    <span class="text-[10px] text-on-surface-variant font-bold uppercase tracking-wider block" style="font-family: 'Orbitron', sans-serif;">MEMBER 3</span>
-                                    <div class="text-sm font-extrabold text-white leading-tight break-words" id="modal-m3-name">--</div>
-                                    <div class="text-[11px] font-mono text-[#d1c5ad] font-semibold" id="modal-m3-contact">--</div>
-                                </div>
-
-                                <!-- Member 4 -->
-                                <div id="modal-m4-wrap" class="bg-[#14161d] border border-outline-variant/40 p-2.5 rounded-xs space-y-1">
-                                    <span class="text-[10px] text-on-surface-variant font-bold uppercase tracking-wider block" style="font-family: 'Orbitron', sans-serif;">MEMBER 4</span>
-                                    <div class="text-sm font-extrabold text-white leading-tight break-words" id="modal-m4-name">--</div>
-                                    <div class="text-[11px] font-mono text-[#d1c5ad] font-semibold" id="modal-m4-contact">--</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Venue & Verification Badges -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
-                            <div class="bg-surface-container/60 border border-outline-variant/40 p-2.5 rounded-xs">
-                                <span class="text-[10px] text-primary uppercase font-bold block tracking-wider" style="font-family: 'JetBrains Mono', monospace;">EVENT VENUE &amp; SCHEDULE</span>
-                                <span class="text-white font-bold block mt-0.5 leading-snug">Sept 20-21, 2026 // 08:30 AM IST<br /><span class="text-on-surface-variant font-medium">Main Auditorium, KEC</span></span>
-                            </div>
-                            <div class="bg-surface-container/60 border border-outline-variant/40 p-2.5 rounded-xs">
-                                <span class="text-[10px] text-primary uppercase font-bold block tracking-wider" style="font-family: 'JetBrains Mono', monospace;">TRANSACTION UTR / STATUS</span>
-                                <span class="text-primary font-mono text-xs font-bold block mt-0.5 tracking-wider" id="modal-txn-id">UTR: --</span>
-                                <span class="inline-block mt-1 text-[10px] px-2 py-0.5 bg-emerald-950 text-emerald-300 border border-emerald-500/60 font-mono font-bold rounded-xs uppercase tracking-wider">✓ OFFICIAL CLEARANCE ACTIVE</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Pass Verification Real High-Res QR Code Card -->
-                    <div class="flex flex-col items-center justify-center p-3 bg-white rounded-sm text-black shadow-2xl border-2 border-primary">
-                        <div id="pass-qrcode-container" class="w-36 h-36 flex items-center justify-center bg-white p-1">
-                            <!-- Dynamic QR Code rendered here -->
-                        </div>
-                        <span class="text-[10px] font-mono text-black font-black uppercase mt-1 tracking-widest text-center" style="font-family: 'JetBrains Mono', monospace;">CAMPUS GATE TOKEN</span>
-                    </div>
-                </div>
-
-                <div class="border-t-2 border-dashed border-primary/40 pt-3 text-[11px] font-label-sm text-on-surface-variant flex justify-between items-center flex-wrap gap-2">
-                    <span class="text-white/90 font-medium">★ Present this digital pass or email pass on arrival at gate verification desk.</span>
-                    <span class="text-primary text-[10px] font-bold tracking-widest uppercase" style="font-family: 'Orbitron', sans-serif;">VISION 2026 OFFICIAL PASS</span>
-                </div>
-            </div>
-
-            <!-- Modal Action Buttons Grid -->
-            <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-                <button id="download-png-btn" class="bg-primary text-on-primary hover:bg-primary-fixed border border-primary font-label-sm py-3 px-3 text-xs uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-1.5 rounded-sm font-bold shadow-[0_0_15px_rgba(240,193,44,0.25)] cursor-pointer">
-                    <span class="material-symbols-outlined text-sm">download</span>
-                    Download Pass (PNG)
-                </button>
-                <button id="whatsapp-share-btn" class="bg-[#25D366]/20 hover:bg-[#25D366] text-[#25D366] hover:text-black border border-[#25D366]/60 font-label-sm py-3 px-3 text-xs uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-1.5 rounded-sm font-bold cursor-pointer">
-                    <span class="material-symbols-outlined text-sm">share</span>
-                    Share on WhatsApp
-                </button>
-                <button id="email-confirm-btn" class="bg-primary/15 hover:bg-primary text-primary hover:text-on-primary border border-primary/60 font-label-sm py-3 px-3 text-xs uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-1.5 rounded-sm cursor-pointer">
-                    <span class="material-symbols-outlined text-sm">mail</span>
-                    Send Email Pass
-                </button>
-                <button id="print-pass-btn" class="bg-surface-container hover:bg-surface-container-high text-on-surface border border-outline-variant/60 font-label-sm py-3 px-3 text-xs uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-1.5 rounded-sm cursor-pointer">
-                    <span class="material-symbols-outlined text-sm">print</span>
-                    Print / PDF
-                </button>
-            </div>
-            <div id="email-toast" class="hidden text-center text-xs font-label-sm text-primary mt-3 tracking-widest">
-                ✓ ACTION PROCESSED SUCCESSFULLY
-            </div>
-            <!-- Squad Card Share Row -->
-            <div class="mt-2.5">
-                <button id="squad-card-share-btn" class="w-full bg-gradient-to-r from-purple-950/70 to-indigo-900/70 hover:from-purple-900 hover:to-indigo-800 text-purple-300 hover:text-white border border-purple-500/50 hover:border-purple-400 font-label-sm py-3 px-3 text-xs uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 rounded-sm font-bold cursor-pointer">
-                    <span class="material-symbols-outlined text-sm">photo_camera</span>
-                    Share Squad Card (Instagram Story / WhatsApp Status)
-                    <span class="text-[9px] px-1.5 py-0.5 bg-purple-500/25 border border-purple-400/40 rounded-xs font-bold tracking-widest uppercase">9:16</span>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Hidden Squad Invite Card: 1080x1920 Instagram Stories / WhatsApp Status format -->
-    <!-- Captured by html2canvas, then downloaded as PNG -->
-    <div id="squad-invite-card" aria-hidden="true" style="position:fixed;left:-12000px;top:0;width:1080px;height:1920px;overflow:hidden;pointer-events:none;z-index:-1;font-family:'Space Grotesk',-apple-system,sans-serif;">
-        <!-- Gradient background -->
-        <div style="position:absolute;inset:0;background:linear-gradient(160deg,#050608 0%,#0e0f15 40%,#131005 100%);"></div>
-        <!-- Decorative grid lines -->
-        <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(240,193,44,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(240,193,44,0.04) 1px,transparent 1px);background-size:80px 80px;"></div>
-        <!-- Top glow orb -->
-        <div style="position:absolute;top:-180px;left:50%;transform:translateX(-50%);width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(240,193,44,0.14) 0%,transparent 70%);pointer-events:none;"></div>
-        <!-- Corner brackets -->
-        <div style="position:absolute;top:48px;left:48px;width:56px;height:56px;border-top:3px solid #f0c12c;border-left:3px solid #f0c12c;"></div>
-        <div style="position:absolute;top:48px;right:48px;width:56px;height:56px;border-top:3px solid #f0c12c;border-right:3px solid #f0c12c;"></div>
-        <div style="position:absolute;bottom:48px;left:48px;width:56px;height:56px;border-bottom:3px solid #f0c12c;border-left:3px solid #f0c12c;"></div>
-        <div style="position:absolute;bottom:48px;right:48px;width:56px;height:56px;border-bottom:3px solid #f0c12c;border-right:3px solid #f0c12c;"></div>
-        <!-- Content -->
-        <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:80px 72px;gap:0;">
-            <!-- Vision badge -->
-            <div style="font-family:'Orbitron',sans-serif;font-size:13px;font-weight:900;color:#f0c12c;letter-spacing:0.22em;text-transform:uppercase;border:1.5px solid rgba(240,193,44,0.45);padding:8px 28px;border-radius:3px;background:rgba(240,193,44,0.06);margin-bottom:54px;">VISION 2026 · HACKATHON</div>
-            <!-- SQUAD HAS ASSEMBLED headline -->
-            <div style="font-family:'Orbitron',sans-serif;font-size:36px;font-weight:900;color:rgba(255,255,255,0.22);letter-spacing:0.12em;text-transform:uppercase;text-align:center;line-height:1.1;margin-bottom:20px;">SQUAD HAS</div>
-            <div style="font-family:'Orbitron',sans-serif;font-size:52px;font-weight:900;color:#f0c12c;letter-spacing:0.08em;text-transform:uppercase;text-align:center;line-height:1.0;margin-bottom:56px;">ASSEMBLED</div>
-            <!-- Team name -->
-            <div id="squad-card-team-name" style="font-family:'Space Grotesk',sans-serif;font-size:62px;font-weight:800;color:#ffffff;text-align:center;text-transform:uppercase;letter-spacing:0.04em;line-height:1.1;margin-bottom:12px;word-break:break-word;max-width:900px;">TEAM NAME</div>
-            <!-- Divider -->
-            <div style="width:320px;height:2px;background:linear-gradient(90deg,transparent,#f0c12c,transparent);margin:32px 0;"></div>
-            <!-- Members list -->
-            <div id="squad-card-members" style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:600;color:rgba(255,255,255,0.82);text-align:center;line-height:1.9;margin-bottom:52px;">LEADER NAME</div>
-            <!-- QR Code -->
-            <div style="background:#fff;padding:14px;border-radius:6px;border:3px solid #f0c12c;margin-bottom:28px;">
-                <img id="squad-card-qr" src="" alt="Squad QR" style="width:190px;height:190px;display:block;" crossorigin="anonymous" />
-            </div>
-            <!-- Scan label -->
-            <div style="font-family:'JetBrains Mono',monospace;font-size:15px;color:rgba(240,193,44,0.6);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:60px;">SCAN TO VERIFY SQUAD</div>
-            <!-- Event info -->
-            <div style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:600;color:rgba(255,255,255,0.5);text-align:center;letter-spacing:0.04em;line-height:1.6;">
-                Sept 20-21, 2026 &bull; Main Auditorium<br>
-                <span style="color:rgba(240,193,44,0.7);">Kongu Engineering College, Erode</span>
-            </div>
-        </div>
-    </div>
-
     <!-- ============ FOOTER ============ -->
-    <footer class="w-full bg-surface-container-lowest border-t border-primary/10 pt-16 pb-8" id="contact">
-        <div class="max-w-7xl mx-auto px-margin-edge">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
-                <div class="space-y-4">
-                    <div class="font-label-sm text-primary tracking-widest uppercase">Contact:</div>
-                    <div class="font-body-md text-on-surface-variant">terminal@vision.hack<br />+91 98765 43210</div>
-                </div>
-                <div class="space-y-4">
-                    <div class="font-label-sm text-primary tracking-widest uppercase">Support:</div>
-                    <div class="font-body-md text-on-surface-variant underline decoration-outline-variant">Documentation</div>
-                    <div class="font-body-md text-on-surface-variant underline decoration-outline-variant">Rules &amp; FAQ</div>
-                </div>
-                <div class="space-y-4">
-                    <div class="font-label-sm text-primary tracking-widest uppercase">Location:</div>
-                    <div class="font-body-md text-on-surface-variant">Kongu Engineering College<br />Main Auditorium, Erode</div>
-                </div>
-                <div class="flex flex-col md:items-end gap-6">
-                    <div class="flex gap-4">
-                        <a class="w-10 h-10 border border-outline-variant flex items-center justify-center text-primary hover:bg-primary/10 transition-all" href="#" rel="noopener noreferrer" aria-label="Network"><span class="material-symbols-outlined">hub</span></a>
-                        <a class="w-10 h-10 border border-outline-variant flex items-center justify-center text-primary hover:bg-primary/10 transition-all" href="#" rel="noopener noreferrer" aria-label="Web"><span class="material-symbols-outlined">public</span></a>
-                    </div>
-                    <div class="font-label-sm text-outline-variant">VER: 2.0.0</div>
-                </div>
-            </div>
-            <div class="border-t border-outline-variant/20 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                <div class="font-label-sm text-outline-variant uppercase text-xs">© 2026 VISION HACKATHON. ALL AVENGERS PROTOCOLS OPERATIONAL.</div>
-                <div class="flex gap-8 text-xs font-label-sm text-outline-variant">
-                    <span>IEEE AP-S &amp; KEC</span>
-                </div>
-            </div>
-        </div>
+    <footer class="w-full bg-[#050608] border-t border-primary/20 py-6 text-center font-mono text-xs text-zinc-500">
+        <div>VISION 2K26 • IEEE ANTENNAS AND PROPAGATION SOCIETY (IEEE APS) KEC</div>
     </footer>
 
-    <!-- Firebase & Logic Script -->
+    <!-- ============ ADMIT PASS POPUP MODAL ============ -->
+    <div id="admit-pass-modal" class="fixed inset-0 z-[99999] hidden flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-4 overflow-y-auto">
+        <div class="relative w-full max-w-2xl bg-surface-container-lowest border-2 border-primary/70 rounded-xs shadow-[0_0_60px_rgba(240,193,44,0.4)] flex flex-col overflow-hidden animate-fade-in-up my-auto">
+            
+            <!-- Modal Header -->
+            <div class="p-3.5 sm:p-4 bg-surface-container border-b border-primary/30 flex items-center justify-between z-10">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span class="font-orbitron text-xs sm:text-sm font-bold tracking-widest text-primary uppercase">REGISTRATION CONFIRMED // OFFICIAL PASS</span>
+                </div>
+                <button id="close-modal-btn" class="w-8 h-8 flex items-center justify-center text-outline hover:text-primary rounded cursor-pointer" title="Close">
+                    <span class="material-symbols-outlined text-xl">close</span>
+                </button>
+            </div>
+
+            <!-- Pass Card to capture / print -->
+            <div class="p-4 sm:p-6 bg-[#08090d]" id="printable-pass">
+                <div class="border-2 border-primary/60 rounded-xs p-5 bg-[#0d0f17] relative overflow-hidden space-y-4">
+                    <!-- Corner Brackets -->
+                    <div class="absolute top-1.5 left-1.5 w-3 h-3 border-t-2 border-l-2 border-primary"></div>
+                    <div class="absolute top-1.5 right-1.5 w-3 h-3 border-t-2 border-r-2 border-primary"></div>
+                    <div class="absolute bottom-1.5 left-1.5 w-3 h-3 border-b-2 border-l-2 border-primary"></div>
+                    <div class="absolute bottom-1.5 right-1.5 w-3 h-3 border-b-2 border-r-2 border-primary"></div>
+
+                    <!-- Top institution header -->
+                    <div class="flex items-center justify-between border-b border-primary/30 pb-3">
+                        <div>
+                            <div class="font-orbitron text-xs font-bold text-primary">KONGU ENGINEERING COLLEGE</div>
+                            <div class="font-mono text-[9px] text-zinc-400">IEEE AP-S • VISION 2K26 SYMPOSIUM</div>
+                        </div>
+                        <div class="text-right font-mono">
+                            <div class="text-[9px] text-zinc-400">DATE: 5 OCT 2026</div>
+                            <div class="font-orbitron text-xs font-black text-amber-300" id="modal-pass-id">VIS-2026-XXXX</div>
+                        </div>
+                    </div>
+
+                    <!-- Registered Event Banner -->
+                    <div class="bg-primary/15 border border-primary/40 p-2 text-center rounded-xs">
+                        <div class="font-mono text-[9px] text-zinc-400 uppercase">REGISTERED EVENT TRACK</div>
+                        <div class="font-orbitron text-lg font-black text-primary gold-glow" id="modal-event-name">EVENT NAME</div>
+                    </div>
+
+                    <!-- Squad details & QR layout -->
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
+                        <div class="sm:col-span-8 space-y-2 font-mono text-xs">
+                            <div>
+                                <span class="text-zinc-400 uppercase text-[10px]">SQUAD CALLSIGN:</span>
+                                <div class="font-orbitron text-base font-bold text-white uppercase" id="modal-team-name">SQUAD</div>
+                            </div>
+
+                            <div class="border-t border-outline-variant/30 pt-2 space-y-1">
+                                <div class="text-[10px] text-primary uppercase font-bold">CONFIRMED SQUAD MEMBERS:</div>
+                                <div id="modal-m1-row" class="text-zinc-200">1. <span id="modal-m1-name">Leader</span> <span class="text-zinc-400" id="modal-m1-contact"></span></div>
+                                <div id="modal-m2-row" class="text-zinc-300 hidden">2. <span id="modal-m2-name">Member 2</span> <span class="text-zinc-400" id="modal-m2-contact"></span></div>
+                                <div id="modal-m3-row" class="text-zinc-300 hidden">3. <span id="modal-m3-name">Member 3</span> <span class="text-zinc-400" id="modal-m3-contact"></span></div>
+                            </div>
+
+                            <div class="text-[10px] text-zinc-400 pt-1">
+                                📍 Venue: Kongu Engineering College, Perundurai
+                            </div>
+                        </div>
+
+                        <div class="sm:col-span-4 flex flex-col items-center justify-center text-center">
+                            <div class="bg-white p-2 rounded-xs border-2 border-primary shadow" id="pass-qrcode-container">
+                                <!-- QR code renders here -->
+                            </div>
+                            <span class="font-mono text-[8.5px] text-zinc-400 mt-1 uppercase">Gate Scan Pass</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="p-3 sm:p-4 bg-surface-container border-t border-outline-variant/30 flex flex-wrap items-center justify-between gap-2 z-10 font-mono text-xs">
+                <div class="flex items-center gap-2">
+                    <button id="download-png-btn" class="bg-primary text-black font-bold px-3.5 py-2 rounded-xs hover:bg-primary-container transition-all flex items-center gap-1.5 cursor-pointer">
+                        <span class="material-symbols-outlined text-sm">download</span> Save 4K Pass
+                    </button>
+                    <button id="whatsapp-share-btn" class="bg-[#25D366] text-black font-bold px-3.5 py-2 rounded-xs hover:opacity-90 transition-all flex items-center gap-1.5 cursor-pointer">
+                        <span class="material-symbols-outlined text-sm">share</span> Share on WhatsApp
+                    </button>
+                </div>
+                <button id="print-pass-btn" class="text-outline hover:text-white px-3 py-2 transition-colors flex items-center gap-1 cursor-pointer">
+                    <span class="material-symbols-outlined text-sm">print</span> Print
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden 1080x1920 Story Card container for html2canvas export -->
+    <div id="squad-invite-card" style="position:fixed;left:-9999px;top:-9999px;width:1080px;height:1920px;background:#06070a;color:#fff;font-family:'Space Grotesk',sans-serif;padding:80px 60px;display:flex;flex-direction:column;justify-content:between;border:6px solid #f0c12c;box-sizing:border-box;">
+        <div style="text-align:center;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:22px;color:#f0c12c;letter-spacing:0.25em;">IEEE AP-S • KEC PRESENTS</div>
+            <div style="font-family:'Orbitron',sans-serif;font-size:72px;font-weight:900;color:#f0c12c;margin-top:10px;line-height:1.1;">VISION 2K26</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:24px;color:#fff;letter-spacing:0.15em;margin-top:10px;">INTRA-COLLEGE SYMPOSIUM • 5 OCT 2026</div>
+        </div>
+        <div style="background:rgba(240,193,44,0.08);border:3px solid #f0c12c;padding:50px 40px;border-radius:12px;text-align:center;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:22px;color:#c4b897;letter-spacing:0.2em;">EVENT TRACK</div>
+            <div id="squad-card-event-name" style="font-family:'Orbitron',sans-serif;font-size:46px;font-weight:900;color:#f0c12c;margin-top:10px;">AI SPRINT</div>
+            <div style="width:120px;height:3px;background:#f0c12c;margin:25px auto;"></div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:20px;color:#c4b897;">CONFIRMED SQUAD</div>
+            <div id="squad-card-team-name" style="font-family:'Orbitron',sans-serif;font-size:42px;font-weight:700;color:#fff;margin-top:8px;">CYBERKNIGHTS</div>
+            <div id="squad-card-members" style="font-family:'JetBrains Mono',monospace;font-size:26px;color:#e3e2e7;margin-top:25px;line-height:1.6;">Member 1 • Member 2</div>
+        </div>
+        <div style="text-align:center;font-family:'JetBrains Mono',monospace;font-size:20px;color:#9a907a;">
+            <div>📍 Kongu Engineering College, Perundurai</div>
+            <div style="color:#f0c12c;font-weight:bold;margin-top:8px;">#Vision2K26 #IEEEAPS #KEC</div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
     <script type="module">
         import { firebaseConfig, isFirebaseConfigured, organizerConfig } from './firebase-config.js';
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js';
@@ -676,26 +519,29 @@
             getDocs,
             query,
             where,
-            onSnapshot, 
             runTransaction, 
             serverTimestamp 
         } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
         import SFX from './sounds.js';
 
+        // Maps display event name → Firestore collection-safe ID
+        const EVENT_COLLECTION_MAP = {
+            'Paper Presentation':    'paper-presentation',
+            'Project Presentation':  'project-presentation',
+            'AI Sprint':             'ai-sprint',
+            'ElectroBid':            'electrobid',
+            'Line Following Robot':  'line-following-robot'
+        };
+
+        function getEventCollectionId(eventName) {
+            return EVENT_COLLECTION_MAP[eventName] || 'general';
+        }
+
         window._SFX = SFX;
 
-        // Attach interactive sound effects
         document.addEventListener('DOMContentLoaded', () => {
             SFX.attachClickSounds();
         });
-
-        const bootOnce = () => {
-            SFX.boot();
-            document.removeEventListener('pointerdown', bootOnce);
-            document.removeEventListener('keydown', bootOnce);
-        };
-        document.addEventListener('pointerdown', bootOnce, { once: true });
-        document.addEventListener('keydown', bootOnce, { once: true });
 
         /* ---------- Mobile nav toggle ---------- */
         const menuBtn = document.getElementById('mobile-menu-btn');
@@ -707,219 +553,79 @@
             });
         }
 
-        /* ---------- 1-Tap UPI Payment Protocol ---------- */
-        const UPI_ID = '7339436468@upi';
-        const PAYEE_NAME = 'Vision Hackathon';
-        const AMOUNT = '1600';
-        const NOTE = 'Vision2026Registration';
+        /* ---------- Parse URL Event Param ---------- */
+        const urlParams = new URLSearchParams(window.location.search);
+        const eventParam = urlParams.get('event');
+        const eventRadios = document.querySelectorAll('input[name="event_choice"]');
 
-        window.triggerUpiPayment = function(appType) {
-            SFX.click();
-            const isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            const rawParams = `pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${AMOUNT}&cu=INR&tn=${encodeURIComponent(NOTE)}`;
-            const genericUpi = `upi://pay?${rawParams}`;
-
-            let appUri = genericUpi;
-            if (appType === 'gpay') {
-                appUri = /Android/i.test(navigator.userAgent)
-                    ? `intent://pay?${rawParams}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end`
-                    : `gpay://upi/pay?${rawParams}`;
-            } else if (appType === 'phonepe') {
-                appUri = /Android/i.test(navigator.userAgent)
-                    ? `intent://pay?${rawParams}#Intent;scheme=upi;package=com.phonepe.app;end`
-                    : `phonepe://pay?${rawParams}`;
-            } else if (appType === 'paytm') {
-                appUri = /Android/i.test(navigator.userAgent)
-                    ? `intent://pay?${rawParams}#Intent;scheme=upi;package=net.one97.paytm;end`
-                    : `paytmmp://pay?${rawParams}`;
-            }
-
-            // Copy UPI ID to clipboard automatically
-            navigator.clipboard.writeText(UPI_ID).catch(() => {});
-
-            const notice = document.getElementById('upi-notice');
-            const qrCard = document.getElementById('payment-qr-card');
-
-            if (!isMobile) {
-                // Desktop Experience: Highlight QR code and notify
-                if (qrCard) {
-                    qrCard.classList.add('ring-4', 'ring-primary', 'shadow-[0_0_35px_rgba(240,193,44,0.7)]');
-                    setTimeout(() => {
-                        qrCard.classList.remove('ring-4', 'ring-primary', 'shadow-[0_0_35px_rgba(240,193,44,0.7)]');
-                    }, 3500);
+        function selectEventByName(name) {
+            eventRadios.forEach(radio => {
+                const label = radio.closest('.event-card-label');
+                const dot = label.querySelector('.dot');
+                if (radio.value.toLowerCase().includes(name.toLowerCase())) {
+                    radio.checked = true;
+                    label.classList.add('border-primary', 'bg-primary/10');
+                    label.classList.remove('border-outline-variant/40');
+                    if (dot) dot.classList.remove('hidden');
+                } else {
+                    label.classList.remove('border-primary', 'bg-primary/10');
+                    label.classList.add('border-outline-variant/40');
+                    if (dot) dot.classList.add('hidden');
                 }
-                if (notice) {
-                    notice.innerHTML = `<span class="text-primary font-bold">UPI ID COPIED!</span> Since you are on PC/Laptop, please scan the QR code above with your mobile app to pay ₹${AMOUNT}.`;
-                    notice.classList.remove('hidden');
-                }
-                return;
-            }
-
-            // Mobile Device Experience: Open App with Fallback
-            if (notice) {
-                notice.innerHTML = `<span class="text-primary font-bold">OPENING UPI APP...</span> If your app doesn't open automatically, use the QR code or copy the UPI ID.`;
-                notice.classList.remove('hidden');
-            }
-
-            const launchTime = Date.now();
-            window.location.href = appUri;
-
-            // Fallback to standard upi:// scheme after 600ms if specific intent is not recognized
-            setTimeout(() => {
-                if (Date.now() - launchTime < 1500 && appType !== 'generic') {
-                    window.location.href = genericUpi;
-                }
-            }, 600);
-        };
-
-        /* ---------- Copy UPI ID Button ---------- */
-        const copyUpiBtn = document.getElementById('copy-upi-btn');
-        const upiIdText = document.getElementById('upi-id-text');
-        if (copyUpiBtn && upiIdText) {
-            copyUpiBtn.addEventListener('click', () => {
-                navigator.clipboard.writeText(upiIdText.textContent.trim());
-                SFX.click();
-                copyUpiBtn.innerHTML = '<span class="material-symbols-outlined text-[16px] text-primary">check</span>';
-                const notice = document.getElementById('upi-notice');
-                if (notice) {
-                    notice.innerHTML = `<span class="text-primary font-bold">COPIED:</span> 7339436468@upi`;
-                    notice.classList.remove('hidden');
-                }
-                setTimeout(() => {
-                    copyUpiBtn.innerHTML = '<span class="material-symbols-outlined text-[16px]">content_copy</span>';
-                }, 2000);
             });
+            updateEventNotice();
         }
 
-        /* ---------- Screenshot Preview Drag-and-Drop ---------- */
-        const dropZone = document.getElementById('drop-zone');
-        const screenshotInput = document.getElementById('screenshot-input');
-        const dropPrompt = document.getElementById('drop-prompt');
-        const dropPreview = document.getElementById('drop-preview');
-        const previewImg = document.getElementById('preview-img');
-        const previewName = document.getElementById('preview-name');
-        const removePreviewBtn = document.getElementById('remove-preview-btn');
-
-        let base64Screenshot = null;
-
-        if (screenshotInput) {
-            screenshotInput.addEventListener('change', handleFile);
+        if (eventParam) {
+            if (eventParam === 'paper') selectEventByName('Paper');
+            else if (eventParam === 'project') selectEventByName('Project');
+            else if (eventParam === 'ai-sprint') selectEventByName('AI');
+            else if (eventParam === 'electrobid') selectEventByName('Electro');
+            else if (eventParam === 'robotics') selectEventByName('Line');
         }
 
-        function handleFile(e) {
-            const file = e.target.files ? e.target.files[0] : null;
-            if (!file) return;
-
-            if (file.size > 2 * 1024 * 1024) {
-                alert('File size exceeds 2MB limit. Please choose a smaller image.');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                base64Screenshot = event.target.result;
-                previewImg.src = base64Screenshot;
-                previewName.textContent = file.name;
-                dropPrompt.classList.add('hidden');
-                dropPreview.classList.remove('hidden');
+        // Radio change handling
+        eventRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
                 SFX.click();
-            };
-            reader.readAsDataURL(file);
-        }
-
-        if (removePreviewBtn) {
-            removePreviewBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                base64Screenshot = null;
-                screenshotInput.value = '';
-                previewImg.src = '';
-                dropPreview.classList.add('hidden');
-                dropPrompt.classList.remove('hidden');
-                SFX.click();
+                eventRadios.forEach(r => {
+                    const l = r.closest('.event-card-label');
+                    const d = l.querySelector('.dot');
+                    if (r.checked) {
+                        l.classList.add('border-primary', 'bg-primary/10');
+                        l.classList.remove('border-outline-variant/40');
+                        if (d) d.classList.remove('hidden');
+                    } else {
+                        l.classList.remove('border-primary', 'bg-primary/10');
+                        l.classList.add('border-outline-variant/40');
+                        if (d) d.classList.add('hidden');
+                    }
+                });
+                updateEventNotice();
             });
-        }
+        });
 
-        /* =========================================================
-           SECURITY & SANITIZATION UTILITIES
-           ========================================================= */
-        function sanitizeString(str) {
-            if (typeof str !== 'string') return '';
-            return str.trim()
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#x27;')
-                .replace(/\//g, '&#x2F;');
+        function updateEventNotice() {
+            const selected = document.querySelector('input[name="event_choice"]:checked')?.value || '';
+            const aiNotice = document.getElementById('ai-sprint-notice');
+            const topicWrap = document.getElementById('presentation-topic-wrap');
+            if (selected === 'AI Sprint') {
+                if (aiNotice) aiNotice.classList.remove('hidden');
+                if (topicWrap) topicWrap.classList.add('hidden');
+            } else {
+                if (aiNotice) aiNotice.classList.add('hidden');
+                if (topicWrap) topicWrap.classList.remove('hidden');
+            }
         }
+        updateEventNotice();
 
+        /* ---------- Validation Engine ---------- */
         const REGEX = {
-            team_name: /^[a-zA-Z0-9\s\-_]{3,30}$/,
+            team_name: /^[a-zA-Z0-9\s\-_]{3,35}$/,
             name: /^[a-zA-Z\s.]{2,50}$/,
             email: /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/,
-            mobile: /^[6-9]\d{9}$/,
-            txn_id: /^[a-zA-Z0-9\-_]{8,30}$/
+            mobile: /^[6-9]\d{9}$/
         };
-
-        const MAX_TEAMS = 35;
-        let seatsRemaining = 12;
-
-        const bannerRemaining = document.getElementById('banner-remaining');
-        const bannerStatus = document.getElementById('banner-status');
-        const submitBtn = document.getElementById('submit-btn');
-
-        function renderBanner() {
-            if (!bannerRemaining || !bannerStatus || !submitBtn) return;
-            bannerRemaining.textContent = `${seatsRemaining} / ${MAX_TEAMS}`;
-            if (seatsRemaining === 0) {
-                bannerStatus.textContent = 'REGISTRATION FULL — LOCKED';
-                bannerStatus.className = 'font-label-sm text-error tracking-widest uppercase';
-                submitBtn.disabled = true;
-            } else if (seatsRemaining <= 5) {
-                bannerStatus.textContent = 'CRITICAL SLOTS REMAINING';
-                bannerStatus.className = 'font-label-sm text-error tracking-widest uppercase';
-            } else {
-                bannerStatus.textContent = 'AVENGERS RECRUITMENT OPEN';
-                bannerStatus.className = 'font-label-sm text-primary tracking-widest uppercase';
-            }
-        }
-        renderBanner();
-
-        /* =========================================================
-           FIREBASE REAL-TIME CAPACITY LISTENER
-           ========================================================= */
-        let db = null;
-        if (isFirebaseConfigured()) {
-            try {
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                const capacityDocRef = doc(db, 'metadata', 'capacity');
-
-                onSnapshot(capacityDocRef, (docSnap) => {
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        seatsRemaining = typeof data.seats_remaining === 'number' ? data.seats_remaining : MAX_TEAMS;
-                        renderBanner();
-                    }
-                }, (err) => {
-                    console.warn('Firestore live capacity listener notice:', err);
-                });
-            } catch (err) {
-                console.error('Firebase initialization error:', err);
-            }
-        }
-
-        /* =========================================================
-           VALIDATION ENGINE
-           ========================================================= */
-        const form = document.getElementById('registration-form');
-        const txnInput = document.getElementById('txn_id');
-        const formStatus = document.getElementById('form-status');
-        const submitLabel = document.getElementById('submit-btn-label');
-        const honeypot = document.getElementById('hp_system_ref');
-
-        let lastSubmitTimestamp = 0;
-        const SUBMIT_COOLDOWN_MS = 3000;
 
         function showFieldError(id, show, customMsg) {
             const msg = document.querySelector(`[data-error-for="${id}"]`);
@@ -930,15 +636,18 @@
             input.classList.toggle('field-error', show);
         }
 
-        function validateAllFields() {
+        function validateForm() {
             let valid = true;
 
-            const teamNameInput = document.getElementById('team_name');
-            const teamNameOk = REGEX.team_name.test(teamNameInput.value.trim());
-            showFieldError('team_name', !teamNameOk);
-            if (!teamNameOk) valid = false;
+            // Team Name
+            const teamName = document.getElementById('team_name').value.trim();
+            const teamOk = REGEX.team_name.test(teamName);
+            showFieldError('team_name', !teamOk);
+            if (!teamOk) valid = false;
 
-            const m1NameOk = REGEX.name.test(document.getElementById('m1_name').value.trim());
+            // Leader (Required)
+            const m1Name = document.getElementById('m1_name').value.trim();
+            const m1NameOk = REGEX.name.test(m1Name);
             showFieldError('m1_name', !m1NameOk);
             if (!m1NameOk) valid = false;
 
@@ -952,81 +661,76 @@
             showFieldError('m1_mobile', !m1MobileOk);
             if (!m1MobileOk) valid = false;
 
-            const m2NameOk = REGEX.name.test(document.getElementById('m2_name').value.trim());
-            showFieldError('m2_name', !m2NameOk);
-            if (!m2NameOk) valid = false;
-
+            // Member 2 (Optional - but if any field filled, all must be valid)
+            const m2Name = document.getElementById('m2_name').value.trim();
             const m2Email = document.getElementById('m2_email').value.trim().toLowerCase();
-            const m2EmailOk = REGEX.email.test(m2Email);
-            showFieldError('m2_email', !m2EmailOk);
-            if (!m2EmailOk) valid = false;
-
             const m2Mobile = document.getElementById('m2_mobile').value.trim();
-            const m2MobileOk = REGEX.mobile.test(m2Mobile);
-            showFieldError('m2_mobile', !m2MobileOk);
-            if (!m2MobileOk) valid = false;
+            const hasM2 = (m2Name || m2Email || m2Mobile);
 
-            const m3NameOk = REGEX.name.test(document.getElementById('m3_name').value.trim());
-            showFieldError('m3_name', !m3NameOk);
-            if (!m3NameOk) valid = false;
+            if (hasM2) {
+                const m2NameOk = REGEX.name.test(m2Name);
+                showFieldError('m2_name', !m2NameOk);
+                if (!m2NameOk) valid = false;
 
+                const m2EmailOk = REGEX.email.test(m2Email);
+                showFieldError('m2_email', !m2EmailOk);
+                if (!m2EmailOk) valid = false;
+
+                const m2MobileOk = REGEX.mobile.test(m2Mobile);
+                showFieldError('m2_mobile', !m2MobileOk);
+                if (!m2MobileOk) valid = false;
+            } else {
+                showFieldError('m2_name', false);
+                showFieldError('m2_email', false);
+                showFieldError('m2_mobile', false);
+            }
+
+            // Member 3 (Optional)
+            const m3Name = document.getElementById('m3_name').value.trim();
             const m3Email = document.getElementById('m3_email').value.trim().toLowerCase();
-            const m3EmailOk = REGEX.email.test(m3Email);
-            showFieldError('m3_email', !m3EmailOk);
-            if (!m3EmailOk) valid = false;
-
             const m3Mobile = document.getElementById('m3_mobile').value.trim();
-            const m3MobileOk = REGEX.mobile.test(m3Mobile);
-            showFieldError('m3_mobile', !m3MobileOk);
-            if (!m3MobileOk) valid = false;
+            const hasM3 = (m3Name || m3Email || m3Mobile);
 
-            const m4NameOk = REGEX.name.test(document.getElementById('m4_name').value.trim());
-            showFieldError('m4_name', !m4NameOk);
-            if (!m4NameOk) valid = false;
+            if (hasM3) {
+                const m3NameOk = REGEX.name.test(m3Name);
+                showFieldError('m3_name', !m3NameOk);
+                if (!m3NameOk) valid = false;
 
-            const m4Email = document.getElementById('m4_email').value.trim().toLowerCase();
-            const m4EmailOk = REGEX.email.test(m4Email);
-            showFieldError('m4_email', !m4EmailOk);
-            if (!m4EmailOk) valid = false;
+                const m3EmailOk = REGEX.email.test(m3Email);
+                showFieldError('m3_email', !m3EmailOk);
+                if (!m3EmailOk) valid = false;
 
-            const m4Mobile = document.getElementById('m4_mobile').value.trim();
-            const m4MobileOk = REGEX.mobile.test(m4Mobile);
-            showFieldError('m4_mobile', !m4MobileOk);
-            if (!m4MobileOk) valid = false;
-
-            // Uniqueness check across 4 members
-            const emails = [m1Email, m2Email, m3Email, m4Email];
-            if (m1EmailOk && m2EmailOk && m3EmailOk && m4EmailOk) {
-                const uniqueEmails = new Set(emails);
-                if (uniqueEmails.size !== 4) {
-                    ['m1_email', 'm2_email', 'm3_email', 'm4_email'].forEach(id => {
-                        showFieldError(id, true, '// EACH MEMBER MUST HAVE A UNIQUE EMAIL');
-                    });
-                    valid = false;
-                }
+                const m3MobileOk = REGEX.mobile.test(m3Mobile);
+                showFieldError('m3_mobile', !m3MobileOk);
+                if (!m3MobileOk) valid = false;
+            } else {
+                showFieldError('m3_name', false);
+                showFieldError('m3_email', false);
+                showFieldError('m3_mobile', false);
             }
 
-            const mobiles = [m1Mobile, m2Mobile, m3Mobile, m4Mobile];
-            if (m1MobileOk && m2MobileOk && m3MobileOk && m4MobileOk) {
-                const uniqueMobiles = new Set(mobiles);
-                if (uniqueMobiles.size !== 4) {
-                    ['m1_mobile', 'm2_mobile', 'm3_mobile', 'm4_mobile'].forEach(id => {
-                        showFieldError(id, true, '// EACH MEMBER MUST HAVE A UNIQUE PHONE');
-                    });
-                    valid = false;
-                }
+            // Cross-member uniqueness
+            const emails = [m1Email, hasM2 ? m2Email : '', hasM3 ? m3Email : ''].filter(Boolean);
+            if (new Set(emails).size !== emails.length) {
+                showFieldError('m1_email', true, '// EACH MEMBER MUST HAVE A UNIQUE EMAIL');
+                if (hasM2) showFieldError('m2_email', true, '// DUPLICATE EMAIL DETECTED');
+                if (hasM3) showFieldError('m3_email', true, '// DUPLICATE EMAIL DETECTED');
+                valid = false;
             }
 
-            const txnVal = txnInput.value.trim();
-            const txnOk = REGEX.txn_id.test(txnVal);
-            showFieldError('txn_id', !txnOk);
-            if (!txnOk) valid = false;
+            const mobiles = [m1Mobile, hasM2 ? m2Mobile : '', hasM3 ? m3Mobile : ''].filter(Boolean);
+            if (new Set(mobiles).size !== mobiles.length) {
+                showFieldError('m1_mobile', true, '// EACH MEMBER MUST HAVE A UNIQUE MOBILE');
+                if (hasM2) showFieldError('m2_mobile', true, '// DUPLICATE MOBILE DETECTED');
+                if (hasM3) showFieldError('m3_mobile', true, '// DUPLICATE MOBILE DETECTED');
+                valid = false;
+            }
 
             return valid;
         }
 
-        // Real-time input listeners
-        document.querySelectorAll('#registration-form input, #txn_id').forEach(input => {
+        /* ---------- Real-time input listeners ---------- */
+        document.querySelectorAll('#registration-form input').forEach(input => {
             input.addEventListener('input', () => {
                 const id = input.id;
                 const val = input.value.trim();
@@ -1034,87 +738,73 @@
                 else if (id.endsWith('_name') && REGEX.name.test(val)) showFieldError(id, false);
                 else if (id.endsWith('_email') && REGEX.email.test(val.toLowerCase())) showFieldError(id, false);
                 else if (id.endsWith('_mobile') && REGEX.mobile.test(val)) showFieldError(id, false);
-                else if (id === 'txn_id' && REGEX.txn_id.test(val)) showFieldError(id, false);
             });
         });
 
-        /* =========================================================
-           MODAL & ADMIT PASS GENERATOR
-           ========================================================= */
+        /* ---------- Admit Pass Modal & QR Logic ---------- */
         const passModal = document.getElementById('admit-pass-modal');
         const closeModalBtn = document.getElementById('close-modal-btn');
         const modalPassId = document.getElementById('modal-pass-id');
+        const modalEventName = document.getElementById('modal-event-name');
         const modalTeamName = document.getElementById('modal-team-name');
         const modalM1Name = document.getElementById('modal-m1-name');
         const modalM1Contact = document.getElementById('modal-m1-contact');
+        const modalM2Row = document.getElementById('modal-m2-row');
         const modalM2Name = document.getElementById('modal-m2-name');
         const modalM2Contact = document.getElementById('modal-m2-contact');
+        const modalM3Row = document.getElementById('modal-m3-row');
         const modalM3Name = document.getElementById('modal-m3-name');
         const modalM3Contact = document.getElementById('modal-m3-contact');
-        const modalM4Wrap = document.getElementById('modal-m4-wrap');
-        const modalM4Name = document.getElementById('modal-m4-name');
-        const modalM4Contact = document.getElementById('modal-m4-contact');
-        const modalTxnId = document.getElementById('modal-txn-id');
         const downloadPngBtn = document.getElementById('download-png-btn');
         const whatsappShareBtn = document.getElementById('whatsapp-share-btn');
-        const emailConfirmBtn = document.getElementById('email-confirm-btn');
         const printPassBtn = document.getElementById('print-pass-btn');
-        const emailToast = document.getElementById('email-toast');
 
         let currentPassData = null;
 
-        function showAdmitPass(data) {
-            currentPassData = data;
-            const passRef = 'VIS-2026-' + (data.id ? data.id.substring(0, 6).toUpperCase() : Math.random().toString(36).substring(2, 7).toUpperCase());
-            
+        function showAdmitPass(payload) {
+            currentPassData = payload;
+            const passRef = 'VIS-2K26-' + (payload.id ? payload.id.substring(0, 6).toUpperCase() : Math.random().toString(36).substring(2, 7).toUpperCase());
+
             modalPassId.textContent = passRef;
-            modalTeamName.textContent = data.team_name || 'CONFIRMED SQUAD';
-            
-            const m1 = data.members && data.members[0] ? data.members[0] : {};
-            const m2 = data.members && data.members[1] ? data.members[1] : {};
-            const m3 = data.members && data.members[2] ? data.members[2] : {};
-            const m4 = data.members && data.members[3] ? data.members[3] : null;
+            modalEventName.textContent = (payload.event_name || 'SYMPOSIUM TRACK').toUpperCase();
+            modalTeamName.textContent = payload.team_name || 'CONFIRMED SQUAD';
 
+            const m1 = payload.members[0] || {};
             modalM1Name.textContent = m1.name || 'Leader';
-            modalM1Contact.textContent = m1.mobile ? `📞 ${m1.mobile}` : '';
+            modalM1Contact.textContent = m1.mobile ? `(${m1.mobile})` : '';
 
-            modalM2Name.textContent = m2.name || 'Member 2';
-            modalM2Contact.textContent = m2.mobile ? `📞 ${m2.mobile}` : '';
-
-            modalM3Name.textContent = m3.name || 'Member 3';
-            modalM3Contact.textContent = m3.mobile ? `📞 ${m3.mobile}` : '';
-
-            if (m4 && m4.name) {
-                modalM4Wrap.classList.remove('hidden');
-                modalM4Name.textContent = m4.name;
-                modalM4Contact.textContent = m4.mobile ? `📞 ${m4.mobile}` : '';
+            if (payload.members[1] && payload.members[1].name) {
+                modalM2Row.classList.remove('hidden');
+                modalM2Name.textContent = payload.members[1].name;
+                modalM2Contact.textContent = payload.members[1].mobile ? `(${payload.members[1].mobile})` : '';
             } else {
-                modalM4Wrap.classList.add('hidden');
+                modalM2Row.classList.add('hidden');
             }
 
-            modalTxnId.textContent = `UTR: ${data.txn_id || 'VERIFIED'}`;
+            if (payload.members[2] && payload.members[2].name) {
+                modalM3Row.classList.remove('hidden');
+                modalM3Name.textContent = payload.members[2].name;
+                modalM3Contact.textContent = payload.members[2].mobile ? `(${payload.members[2].mobile})` : '';
+            } else {
+                modalM3Row.classList.add('hidden');
+            }
 
-            // Generate Real High-Resolution QR Code (30% Error-Correction for instant gate scanning)
+            // QR Code generation
             const qrContainer = document.getElementById('pass-qrcode-container');
             if (qrContainer) {
                 qrContainer.innerHTML = '';
-                const qrToken = data.id || data.txn_id || passRef;
-                
+                const qrToken = payload.id || passRef;
                 if (window.QRCode) {
-                    try {
-                        new QRCode(qrContainer, {
-                            text: qrToken,
-                            width: 140,
-                            height: 140,
-                            colorDark: "#000000",
-                            colorLight: "#ffffff",
-                            correctLevel: QRCode.CorrectLevel.H
-                        });
-                    } catch (e) {
-                        qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(qrToken)}&margin=1" alt="Pass QR" class="w-full h-full object-contain" />`;
-                    }
+                    new QRCode(qrContainer, {
+                        text: qrToken,
+                        width: 130,
+                        height: 130,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
                 } else {
-                    qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(qrToken)}&margin=1" alt="Pass QR" class="w-full h-full object-contain" />`;
+                    qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(qrToken)}" class="w-full h-full object-contain" />`;
                 }
             }
 
@@ -1129,88 +819,54 @@
             });
         }
 
-        // Instant High-Res 4K PNG Image Download via html2canvas
+        // 4K PNG Pass Download
         if (downloadPngBtn) {
             downloadPngBtn.addEventListener('click', async () => {
                 const passElement = document.getElementById('printable-pass');
                 if (!passElement || !window.html2canvas) return;
 
                 SFX.click();
-                const originalText = downloadPngBtn.innerHTML;
+                const orig = downloadPngBtn.innerHTML;
                 downloadPngBtn.disabled = true;
-                downloadPngBtn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">progress_activity</span> Generating 4K Pass...';
+                downloadPngBtn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">progress_activity</span> Generating...';
 
                 try {
-                    // Ensure fonts are ready before snapshot
-                    if (document.fonts && typeof document.fonts.ready === 'object') {
-                        await document.fonts.ready;
-                    }
-
-                    // High-DPI 2.5x canvas rendering with exact fonts and crisp geometry
+                    if (document.fonts && document.fonts.ready) await document.fonts.ready;
                     const canvas = await html2canvas(passElement, {
                         scale: 2.5,
-                        backgroundColor: '#0b0c10',
-                        useCORS: true,
-                        allowTaint: true,
-                        logging: false,
-                        letterRendering: true,
-                        onclone: (clonedDoc) => {
-                            const clonedPass = clonedDoc.getElementById('printable-pass');
-                            if (clonedPass) {
-                                clonedPass.style.width = '780px';
-                                clonedPass.style.maxWidth = '780px';
-                                clonedPass.style.margin = '0 auto';
-                                clonedPass.style.fontFamily = "'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
-                            }
-                        }
+                        backgroundColor: '#08090d',
+                        useCORS: true
                     });
-
                     const link = document.createElement('a');
-                    const cleanTeam = (modalTeamName.textContent || 'team').replace(/[^a-zA-Z0-9_-]/g, '_');
-                    link.download = `VISION_2026_OFFICIAL_PASS_${cleanTeam}.png`;
+                    const cleanTeam = (currentPassData?.team_name || 'squad').replace(/[^a-zA-Z0-9_-]/g, '_');
+                    link.download = `VISION_2K26_PASS_${cleanTeam}.png`;
                     link.href = canvas.toDataURL('image/png', 1.0);
                     link.click();
-
                     SFX.success();
-                    emailToast.textContent = '✓ ULTRA-HD OFFICIAL PASS DOWNLOADED';
-                    emailToast.classList.remove('hidden');
-                    setTimeout(() => emailToast.classList.add('hidden'), 4000);
-                } catch (err) {
-                    console.error('PNG Pass generation error:', err);
-                    alert('Could not generate image. Please use "Print / PDF" option.');
-                    SFX.error();
+                } catch (e) {
+                    alert('Pass image download failed. Please use Print option.');
                 } finally {
                     downloadPngBtn.disabled = false;
-                    downloadPngBtn.innerHTML = originalText;
+                    downloadPngBtn.innerHTML = orig;
                 }
             });
         }
 
-        // 1-Click WhatsApp Share with Formatted Message
+        // WhatsApp Share
         if (whatsappShareBtn) {
             whatsappShareBtn.addEventListener('click', () => {
                 if (!currentPassData) return;
                 SFX.click();
-
-                const m4Text = currentPassData.members[3] ? `\n4️⃣ ${currentPassData.members[3].name} (${currentPassData.members[3].mobile})` : '';
-                const msg = `⚡ *VISION 2026 HACKATHON // OFFICIAL ADMIT PASS* ⚡\n\n` +
+                const membersList = currentPassData.members.map((m, i) => `${i + 1}. ${m.name} (${m.mobile})`).join('\n');
+                const msg = `⚡ *VISION 2K26 // OFFICIAL ADMIT PASS* ⚡\n\n` +
+                    `🎯 *Event:* ${currentPassData.event_name}\n` +
                     `🛡️ *Squad:* ${currentPassData.team_name}\n` +
                     `🎟️ *Pass ID:* ${modalPassId.textContent}\n` +
-                    `💳 *Txn UTR:* ${currentPassData.txn_id}\n` +
-                    `📍 *Venue:* Main Auditorium, Kongu Engineering College\n` +
-                    `📅 *Dates:* September 20-21, 2026 | 08:30 AM IST\n\n` +
-                    `👥 *Confirmed Squad:* \n` +
-                    `1️⃣ Leader: ${currentPassData.members[0].name} (${currentPassData.members[0].mobile})\n` +
-                    `2️⃣ ${currentPassData.members[1].name} (${currentPassData.members[1].mobile})\n` +
-                    `3️⃣ ${currentPassData.members[2].name} (${currentPassData.members[2].mobile})${m4Text}\n\n` +
-                    `Avengers Assemble! See you at the hackathon arena 🚀`;
-
-                const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
-                window.open(waUrl, '_blank');
-
-                emailToast.textContent = '✓ OPENED WHATSAPP SHARE WINDOW';
-                emailToast.classList.remove('hidden');
-                setTimeout(() => emailToast.classList.add('hidden'), 4000);
+                    `📅 *Date:* October 5, 2026\n` +
+                    `📍 *Venue:* Kongu Engineering College, Perundurai\n\n` +
+                    `👥 *Squad Members:*\n${membersList}\n\n` +
+                    `See you at the symposium! 🚀`;
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
             });
         }
 
@@ -1221,395 +877,146 @@
             });
         }
 
-        /* ---------- Squad Invite Card Generator (9:16 Instagram Stories) ---------- */
-        const squadCardShareBtn = document.getElementById('squad-card-share-btn');
-        if (squadCardShareBtn) {
-            squadCardShareBtn.addEventListener('click', async () => {
-                if (!currentPassData) return;
-                if (!window.html2canvas) { alert('Image capture unavailable. Please try again.'); return; }
+        /* ---------- Form Submission (Firestore Sync) ---------- */
+        const form = document.getElementById('registration-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const submitBtnLabel = document.getElementById('submit-btn-label');
+        const formStatus = document.getElementById('form-status');
+        const honeypot = document.getElementById('hp_system_ref');
 
-                SFX.click();
-                const origText = squadCardShareBtn.innerHTML;
-                squadCardShareBtn.disabled = true;
-                squadCardShareBtn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">progress_activity</span> Generating Squad Card...';
-
-                try {
-                    const squadCard = document.getElementById('squad-invite-card');
-                    const teamNameEl = document.getElementById('squad-card-team-name');
-                    const membersEl = document.getElementById('squad-card-members');
-                    const qrEl = document.getElementById('squad-card-qr');
-
-                    // Populate squad card data
-                    if (teamNameEl) teamNameEl.textContent = (currentPassData.team_name || 'SQUAD').toUpperCase();
-                    const allMembers = (currentPassData.members || []).filter(m => m && m.name);
-                    if (membersEl) membersEl.innerHTML = allMembers.map((m, i) => `${i === 0 ? '⚡ ' : ''}${m.name}`).join('<br>');
-
-                    // Set QR code image
-                    const qrToken = currentPassData.id || currentPassData.txn_id || modalPassId.textContent;
-                    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=380x380&data=${encodeURIComponent(qrToken)}&margin=2&bgcolor=ffffff&color=000000`;
-                    if (qrEl) {
-                        qrEl.src = qrUrl;
-                        // Wait for QR to load
-                        await new Promise((res) => {
-                            if (qrEl.complete && qrEl.naturalWidth > 0) { res(); return; }
-                            qrEl.onload = res;
-                            qrEl.onerror = res;
-                            setTimeout(res, 3000);
-                        });
-                    }
-
-                    // Ensure fonts loaded
-                    if (document.fonts && document.fonts.ready) await document.fonts.ready;
-
-                    // Capture at scale:1 since element is already 1080×1920px
-                    const canvas = await html2canvas(squadCard, {
-                        scale: 1,
-                        width: 1080,
-                        height: 1920,
-                        backgroundColor: '#050608',
-                        useCORS: true,
-                        allowTaint: true,
-                        logging: false,
-                        letterRendering: true,
-                        onclone: (clonedDoc) => {
-                            const el = clonedDoc.getElementById('squad-invite-card');
-                            if (el) {
-                                el.style.position = 'relative';
-                                el.style.left = '0';
-                                el.style.top = '0';
-                                el.style.zIndex = '1';
-                            }
-                        }
-                    });
-
-                    // Download
-                    const link = document.createElement('a');
-                    const cleanName = (currentPassData.team_name || 'squad').replace(/[^a-zA-Z0-9_-]/g, '_');
-                    link.download = `VISION_2026_SQUAD_CARD_${cleanName}.png`;
-                    link.href = canvas.toDataURL('image/png', 1.0);
-                    link.click();
-
-                    SFX.success();
-                    emailToast.textContent = '✓ SQUAD CARD DOWNLOADED — SHARE TO INSTAGRAM / WHATSAPP STATUS!';
-                    emailToast.classList.remove('hidden');
-                    setTimeout(() => emailToast.classList.add('hidden'), 5000);
-                } catch (err) {
-                    console.error('Squad card generation error:', err);
-                    alert('Squad card could not be generated. Please try downloading the Pass PNG instead.');
-                    SFX.error();
-                } finally {
-                    squadCardShareBtn.disabled = false;
-                    squadCardShareBtn.innerHTML = origText;
-                }
-            });
-        }
-
-        if (emailConfirmBtn) {
-            emailConfirmBtn.addEventListener('click', () => {
-                if (!currentPassData) return;
-                SFX.click();
-
-                const leaderEmail = currentPassData.members[0].email;
-                const subject = encodeURIComponent(`[CONFIRMED] Vision 2026 Hackathon Admit Pass - Team ${currentPassData.team_name}`);
-                const m4Text = currentPassData.members[3] ? `\n4. Member 4: ${currentPassData.members[3].name} (${currentPassData.members[3].email} / ${currentPassData.members[3].mobile})` : '';
-                const ccEmails = [
-                    currentPassData.members[1]?.email,
-                    currentPassData.members[2]?.email,
-                    currentPassData.members[3]?.email
-                ].filter(Boolean).join(',');
-
-                const body = encodeURIComponent(
-`Greetings Team ${currentPassData.team_name},
-
-Your registration for VISION 2026 (24-Hour Hackathon) has been successfully verified and confirmed!
-
-=== ADMIT PASS DETAILS ===
-Pass ID: ${modalPassId.textContent}
-Team Name: ${currentPassData.team_name}
-Transaction UTR: ${currentPassData.txn_id}
-
-=== SQUAD MEMBERS ===
-1. Leader: ${currentPassData.members[0].name} (${currentPassData.members[0].email} / ${currentPassData.members[0].mobile})
-2. Member 2: ${currentPassData.members[1].name} (${currentPassData.members[1].email} / ${currentPassData.members[1].mobile})
-3. Member 3: ${currentPassData.members[2].name} (${currentPassData.members[2].email} / ${currentPassData.members[2].mobile})${m4Text}
-
-=== EVENT VENUE & SCHEDULE ===
-Dates: September 20-21, 2026
-Venue: Main Auditorium, Kongu Engineering College, Perundurai
-Reporting Time: 08:30 AM IST
-
-Please keep this email or present your digital pass QR code at the registration desk on arrival.
-
-Avengers Assemble!
-Vision Hackathon Organizing Team
-terminal@vision.hack`
-                );
-
-                // Open formatted mail client & copy text
-                window.location.href = `mailto:${leaderEmail}?cc=${ccEmails}&subject=${subject}&body=${body}`;
-                
-                emailToast.textContent = '✓ EMAIL CONFIRMATION PREPARED & DISPATCHED';
-                emailToast.classList.remove('hidden');
-                setTimeout(() => {
-                    emailToast.classList.add('hidden');
-                }, 4000);
-            });
-        }
-
-        /* =========================================================
-           ORGANIZER REAL-TIME AUTO-NOTIFICATION (WhatsApp / Webhook)
-           ========================================================= */
-        async function dispatchOrganizerWhatsAppNotification(payload, currentRemaining) {
+        let db = null;
+        if (isFirebaseConfigured()) {
             try {
-                const phone = organizerConfig?.whatsappPhone || '917339436468';
-                const teamName = payload.team_name || 'Squad';
-                const leader = payload.members && payload.members[0] ? payload.members[0] : {};
-                const leaderName = leader.name || 'Leader';
-                const leaderMobile = leader.mobile || 'N/A';
-                const leaderCollege = leader.college || 'N/A';
-                const txnId = payload.txn_id || 'N/A';
-                const rem = typeof currentRemaining === 'number' ? currentRemaining : 'Active';
-                const timeStr = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
-
-                const alertText = 
-`🚨 *NEW SQUAD REGISTRATION — VISION 2026*
-
-🛡️ *Squad:* ${teamName}
-👤 *Leader:* ${leaderName} (${leaderMobile})
-🎓 *College:* ${leaderCollege}
-💳 *UTR:* ${txnId}
-📊 *Slots Left:* ${rem} / 35
-🕒 *Time:* ${timeStr}
-
-🔗 *Admin Panel:* ${window.location.origin}/admin.html`;
-
-                // 1. Telegram Bot Alert (Instant & 100% Free)
-                const tgToken = localStorage.getItem('vision_tg_token') || organizerConfig?.telegramBotToken || '';
-                const tgChatId = localStorage.getItem('vision_tg_chat_id') || organizerConfig?.telegramChatId || '';
-                if (tgToken && tgChatId) {
-                    const tgUrl = `https://api.telegram.org/bot${tgToken}/sendMessage`;
-                    fetch(tgUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            chat_id: tgChatId,
-                            text: alertText,
-                            parse_mode: 'Markdown'
-                        })
-                    }).catch(err => console.warn('Telegram dispatch error:', err));
-                }
-
-                // 2. CallMeBot Free WhatsApp Personal Gateway
-                const callMeBotKey = localStorage.getItem('vision_callmebot_key') || '';
-                if (callMeBotKey) {
-                    const callMeBotUrl = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encodeURIComponent(alertText)}&apikey=${callMeBotKey}`;
-                    fetch(callMeBotUrl, { mode: 'no-cors' }).catch(() => {});
-                }
-
-                // 3. Custom Webhook (Discord, Telegram, Zapier, Cloud Function)
-                const webhookUrl = localStorage.getItem('vision_organizer_webhook') || '';
-                if (webhookUrl) {
-                    fetch(webhookUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            event: 'new_registration',
-                            team_name: teamName,
-                            leader: leaderName,
-                            mobile: leaderMobile,
-                            college: leaderCollege,
-                            txn_id: txnId,
-                            slots_left: rem,
-                            timestamp: new Date().toISOString()
-                        })
-                    }).catch(() => {});
-                }
-            } catch (e) {
-                console.warn('Organizer notification dispatch error:', e);
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+            } catch (err) {
+                console.error('Firebase init error:', err);
             }
         }
 
-        /* =========================================================
-           FORM SUBMISSION HANDLER
-           ========================================================= */
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            if (seatsRemaining === 0) {
-                formStatus.textContent = 'REGISTRATION IS FULL. PROTOCOLS LOCKED.';
-                formStatus.className = 'font-label-sm text-center text-error tracking-widest';
+            if (honeypot && honeypot.value.trim() !== '') return;
+
+            if (!validateForm()) {
+                formStatus.textContent = '// ERROR: PLEASE RESOLVE THE HIGHLIGHTED FIELDS ABOVE';
                 formStatus.classList.remove('hidden');
                 SFX.error();
                 return;
             }
 
-            const now = Date.now();
-            if (now - lastSubmitTimestamp < SUBMIT_COOLDOWN_MS) {
-                formStatus.textContent = '// SECURITY RATE-LIMIT: PLEASE WAIT A MOMENT';
-                formStatus.className = 'font-label-sm text-center text-error tracking-widest';
-                formStatus.classList.remove('hidden');
-                return;
-            }
-            lastSubmitTimestamp = now;
+            const teamName = document.getElementById('team_name').value.trim();
+            const eventChoice = document.querySelector('input[name="event_choice"]:checked')?.value || 'General Track';
+            const projectTitle = document.getElementById('project_title')?.value.trim() || '';
 
-            if (honeypot && honeypot.value.trim() !== '') {
-                submitBtn.disabled = true;
-                submitLabel.textContent = 'VERIFYING SECURITY PARAMS...';
-                setTimeout(() => {
-                    submitBtn.disabled = false;
-                    submitLabel.textContent = 'VERIFY & GENERATE ADMIT PASS';
-                    form.reset();
-                }, 2000);
-                return;
-            }
+            const members = [];
+            members.push({
+                name: document.getElementById('m1_name').value.trim(),
+                email: document.getElementById('m1_email').value.trim().toLowerCase(),
+                mobile: document.getElementById('m1_mobile').value.trim()
+            });
 
-            if (!validateAllFields()) {
-                formStatus.textContent = '// ERROR: INVALID PARAMETERS DETECTED ABOVE';
-                formStatus.className = 'font-label-sm text-center text-error tracking-widest';
-                formStatus.classList.remove('hidden');
-                SFX.error();
-                return;
+            const m2Name = document.getElementById('m2_name').value.trim();
+            if (m2Name) {
+                members.push({
+                    name: m2Name,
+                    email: document.getElementById('m2_email').value.trim().toLowerCase(),
+                    mobile: document.getElementById('m2_mobile').value.trim()
+                });
             }
 
-            const teamNameVal = sanitizeString(document.getElementById('team_name').value);
-            const txnVal = sanitizeString(txnInput.value.toUpperCase());
+            const m3Name = document.getElementById('m3_name').value.trim();
+            if (m3Name) {
+                members.push({
+                    name: m3Name,
+                    email: document.getElementById('m3_email').value.trim().toLowerCase(),
+                    mobile: document.getElementById('m3_mobile').value.trim()
+                });
+            }
 
             submitBtn.disabled = true;
-            submitLabel.textContent = 'ENCRYPTING & CHECKING UTR...';
+            submitBtnLabel.textContent = 'CONFIRMING REGISTRATION...';
             formStatus.classList.add('hidden');
 
             const payload = {
-                team_name: teamNameVal,
-                team_name_lower: teamNameVal.toLowerCase(),
-                team_name_key: teamNameVal.toLowerCase().replace(/\s+/g, ''),
-                members: [
-                    {
-                        name: sanitizeString(document.getElementById('m1_name').value),
-                        email: sanitizeString(document.getElementById('m1_email').value.toLowerCase()),
-                        mobile: sanitizeString(document.getElementById('m1_mobile').value)
-                    },
-                    {
-                        name: sanitizeString(document.getElementById('m2_name').value),
-                        email: sanitizeString(document.getElementById('m2_email').value.toLowerCase()),
-                        mobile: sanitizeString(document.getElementById('m2_mobile').value)
-                    },
-                    {
-                        name: sanitizeString(document.getElementById('m3_name').value),
-                        email: sanitizeString(document.getElementById('m3_email').value.toLowerCase()),
-                        mobile: sanitizeString(document.getElementById('m3_mobile').value)
-                    },
-                    {
-                        name: sanitizeString(document.getElementById('m4_name').value),
-                        email: sanitizeString(document.getElementById('m4_email').value.toLowerCase()),
-                        mobile: sanitizeString(document.getElementById('m4_mobile').value)
-                    }
-                ],
-                txn_id: txnVal,
-                screenshot: base64Screenshot || null,
-                status: 'pending_verification'
+                team_name: teamName,
+                team_name_lower: teamName.toLowerCase(),
+                team_name_key: teamName.toLowerCase().replace(/\s+/g, ''),
+                event_name: eventChoice,
+                project_title: projectTitle,
+                members: members,
+                status: 'verified',
+                checked_in: false,
+                symposium: 'VISION 2K26',
+                event_date: '5 October 2026'
             };
 
             if (db) {
                 try {
-                    // Pre-flight duplicate TEAM NAME check in Firestore (case-insensitive + space-insensitive)
-                    const teamNameKey = payload.team_name_key;
-                    const teamNameQuery = query(collection(db, 'registrations'), where('team_name_key', '==', teamNameKey));
-                    const teamNameSnap = await getDocs(teamNameQuery);
-                    if (!teamNameSnap.empty) {
-                        showFieldError('team_name', true, '// CALLSIGN ALREADY TAKEN — CHOOSE A UNIQUE SQUAD NAME');
-                        throw new Error('DUPLICATE_TEAM_NAME');
+                    // Check duplicate squad name for the SAME event subcollection
+                    const eventColId = getEventCollectionId(eventChoice);
+                    const regColRef = collection(db, 'events', eventColId, 'registrations');
+                    const q = query(
+                        regColRef,
+                        where('team_name_key', '==', payload.team_name_key)
+                    );
+                    const snap = await getDocs(q);
+                    if (!snap.empty) {
+                        showFieldError('team_name', true, '// SQUAD NAME ALREADY REGISTERED FOR THIS EVENT');
+                        throw new Error('DUPLICATE_NAME');
                     }
 
-                    // Pre-flight duplicate UTR check in Firestore
-                    const dupQuery = query(collection(db, 'registrations'), where('txn_id', '==', txnVal));
-                    const dupSnap = await getDocs(dupQuery);
-                    if (!dupSnap.empty) {
-                        showFieldError('txn_id', true, '// TRANSACTION ID ALREADY USED BY ANOTHER REGISTRATION');
-                        throw new Error('DUPLICATE_TXN_ID');
-                    }
-
-                    // Atomic Firestore capacity lock & document creation
-                    await runTransaction(db, async (transaction) => {
+                    // Atomic creation & registration count increment
+                    let createdDocId = null;
+                    await runTransaction(db, async (txn) => {
                         const capacityRef = doc(db, 'metadata', 'capacity');
-                        const capacityDoc = await transaction.get(capacityRef);
+                        const capacityDoc = await txn.get(capacityRef);
 
-                        let currentRemaining = MAX_TEAMS;
-                        let currentRegistered = 0;
-
+                        let currentCount = 0;
                         if (capacityDoc.exists()) {
-                            const data = capacityDoc.data();
-                            currentRemaining = typeof data.seats_remaining === 'number' ? data.seats_remaining : MAX_TEAMS;
-                            currentRegistered = typeof data.registered_count === 'number' ? data.registered_count : 0;
+                            currentCount = capacityDoc.data().registered_count || 0;
                         }
 
-                        if (currentRemaining <= 0 || currentRegistered >= MAX_TEAMS) {
-                            throw new Error('CAPACITY_FULL');
-                        }
-
-                        const newRegistrationRef = doc(collection(db, 'registrations'));
-                        transaction.set(newRegistrationRef, {
+                        const newRef = doc(collection(db, 'events', eventColId, 'registrations'));
+                        createdDocId = newRef.id;
+                        txn.set(newRef, {
                             ...payload,
                             createdAt: serverTimestamp()
                         });
 
-                        transaction.set(capacityRef, {
-                            max_teams: MAX_TEAMS,
-                            registered_count: currentRegistered + 1,
-                            seats_remaining: currentRemaining - 1
+                        txn.set(capacityRef, {
+                            registered_count: currentCount + 1,
+                            last_event: payload.event_name
                         }, { merge: true });
                     });
 
-                    // Real-Time Auto-Notify Organizer on WhatsApp
-                    dispatchOrganizerWhatsAppNotification(payload, seatsRemaining);
-
-                    // Success Feedback & Launch Holographic Admit Pass Modal
-                    submitLabel.textContent = 'REGISTRATION CONFIRMED';
-                    formStatus.textContent = 'TRANSMISSION VERIFIED. FIRESTORE RECORD SECURED.';
-                    formStatus.className = 'font-label-sm text-center text-primary tracking-widest';
-                    formStatus.classList.remove('hidden');
-
+                    payload.id = createdDocId;
                     showAdmitPass(payload);
-
                     form.reset();
-                    txnInput.value = '';
-                    base64Screenshot = null;
-                    if (dropPreview) dropPreview.classList.add('hidden');
-                    if (dropPrompt) dropPrompt.classList.remove('hidden');
-                    submitBtn.disabled = (seatsRemaining === 0);
-                    submitLabel.textContent = 'VERIFY & GENERATE ADMIT PASS';
-                    return;
+                    updateEventNotice();
 
-                } catch (error) {
-                    console.error('Registration transaction error:', error);
-                    submitBtn.disabled = false;
-                    submitLabel.textContent = 'VERIFY & GENERATE ADMIT PASS';
-
-                    if (error.message === 'DUPLICATE_TEAM_NAME') {
-                        formStatus.textContent = '// CALLSIGN CONFLICT: SQUAD NAME ALREADY REGISTERED';
-                    } else if (error.message === 'DUPLICATE_TXN_ID') {
-                        formStatus.textContent = '// DUPLICATE UTR ERROR: TRANSACTION ID ALREADY USED';
-                    } else if (error.message === 'CAPACITY_FULL') {
-                        formStatus.textContent = 'REGISTRATION FULL: ALL 35 SEATS ARE FILLED';
-                    } else {
-                        formStatus.textContent = '// ERROR: ' + (error.message || 'TRANSMISSION FAILED');
-                    }
-                    formStatus.className = 'font-label-sm text-center text-error tracking-widest';
+                } catch (err) {
+                    console.error('Registration error:', err);
+                    formStatus.textContent = err.message === 'DUPLICATE_NAME' 
+                        ? '// SQUAD NAME ALREADY REGISTERED FOR THIS EVENT' 
+                        : '// REGISTRATION FAILED: ' + (err.message || 'TRY AGAIN');
                     formStatus.classList.remove('hidden');
                     SFX.error();
-                    return;
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtnLabel.textContent = 'CONFIRM REGISTRATION & GENERATE PASS';
                 }
+            } else {
+                // Demo fallback
+                setTimeout(() => {
+                    payload.id = 'DEMO-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+                    showAdmitPass(payload);
+                    form.reset();
+                    submitBtn.disabled = false;
+                    submitBtnLabel.textContent = 'CONFIRM REGISTRATION & GENERATE PASS';
+                }, 600);
             }
-
-            // Fallback Simulated Execution (Demo Mode)
-            setTimeout(() => {
-                seatsRemaining = Math.max(0, seatsRemaining - 1);
-                renderBanner();
-                showAdmitPass(payload);
-                form.reset();
-                txnInput.value = '';
-                submitBtn.disabled = (seatsRemaining === 0);
-                submitLabel.textContent = 'VERIFY & GENERATE ADMIT PASS';
-            }, 1000);
         });
     </script>
 </body>

@@ -3,15 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vision 2026 — Official Event Brochure</title>
+    <title>Vision 2K26 — Official Symposium Brochure | IEEE AP-S KEC</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#f0c12c",
+                        "primary-container": "#f4c430",
+                        "on-primary": "#241a00",
+                        surface: "#090a0f",
+                        "surface-container": "#12131a",
+                        "surface-card": "#0e1017",
+                        outline: "#9a907a"
+                    },
+                    fontFamily: {
+                        orbitron: ["Orbitron", "sans-serif"],
+                        mono: ["JetBrains Mono", "monospace"],
+                        space: ["Space Grotesk", "sans-serif"]
+                    }
+                }
+            }
+        };
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <style>
         * { box-sizing: border-box; }
         body {
             margin: 0;
-            padding: 20px;
+            padding: 16px;
             background: #050608;
             font-family: 'Space Grotesk', sans-serif;
             color: #fff;
@@ -24,17 +47,17 @@
 
         #poster {
             width: 100%;
-            max-width: 1200px;
-            background: #090a0f radial-gradient(circle at 50% 30%, rgba(240, 193, 44, 0.12) 0%, rgba(9, 10, 15, 0.95) 70%, #050608 100%);
+            max-width: 1240px;
+            background: #090a0f radial-gradient(circle at 50% 20%, rgba(240, 193, 44, 0.10) 0%, rgba(9, 10, 15, 0.96) 65%, #050608 100%);
             border: 2px solid #f0c12c;
             position: relative;
             overflow: hidden;
             box-shadow: 0 0 60px rgba(240, 193, 44, 0.25);
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            padding: 24px;
-            border-radius: 4px;
+            gap: 16px;
+            padding: 22px;
+            border-radius: 6px;
         }
 
         .circuit-bg {
@@ -53,9 +76,6 @@
         .corner-bl { position: absolute; bottom: 6px; left: 6px; width: 24px; height: 24px; border-bottom: 3px solid #f0c12c; border-left: 3px solid #f0c12c; z-index: 20; }
         .corner-br { position: absolute; bottom: 6px; right: 6px; width: 24px; height: 24px; border-bottom: 3px solid #f0c12c; border-right: 3px solid #f0c12c; z-index: 20; }
 
-        .font-orbitron { font-family: 'Orbitron', sans-serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-
         .gold-glow {
             text-shadow: 0 0 20px rgba(240, 193, 44, 0.75), 0 0 40px rgba(240, 193, 44, 0.4);
         }
@@ -65,8 +85,8 @@
         }
 
         .hud-card {
-            background: rgba(18, 19, 26, 0.85);
-            border: 1.5px solid rgba(240, 193, 44, 0.4);
+            background: rgba(14, 16, 23, 0.88);
+            border: 1.5px solid rgba(240, 193, 44, 0.35);
             border-radius: 4px;
             backdrop-filter: blur(8px);
         }
@@ -95,9 +115,9 @@
 
             <div class="text-center">
                 <div class="font-mono text-[11px] uppercase tracking-[0.2em] font-bold text-amber-400">
-                    IEEE STUDENT BRANCH - KEC <span class="text-white/40">|</span> IEEE AP-S CHAPTER
+                    IEEE ANTENNAS AND PROPAGATION SOCIETY (IEEE APS)
                 </div>
-                <div class="font-orbitron text-xs tracking-[0.3em] text-white/90 font-black mt-0.5">
+                <div class="font-orbitron text-xs tracking-[0.25em] text-white/90 font-black mt-0.5">
                     P R E S E N T S
                 </div>
             </div>
@@ -113,93 +133,159 @@
             </div>
         </header>
 
-        <!-- ============ MAIN CONTENT GRID ============ -->
-        <main class="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
+        <!-- ============ BANNER TITLE ============ -->
+        <section class="relative z-10 text-center py-2 border-b border-primary/25">
+            <div class="inline-block px-3 py-0.5 rounded-full border border-primary/40 bg-primary/10 font-mono text-[10px] tracking-[0.25em] text-primary uppercase mb-1">
+                INTRA-COLLEGE SYMPOSIUM • 5 OCTOBER 2026
+            </div>
+            <h1 class="font-orbitron text-3xl md:text-5xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-b from-[#fff2b2] via-[#f0c12c] to-[#997300] gold-glow uppercase leading-none">
+                VISION 2K26
+            </h1>
+            <div class="font-mono text-xs text-amber-300/90 tracking-widest uppercase mt-1">
+                5 SIGNATURE EVENTS • MAX 3 MEMBERS PER TEAM • OPEN REGISTRATION
+            </div>
+        </section>
+
+        <!-- ============ 5 EVENTS GRID ============ -->
+        <main class="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
             
-            <!-- LEFT COLUMN: TRACKS & PERKS (4 Cols) -->
-            <div class="md:col-span-4 flex flex-col gap-3">
-                <div class="hud-card p-3.5 gold-box-glow">
-                    <div class="flex items-center gap-2 border-b border-primary/30 pb-1.5 mb-2.5">
-                        <span class="material-symbols-outlined text-primary text-base">terminal</span>
-                        <h3 class="font-orbitron text-xs font-bold tracking-widest text-primary uppercase">HACKATHON TRACKS</h3>
+            <!-- 01. Paper Presentation -->
+            <div class="hud-card p-3.5 flex flex-col justify-between hover:border-primary transition-all">
+                <div>
+                    <div class="flex items-center justify-between border-b border-primary/30 pb-1.5 mb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary text-base">article</span>
+                            <h3 class="font-orbitron text-xs font-bold text-primary uppercase">01. PAPER PRESENTATION</h3>
+                        </div>
+                        <span class="font-mono text-[9px] bg-primary/20 text-amber-300 px-1.5 py-0.5 rounded border border-primary/40 font-bold">MAX 3 MEMBERS</span>
                     </div>
-                    <div class="space-y-2 font-mono text-[11px]">
-                        <div class="bg-black/50 border border-primary/20 p-2 rounded flex items-center gap-2">
-                            <span class="text-primary font-bold">01</span>
-                            <span class="text-white font-medium">AI & Autonomous Systems</span>
-                        </div>
-                        <div class="bg-black/50 border border-primary/20 p-2 rounded flex items-center gap-2">
-                            <span class="text-primary font-bold">02</span>
-                            <span class="text-white font-medium">Web3, Cloud & SaaS</span>
-                        </div>
-                        <div class="bg-black/50 border border-primary/20 p-2 rounded flex items-center gap-2">
-                            <span class="text-primary font-bold">03</span>
-                            <span class="text-white font-medium">Embedded & Smart IoT</span>
-                        </div>
-                        <div class="bg-black/50 border border-primary/20 p-2 rounded flex items-center gap-2">
-                            <span class="text-primary font-bold">04</span>
-                            <span class="text-white font-medium">Open Innovation</span>
-                        </div>
+                    <p class="font-mono text-[10px] text-zinc-300 leading-relaxed mb-2.5">
+                        Present original research in technology, engineering, science, or interdisciplinary domains.
+                    </p>
+                    <div class="bg-black/60 border border-primary/20 p-2 rounded space-y-1 font-mono text-[9.5px]">
+                        <div class="text-amber-300 font-bold">FORMAT: 7 min Presentation + 3 min Q&amp;A</div>
+                        <div class="text-zinc-400">100-Mark Rubric: Technical Content (25), Innovation (20), Methodology (20), Results (15), Presentation (10), Q&amp;A (10).</div>
                     </div>
                 </div>
-
-                <div class="hud-card p-3">
-                    <div class="flex items-center gap-2 border-b border-primary/30 pb-1.5 mb-2">
-                        <span class="material-symbols-outlined text-amber-400 text-sm">stars</span>
-                        <h4 class="font-orbitron text-[11px] font-bold tracking-wider text-amber-400 uppercase">SQUAD PRIVILEGES</h4>
-                    </div>
-                    <ul class="font-mono text-[10px] space-y-1.5 text-zinc-300">
-                        <li class="flex items-center gap-1.5"><span class="text-primary font-bold">✔</span> 24-Hour Non-Stop Build Arena</li>
-                        <li class="flex items-center gap-1.5"><span class="text-primary font-bold">✔</span> Food, Refreshments & High-Speed WiFi</li>
-                        <li class="flex items-center gap-1.5"><span class="text-primary font-bold">✔</span> Holographic Entry Pass & Certificates</li>
-                        <li class="flex items-center gap-1.5"><span class="text-primary font-bold">✔</span> Industry Mentorship & Review</li>
-                    </ul>
+                <div class="mt-2 text-right">
+                    <span class="font-mono text-[9px] text-primary/80">Submit Abstract Before Deadline</span>
                 </div>
             </div>
 
-            <!-- CENTER & RIGHT: CORE TITLE & AUTHENTIC AVENGERS ART (8 Cols) -->
-            <div class="md:col-span-8 grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-                
-                <!-- Center: Arc Reactor Badge & Title (6 Cols) -->
-                <div class="sm:col-span-6 flex flex-col items-center justify-center text-center">
-                    <div class="w-full max-w-[260px] aspect-square rounded-full border-2 border-primary/60 bg-black/70 gold-box-glow flex flex-col items-center justify-center p-4 relative overflow-hidden">
-                        <div class="font-mono text-[9px] uppercase tracking-[0.25em] text-primary/80 mb-0.5">MARVEL TECH EDITION</div>
-                        <h1 class="font-orbitron text-3xl md:text-4xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-b from-[#fff2b2] via-[#f0c12c] to-[#997300] gold-glow uppercase leading-none">
-                            VISION
-                        </h1>
-                        <div class="font-orbitron text-xl font-bold tracking-widest text-primary mt-0.5">2026</div>
-                        <div class="h-[1.5px] w-20 bg-gradient-to-r from-transparent via-primary to-transparent my-1.5"></div>
-                        <div class="font-orbitron text-[10px] font-bold tracking-[0.15em] text-white uppercase">24-HOUR HACKATHON</div>
-                        <div class="font-mono text-[9px] text-amber-300 tracking-widest uppercase mt-0.5">NATIONAL LEVEL</div>
+            <!-- 02. Project Presentation -->
+            <div class="hud-card p-3.5 flex flex-col justify-between hover:border-primary transition-all">
+                <div>
+                    <div class="flex items-center justify-between border-b border-primary/30 pb-1.5 mb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary text-base">memory</span>
+                            <h3 class="font-orbitron text-xs font-bold text-primary uppercase">02. PROJECT PRESENTATION</h3>
+                        </div>
+                        <span class="font-mono text-[9px] bg-primary/20 text-amber-300 px-1.5 py-0.5 rounded border border-primary/40 font-bold">MAX 3 MEMBERS</span>
                     </div>
-
-                    <!-- Prize & Fee Cards -->
-                    <div class="grid grid-cols-2 gap-2 mt-3 w-full">
-                        <div class="hud-card p-2 text-center border-primary bg-primary/10">
-                            <div class="font-mono text-[8.5px] text-primary uppercase font-bold">PRIZE POOL</div>
-                            <div class="font-orbitron text-sm font-black text-amber-300">CASH AWARDS</div>
-                            <div class="font-mono text-[8px] text-zinc-300">+ Trophies</div>
-                        </div>
-                        <div class="hud-card p-2 text-center border-primary bg-primary/10">
-                            <div class="font-mono text-[8.5px] text-primary uppercase font-bold">REGISTRATION</div>
-                            <div class="font-orbitron text-sm font-black text-white">₹1600</div>
-                            <div class="font-mono text-[8px] text-amber-300 font-bold">4-MEMBER SQUAD</div>
-                        </div>
+                    <p class="font-mono text-[10px] text-zinc-300 leading-relaxed mb-2.5">
+                        Demonstrate innovative hardware, software, AI/ML, IoT, embedded, or communication projects.
+                    </p>
+                    <div class="bg-black/60 border border-primary/20 p-2 rounded space-y-1 font-mono text-[9.5px]">
+                        <div class="text-amber-300 font-bold">FORMAT: 8 min Presentation + 2 min Q&amp;A</div>
+                        <div class="text-zinc-400">Working prototype or live demo strongly encouraged. Architecture, block diagram &amp; real-world impact.</div>
                     </div>
                 </div>
+                <div class="mt-2 text-right">
+                    <span class="font-mono text-[9px] text-primary/80">Hardware &amp; Software Tracks</span>
+                </div>
+            </div>
 
-                <!-- Right: Authentic Avengers Cast Art Frame (6 Cols) -->
-                <div class="sm:col-span-6 flex flex-col gap-2">
-                    <div class="hud-card p-1.5 gold-box-glow overflow-hidden relative rounded" style="height: 320px;">
-                        <img src="assets/avengers-art.png" alt="Official Avengers Cast" class="w-full h-full object-cover object-top rounded" style="filter: contrast(1.05) brightness(0.95);" />
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"></div>
-                        <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between font-mono text-[9px] text-primary bg-black/80 px-2 py-1 rounded border border-primary/40">
-                            <span>AVENGERS ASSEMBLE</span>
-                            <span class="text-white font-bold">35 SQUADS ONLY</span>
+            <!-- 03. AI Sprint -->
+            <div class="hud-card p-3.5 flex flex-col justify-between hover:border-primary transition-all border-amber-400/60 gold-box-glow">
+                <div>
+                    <div class="flex items-center justify-between border-b border-primary/30 pb-1.5 mb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary text-base">psychology</span>
+                            <h3 class="font-orbitron text-xs font-bold text-primary uppercase">03. AI SPRINT</h3>
                         </div>
+                        <span class="font-mono text-[9px] bg-primary/20 text-amber-300 px-1.5 py-0.5 rounded border border-primary/40 font-bold">MAX 3 MEMBERS</span>
+                    </div>
+                    <div class="bg-amber-400/15 border border-amber-400/40 text-amber-300 px-2 py-1 rounded font-mono text-[9px] font-bold mb-2">
+                        ⚡ PROBLEM STATEMENT GIVEN ON THE SPOT!
+                    </div>
+                    <p class="font-mono text-[10px] text-zinc-300 leading-relaxed mb-2">
+                        Rapid prototype sprint using free-tier AI tools &amp; APIs (Gemini, HuggingFace, etc.). Build 1 core working feature.
+                    </p>
+                    <div class="bg-black/60 border border-primary/20 p-2 rounded space-y-0.5 font-mono text-[9px] text-zinc-400">
+                        <div>• Chatbots (Campus FAQ, Doubt-Solver, Recommender)</div>
+                        <div>• Classifiers (Spam Filter, Sentiment, Urgency)</div>
+                        <div>• Automation (Summarizer, Quiz Gen, Meeting Notes)</div>
                     </div>
                 </div>
+                <div class="mt-2 text-right">
+                    <span class="font-mono text-[9px] text-amber-300">40% Functionality • 30% Tech</span>
+                </div>
+            </div>
 
+            <!-- 04. ElectroBid -->
+            <div class="hud-card p-3.5 flex flex-col justify-between hover:border-primary transition-all">
+                <div>
+                    <div class="flex items-center justify-between border-b border-primary/30 pb-1.5 mb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary text-base">gavel</span>
+                            <h3 class="font-orbitron text-xs font-bold text-primary uppercase">04. ELECTROBID</h3>
+                        </div>
+                        <span class="font-mono text-[9px] bg-primary/20 text-amber-300 px-1.5 py-0.5 rounded border border-primary/40 font-bold">MAX 3 MEMBERS</span>
+                    </div>
+                    <p class="font-mono text-[10px] text-zinc-300 leading-relaxed mb-2.5">
+                        Electronics Auction &amp; Prototype Challenge. 600 virtual credits to bid on essential components.
+                    </p>
+                    <div class="bg-black/60 border border-primary/20 p-2 rounded space-y-1 font-mono text-[9.5px]">
+                        <div class="text-amber-300 font-bold">CONSTRAINTS: 1 Input + 1 Controller + 1 Output</div>
+                        <div class="text-zinc-400">Real-world problem statement revealed post-auction. Build working prototype from acquired parts.</div>
+                    </div>
+                </div>
+                <div class="mt-2 text-right">
+                    <span class="font-mono text-[9px] text-primary/80">Innovation &amp; Credit Efficiency</span>
+                </div>
+            </div>
+
+            <!-- 05. Line Following Robot -->
+            <div class="hud-card p-3.5 flex flex-col justify-between hover:border-primary transition-all">
+                <div>
+                    <div class="flex items-center justify-between border-b border-primary/30 pb-1.5 mb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary text-base">smart_toy</span>
+                            <h3 class="font-orbitron text-xs font-bold text-primary uppercase">05. LINE FOLLOWING ROBOT</h3>
+                        </div>
+                        <span class="font-mono text-[9px] bg-primary/20 text-amber-300 px-1.5 py-0.5 rounded border border-primary/40 font-bold">MAX 3 MEMBERS</span>
+                    </div>
+                    <p class="font-mono text-[10px] text-zinc-300 leading-relaxed mb-2.5">
+                        Autonomous robotics speed &amp; precision arena. Design and tune an autonomous bot to conquer challenging tracks.
+                    </p>
+                    <div class="bg-black/60 border border-primary/20 p-2 rounded space-y-1 font-mono text-[9.5px]">
+                        <div class="text-amber-300 font-bold">ARENA: Black Line on White Grid</div>
+                        <div class="text-zinc-400">Scored on fastest run time, tracking accuracy, checkpoint clears, and penalty-free completion.</div>
+                    </div>
+                </div>
+                <div class="mt-2 text-right">
+                    <span class="font-mono text-[9px] text-primary/80">Autonomous Robotics Arena</span>
+                </div>
+            </div>
+
+            <!-- Perks & Registration Callout -->
+            <div class="hud-card p-3.5 flex flex-col justify-between border-primary bg-primary/10">
+                <div>
+                    <div class="flex items-center gap-2 border-b border-primary/30 pb-1.5 mb-2">
+                        <span class="material-symbols-outlined text-amber-400 text-base">stars</span>
+                        <h3 class="font-orbitron text-xs font-bold text-amber-400 uppercase">SYMPOSIUM PRIVILEGES</h3>
+                    </div>
+                    <ul class="font-mono text-[10px] space-y-1.5 text-zinc-300">
+                        <li class="flex items-center gap-1.5"><span class="text-primary font-bold">✔</span> Verified Digital Pass &amp; Entry Badge</li>
+                        <li class="flex items-center gap-1.5"><span class="text-primary font-bold">✔</span> Cash Awards &amp; Trophies for Winners</li>
+                        <li class="flex items-center gap-1.5"><span class="text-primary font-bold">✔</span> Official IEEE AP-S Participation Certificate</li>
+                        <li class="flex items-center gap-1.5"><span class="text-primary font-bold">✔</span> Faculty &amp; Industry Expert Jury</li>
+                    </ul>
+                </div>
+                <div class="mt-3 text-center bg-black/60 p-2 rounded border border-primary/30">
+                    <div class="font-orbitron text-xs font-bold text-primary">OPEN REGISTRATION</div>
+                    <div class="font-mono text-[9px] text-zinc-400">Exclusive to Kongu Engineering College</div>
+                </div>
             </div>
 
         </main>
@@ -209,10 +295,10 @@
             
             <div class="sm:col-span-3 hud-card p-2.5 flex flex-col justify-center text-center sm:text-left">
                 <div class="font-mono text-[9px] text-primary uppercase font-bold flex items-center justify-center sm:justify-start gap-1">
-                    <span class="material-symbols-outlined text-[13px]">calendar_today</span> EVENT DATES
+                    <span class="material-symbols-outlined text-[13px]">calendar_today</span> EVENT DATE
                 </div>
-                <div class="font-orbitron text-xs font-bold text-white mt-0.5">20-21 SEP 2026</div>
-                <div class="font-mono text-[9px] text-zinc-400">24-Hour Continuous Sprint</div>
+                <div class="font-orbitron text-xs font-bold text-white mt-0.5">5 OCTOBER 2026</div>
+                <div class="font-mono text-[9px] text-zinc-400">Intra-College Symposium</div>
             </div>
 
             <div class="sm:col-span-3 hud-card p-2.5 flex flex-col justify-center text-left">
@@ -229,7 +315,7 @@
                 </div>
                 <div class="font-mono text-[9px] text-zinc-300 mt-0.5 space-y-0.5">
                     <div><strong>Faculty:</strong> Dr. J. Vijayalakshmi</div>
-                    <div><strong>Student:</strong> Eniyan S (93448 37626)</div>
+                    <div><strong>Student:</strong> Eniyan S (73394 36468)</div>
                 </div>
             </div>
 
@@ -239,8 +325,8 @@
                 </div>
                 <div class="flex-1 text-left">
                     <div class="font-orbitron text-[9.5px] font-bold text-primary">SCAN TO REGISTER</div>
-                    <div class="font-mono text-[8px] text-zinc-300">Limited Spots Available</div>
-                    <a href="register.html" class="inline-block mt-0.5 bg-primary text-black font-mono font-bold text-[8px] px-2 py-0.5 rounded">REGISTER &gt;</a>
+                    <div class="font-mono text-[8px] text-zinc-300">Max 3 Members • Open Entry</div>
+                    <a href="register.html" class="inline-block mt-1 bg-primary text-black font-mono font-bold text-[8.5px] px-2.5 py-0.5 rounded shadow hover:bg-primary-container transition-all">REGISTER &gt;</a>
                 </div>
             </div>
 

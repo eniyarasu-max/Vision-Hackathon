@@ -4,565 +4,459 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Vision — Organizer Control Terminal</title>
+    <title>Vision 2K26 — Organizer Terminal &amp; Gate Scanner | IEEE AP-S KEC</title>
     <!-- Security Headers & Policies -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com https://*.googletagmanager.com https://cdn.sheetjs.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://firestore.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; object-src 'none'; base-uri 'self'; form-action 'self';" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com https://*.googletagmanager.com https://cdnjs.cloudflare.com https://cdn.sheetjs.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://firestore.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://api.telegram.org https://api.callmebot.com https://api.qrserver.com; object-src 'none'; base-uri 'self'; form-action 'self';" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-    <meta http-equiv="Permissions-Policy" content="camera=(self)" />
+    <meta http-equiv="Permissions-Policy" content="accelerometer=(), camera=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()" />
+
     <style>
         @layer base {
-            html, body {
+            html,
+            body {
                 margin: 0;
                 padding: 0;
                 scroll-behavior: smooth;
             }
-        }
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@100..800&family=Orbitron:wght@400..900&display=swap');
 
-        /* Gate QR Scanner Viewfinder & Camera Enhancements */
+            body {
+                overscroll-behavior: none;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(240, 193, 44, 0.4);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0b0c10;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.4s ease-out forwards;
+        }
+
+        /* Scanner viewfinder reticle & autofocus pulses */
         #qr-reader {
             border: none !important;
-            position: relative;
             background: #000;
         }
+
         #qr-reader video {
+            border-radius: 4px;
+            object-fit: cover !important;
             width: 100% !important;
             height: 100% !important;
-            object-fit: cover !important;
-            border-radius: 4px;
-            display: block;
         }
-        #qr-reader__scan_region {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        #qr-reader__dashboard {
-            display: none !important;
-        }
-        @keyframes laserScan {
-            0% { top: 8%; opacity: 0.7; }
-            50% { opacity: 1; }
-            100% { top: 90%; opacity: 0.7; }
-        }
-        .scanner-laser {
-            position: absolute;
-            left: 8%;
-            right: 8%;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #ffe3a1, #f4c430, #ffe3a1, transparent);
-            box-shadow: 0 0 12px #f4c430, 0 0 22px #f0c12c;
-            animation: laserScan 2.2s ease-in-out infinite alternate;
-            pointer-events: none;
-            z-index: 15;
-        }
-        @keyframes focusTapPulse {
-            0% { transform: translate(-50%, -50%) scale(1.6); opacity: 0.9; }
-            50% { transform: translate(-50%, -50%) scale(0.9); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
-        }
+
         .tap-focus-box {
             position: absolute;
             width: 56px;
             height: 56px;
-            border: 2px solid #ffe3a1;
-            border-radius: 4px;
-            box-shadow: 0 0 16px rgba(240, 193, 44, 0.85);
+            border: 2px solid #f0c12c;
+            border-radius: 6px;
+            transform: translate(-50%, -50%);
             pointer-events: none;
-            z-index: 30;
-            animation: focusTapPulse 0.6s ease-out forwards;
+            box-shadow: 0 0 12px rgba(240, 193, 44, 0.8), inset 0 0 8px rgba(240, 193, 44, 0.4);
+            animation: focusPulse 0.6s ease-out forwards;
+            z-index: 40;
+        }
+
+        @keyframes focusPulse {
+            0% { transform: translate(-50%, -50%) scale(1.4); opacity: 1; }
+            70% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.9; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+        }
+
+        .gold-glow {
+            text-shadow: 0 0 15px rgba(240, 193, 44, 0.6), 0 0 30px rgba(240, 193, 44, 0.3);
         }
     </style>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script id="tailwind-config">
         tailwind.config = {
-            darkMode: "class", theme: {
+            darkMode: "class",
+            theme: {
                 extend: {
-                    "colors": { "secondary-container": "#a90214", "surface-bright": "#38393d", "surface": "#121317", "on-tertiary-fixed-variant": "#3e4945", "primary-fixed": "#ffdf90", "secondary-fixed": "#ffdad6", "surface-container-lowest": "#0d0e12", "on-secondary": "#680007", "on-secondary-fixed-variant": "#93000f", "primary-container": "#f4c430", "on-surface-variant": "#d1c5ad", "surface-container-low": "#1a1b20", "on-primary": "#3d2e00", "surface-container-highest": "#343439", "tertiary-fixed-dim": "#bdc9c4", "on-primary-container": "#695200", "outline": "#9a907a", "on-error-container": "#ffdad6", "inverse-surface": "#e3e2e7", "on-tertiary-fixed": "#131e1b", "inverse-primary": "#755b00", "inverse-on-surface": "#2f3035", "surface-container-high": "#292a2e", "secondary": "#ffb3ac", "outline-variant": "#4e4634", "on-tertiary-container": "#4c5753", "secondary-fixed-dim": "#ffb3ac", "on-surface": "#e3e2e7", "on-primary-fixed": "#241a00", "on-background": "#e3e2e7", "surface-variant": "#343439", "background": "#121317", "error": "#ffb4ab", "tertiary-container": "#c0cdc8", "on-secondary-fixed": "#410003", "surface-container": "#1f1f24", "on-tertiary": "#27332f", "surface-tint": "#f0c12c", "error-container": "#93000a", "surface-dim": "#121317", "primary-fixed-dim": "#f0c12c", "on-error": "#690005", "on-secondary-container": "#ffb3ac", "tertiary": "#dce9e3", "on-primary-fixed-variant": "#584400", "tertiary-fixed": "#d9e5e0", "primary": "#ffe3a1" },
-                    "fontFamily": { "headline-lg": ["Space Grotesk"], "body-lg": ["JetBrains Mono"], "body-md": ["JetBrains Mono"], "headline-md": ["Space Grotesk"], "label-sm": ["JetBrains Mono"], "headline-xl": ["Space Grotesk"], "orbitron": ["Orbitron"] }
+                    colors: {
+                        primary: "#f0c12c",
+                        "primary-container": "#f4c430",
+                        "on-primary": "#241a00",
+                        surface: "#0b0c10",
+                        "surface-container": "#121318",
+                        "surface-container-low": "#161820",
+                        "surface-container-lowest": "#07080b",
+                        "surface-container-high": "#1f212a",
+                        "surface-container-highest": "#2a2d39",
+                        "on-surface": "#e3e2e7",
+                        "on-surface-variant": "#c4b897",
+                        outline: "#9a907a",
+                        "outline-variant": "#4e4634",
+                        error: "#ffb4ab",
+                        "error-container": "#93000a"
+                    },
+                    fontFamily: {
+                        orbitron: ["Orbitron", "sans-serif"],
+                        mono: ["JetBrains Mono", "monospace"],
+                        space: ["Space Grotesk", "sans-serif"]
+                    }
                 }
             }
-        }
+        };
     </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+
+    <!-- External SheetJS & Html5Qrcode -->
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 </head>
 
-<body class="bg-surface font-body-md text-on-surface selection:bg-primary selection:text-on-primary min-h-screen">
+<body class="bg-surface font-space text-on-surface selection:bg-primary selection:text-on-primary min-h-screen">
 
-    <!-- ============ AUTHENTICATION PASSCODE GATE MODAL ============ -->
-    <div id="auth-gate-modal" class="fixed inset-0 z-[999999] flex items-center justify-center bg-black/90 backdrop-blur-2xl p-4">
-        <div class="bg-surface-container-low border border-primary/40 p-8 max-w-md w-full rounded-sm shadow-[0_0_50px_rgba(240,193,44,0.3)] text-center relative overflow-hidden">
-            <!-- Glow Accents -->
-            <div class="absolute -top-12 -left-12 w-32 h-32 bg-primary/10 rounded-full blur-2xl pointer-events-none"></div>
-            
-            <div class="w-14 h-14 rounded-full border border-primary/40 bg-primary/10 flex items-center justify-center mx-auto mb-4 text-primary">
-                <span class="material-symbols-outlined text-2xl">shield_lock</span>
+    <!-- ============ AUTHENTICATION GATE MODAL ============ -->
+    <div id="auth-gate-modal" class="fixed inset-0 z-[99999] flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
+        <div class="bg-surface-container-low border-2 border-primary max-w-md w-full p-6 sm:p-8 rounded-xs relative shadow-[0_0_50px_rgba(240,193,44,0.35)] animate-fade-in-up">
+            <div class="flex flex-col items-center text-center gap-3">
+                <div class="w-12 h-12 rounded-full bg-primary/20 border border-primary flex items-center justify-center text-primary">
+                    <span class="material-symbols-outlined text-2xl">shield</span>
+                </div>
+                <div>
+                    <h2 class="font-orbitron text-lg font-bold text-primary tracking-wider uppercase">ORGANIZER TERMINAL ACCESS</h2>
+                    <div class="font-mono text-xs text-zinc-400 mt-1">VISION 2K26 • KONGU ENGINEERING COLLEGE</div>
+                </div>
             </div>
 
-            <span class="text-[10px] font-orbitron text-primary tracking-widest uppercase">ORGANIZER CLEARANCE ONLY</span>
-            <h2 class="text-xl font-headline-xl text-on-surface uppercase mt-1 mb-2">ACCESS TERMINAL</h2>
-            <p class="text-xs text-on-surface-variant mb-6">Enter the master administrative passcode to initialize access protocols.</p>
-
-            <form id="auth-form" class="space-y-4">
-                <div class="space-y-2">
-                    <input type="password" id="admin-passcode" placeholder="ENTER ACCESS CODE" class="w-full bg-surface-container border border-outline-variant focus:border-primary text-center font-orbitron text-lg tracking-[0.3em] py-3 text-primary outline-none transition-all rounded-sm" autocomplete="off" required />
-                    <div id="auth-error-msg" class="text-xs font-label-sm text-error hidden">// ACCESS DENIED: INVALID PASSCODE</div>
+            <form id="auth-form" class="mt-6 space-y-4">
+                <div class="space-y-1.5">
+                    <label for="admin-passcode" class="font-mono text-xs text-zinc-300 uppercase block font-bold">ENTER ADMIN PASSCODE</label>
+                    <input type="password" id="admin-passcode" placeholder="••••••••••••" class="w-full bg-surface-container-lowest border border-outline-variant/60 focus:border-primary text-sm py-2.5 px-3.5 font-mono text-white outline-none rounded-xs tracking-widest text-center" autofocus required />
                 </div>
 
-                <button type="submit" id="auth-submit-btn" class="w-full bg-primary text-on-primary font-label-sm py-3 uppercase tracking-widest text-xs font-bold hover:bg-primary-fixed transition-all rounded-sm shadow-[0_0_15px_rgba(240,193,44,0.3)]">
-                    AUTHENTICATE &amp; UNLOCK
+                <div id="auth-error-msg" class="hidden font-mono text-xs text-center text-error"></div>
+
+                <button type="submit" class="w-full bg-primary hover:bg-primary-container text-black font-mono font-bold text-xs uppercase py-3 rounded-xs tracking-widest transition-all cursor-pointer">
+                    UNLOCK TERMINAL &gt;
                 </button>
             </form>
-
-            <div class="mt-6 pt-4 border-t border-outline-variant/20 text-[10px] text-outline flex justify-between items-center">
-                <span>SECURITY CLEARANCE: LEVEL 5</span>
-                <a href="index.html" class="hover:text-primary transition-colors">Return to Site &gt;</a>
-            </div>
         </div>
     </div>
 
-    <!-- ============ MAIN TERMINAL UI ============ -->
-    <div id="terminal-content" class="hidden">
-        <header class="w-full bg-surface-container-lowest border-b border-primary/20 py-4 px-6 md:px-8 sticky top-0 z-50 backdrop-blur-md">
-            <div class="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-3">
-                <div class="flex items-center gap-3 md:gap-6">
-                    <span class="font-orbitron text-xl md:text-2xl text-primary tracking-widest uppercase">VISION CONTROL</span>
-                    <span class="border border-primary/40 bg-primary/10 px-2.5 py-0.5 text-[10px] font-label-sm text-primary tracking-widest uppercase hidden sm:inline-block">ORGANIZER CLEARANCE ACTIVE</span>
+    <!-- ============ MAIN TERMINAL INTERFACE ============ -->
+    <div id="terminal-content" class="hidden min-h-screen flex flex-col justify-between">
+        
+        <!-- Header -->
+        <header class="bg-surface-container-lowest border-b border-primary/20 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-4 md:px-8 h-20 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                    <div>
+                        <h1 class="font-orbitron text-lg md:text-xl font-black text-primary gold-glow tracking-wider uppercase">
+                            VISION 2K26 // ORGANIZER TERMINAL
+                        </h1>
+                        <div class="font-mono text-[10px] text-zinc-400">INTRA-COLLEGE SYMPOSIUM • 5 OCTOBER 2026 • KEC</div>
+                    </div>
                 </div>
+
                 <div class="flex items-center gap-3">
-                    <button id="open-scanner-btn" class="bg-primary text-on-primary font-label-sm px-3.5 py-2 rounded-sm hover:bg-primary-fixed transition-all text-xs flex items-center gap-1.5 font-bold shadow-[0_0_15px_rgba(240,193,44,0.3)] cursor-pointer">
-                        <span class="material-symbols-outlined text-[18px]">qr_code_scanner</span> Live Gate Scanner
+                    <button id="open-scanner-btn" class="bg-primary hover:bg-primary-container text-black font-mono font-bold text-xs uppercase px-4 py-2 rounded-xs transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(240,193,44,0.3)] cursor-pointer">
+                        <span class="material-symbols-outlined text-sm">qr_code_scanner</span> On-Day Gate Scanner
                     </button>
-                    <a href="index.html" class="font-label-sm text-outline hover:text-primary transition-colors uppercase tracking-widest text-xs">Public Site &gt;</a>
-                    <button id="lock-terminal-btn" class="border border-outline-variant/40 hover:border-error hover:text-error text-outline text-xs font-label-sm px-3 py-1.5 rounded-sm transition-colors flex items-center gap-1.5 cursor-pointer">
-                        <span class="material-symbols-outlined text-[14px]">lock</span> Lock
+                    <button id="lock-terminal-btn" class="bg-surface-container hover:bg-surface-container-high text-outline hover:text-white border border-outline-variant/40 font-mono text-xs px-3 py-2 rounded-xs transition-colors flex items-center gap-1 cursor-pointer" title="Lock Terminal">
+                        <span class="material-symbols-outlined text-sm">lock</span>
                     </button>
                 </div>
             </div>
         </header>
 
-        <main class="max-w-7xl mx-auto px-6 md:px-8 py-8 space-y-8">
+        <!-- Body -->
+        <main class="max-w-7xl mx-auto px-4 md:px-8 py-8 space-y-8 flex-1 w-full animate-fade-in-up">
             
-            <!-- 4-Card Financial, Attendance & Operations Dashboard -->
+            <!-- KPI Overview Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                <!-- Card 1: Capacity & Slots -->
-                <div class="bg-surface-container-low border border-primary/20 p-5 relative rounded-sm shadow-md flex flex-col justify-between">
+                
+                <!-- Card 1: Total Registered Squads -->
+                <div class="bg-surface-container border border-primary/30 p-5 rounded-xs flex flex-col justify-between">
                     <div>
                         <div class="flex items-center justify-between mb-1">
-                            <span class="font-label-sm text-outline uppercase tracking-wider text-[11px]">Capacity Utilization</span>
+                            <span class="font-mono text-xs text-zinc-400 uppercase tracking-wider">TOTAL SQUADS</span>
                             <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
                         </div>
-                        <div class="font-orbitron text-2xl md:text-3xl text-primary font-bold" id="admin-seats">-- / 35</div>
+                        <div class="font-orbitron text-3xl text-primary font-bold" id="admin-total">0</div>
+                    </div>
+                    <div class="mt-3 font-mono text-[11px] text-zinc-400" id="admin-seats-sub">
+                        Open registration • No squad limit
+                    </div>
+                </div>
+
+                <!-- Card 2: Gate Attendance -->
+                <div class="bg-surface-container border border-primary/30 p-5 rounded-xs flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-mono text-xs text-zinc-400 uppercase tracking-wider">GATE ATTENDANCE</span>
+                            <span class="font-mono text-xs text-emerald-400 font-bold" id="attendance-pct">0%</span>
+                        </div>
+                        <div class="font-orbitron text-3xl text-emerald-400 font-bold" id="admin-checked-in">0 / 0</div>
                     </div>
                     <div class="mt-3">
-                        <div class="w-full bg-surface-container-highest h-1.5 rounded-full overflow-hidden mb-1.5">
-                            <div id="capacity-bar" class="bg-primary h-full transition-all duration-500" style="width: 0%;"></div>
+                        <div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden mb-1">
+                            <div id="attendance-bar" class="bg-emerald-400 h-full transition-all duration-500" style="width: 0%;"></div>
                         </div>
-                        <div class="text-[11px] text-on-surface-variant truncate font-label-sm" id="admin-seats-sub">Listening for live updates...</div>
+                        <div class="font-mono text-[10px] text-zinc-400" id="admin-checked-in-sub">0 admitted squads</div>
                     </div>
                 </div>
 
-                <!-- Card 2: Registrations Breakdown & Quick Filters -->
-                <div class="bg-surface-container-low border border-primary/20 p-5 relative rounded-sm shadow-md flex flex-col justify-between">
+                <!-- Card 3: Top Event Track -->
+                <div class="bg-surface-container border border-primary/30 p-5 rounded-xs flex flex-col justify-between">
                     <div>
                         <div class="flex items-center justify-between mb-1">
-                            <span class="font-label-sm text-outline uppercase tracking-wider text-[11px]">Total Squads</span>
-                            <span class="font-label-sm text-[10px] text-outline-variant">TAP TO FILTER</span>
+                            <span class="font-mono text-xs text-zinc-400 uppercase tracking-wider">ACTIVE EVENTS</span>
+                            <span class="font-mono text-[10px] text-primary">5 TRACKS</span>
                         </div>
-                        <div class="font-orbitron text-2xl md:text-3xl text-on-surface font-bold" id="admin-total">0</div>
+                        <div class="font-orbitron text-xl text-white font-bold truncate" id="admin-top-event">ALL 5 ACTIVE</div>
                     </div>
-                    <div class="mt-3 flex items-center gap-1.5 flex-wrap" id="status-breakdown">
-                        <button onclick="setFilter('verified')" class="px-2 py-0.5 text-[10px] font-label-sm bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-500/40 rounded-xs transition-colors cursor-pointer" id="badge-verified-count">0 Verified</button>
-                        <button onclick="setFilter('pending_verification')" class="px-2 py-0.5 text-[10px] font-label-sm bg-amber-950/80 hover:bg-amber-900 text-amber-300 border border-amber-500/40 rounded-xs transition-colors cursor-pointer" id="badge-pending-count">0 Pending</button>
-                        <button onclick="setFilter('flagged')" class="px-2 py-0.5 text-[10px] font-label-sm bg-error/20 hover:bg-error/30 text-error border border-error/40 rounded-xs transition-colors cursor-pointer" id="badge-flagged-count">0 Flagged</button>
+                    <div class="mt-3 flex items-center gap-1.5 flex-wrap font-mono text-[10px]" id="event-stats-chips">
+                        <span class="bg-primary/15 text-primary px-2 py-0.5 rounded border border-primary/30" id="chip-paper">Paper: 0</span>
+                        <span class="bg-primary/15 text-primary px-2 py-0.5 rounded border border-primary/30" id="chip-project">Project: 0</span>
+                        <span class="bg-primary/15 text-primary px-2 py-0.5 rounded border border-primary/30" id="chip-ai">AI Sprint: 0</span>
+                        <span class="bg-primary/15 text-primary px-2 py-0.5 rounded border border-primary/30" id="chip-bid">ElectroBid: 0</span>
+                        <span class="bg-primary/15 text-primary px-2 py-0.5 rounded border border-primary/30" id="chip-robot">Robot: 0</span>
                     </div>
                 </div>
 
-                <!-- Card 3: Financial Analytics -->
-                <div class="bg-surface-container-low border border-primary/20 p-5 relative rounded-sm shadow-md flex flex-col justify-between">
+                <!-- Card 4: Quick Actions & Exporters -->
+                <div class="bg-surface-container border border-primary/30 p-5 rounded-xs flex flex-col justify-between">
                     <div>
-                        <div class="flex items-center justify-between mb-1">
-                            <span class="font-label-sm text-outline uppercase tracking-wider text-[11px]">Verified Revenue</span>
-                            <span class="font-label-sm text-[10px] text-emerald-400 font-mono">₹1600 / Squad</span>
-                        </div>
-                        <div class="font-orbitron text-2xl md:text-3xl text-emerald-400 font-bold" id="admin-revenue">₹0</div>
+                        <div class="font-mono text-xs text-zinc-400 uppercase tracking-wider mb-1">DATA EXPORTS</div>
+                        <div class="font-orbitron text-base text-white font-bold">PER-EVENT SHEETS</div>
                     </div>
-                    <div class="mt-3 text-[11px] text-on-surface-variant font-mono" id="admin-pending-revenue">
-                        Pending Pipeline: ₹0
+                    <div class="mt-3 flex items-center gap-2 font-mono text-xs">
+                        <button id="export-excel-btn" class="flex-1 bg-surface-container-high hover:bg-primary hover:text-black text-white border border-outline-variant/40 px-2 py-1.5 rounded-xs transition-colors flex items-center justify-center gap-1 cursor-pointer font-bold" title="Export all registrations">
+                            <span class="material-symbols-outlined text-sm">table_chart</span> All Events
+                        </button>
+                        <button id="export-csv-btn" class="flex-1 bg-surface-container-high hover:bg-primary hover:text-black text-white border border-outline-variant/40 px-2 py-1.5 rounded-xs transition-colors flex items-center justify-center gap-1 cursor-pointer font-bold" title="Export CSV">
+                            <span class="material-symbols-outlined text-sm">download</span> CSV
+                        </button>
                     </div>
+                    <div class="mt-2 font-mono text-[10px] text-zinc-400 leading-relaxed">↓ Per-event Excel below ↓</div>
                 </div>
 
-                <!-- Card 4: Event Day Gate Check-Ins & Live Attendance Gauge -->
-                <div class="bg-surface-container-low border border-primary/20 p-5 relative rounded-sm shadow-md flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-center justify-between mb-1">
-                            <span class="font-label-sm text-outline uppercase tracking-wider text-[11px]">Gate Attendance Desk</span>
-                            <button onclick="setFilter('checked_in')" class="font-label-sm text-[10px] text-primary hover:underline cursor-pointer">Filter Attended &gt;</button>
-                        </div>
-                        <div class="flex items-baseline gap-2">
-                            <div class="font-orbitron text-2xl md:text-3xl text-primary font-bold" id="admin-checked-in">0 / 0</div>
-                            <span class="font-label-sm text-xs text-emerald-400 font-bold" id="attendance-pct">0%</span>
-                        </div>
-                    </div>
-                    <div class="mt-3">
-                        <div class="w-full bg-surface-container-highest h-1.5 rounded-full overflow-hidden mb-1.5">
-                            <div id="attendance-bar" class="bg-emerald-500 h-full transition-all duration-500" style="width: 0%;"></div>
-                        </div>
-                        <div class="text-[11px] text-on-surface-variant font-label-sm truncate" id="admin-checked-in-sub">
-                            0 Verified squads admitted at gate
-                        </div>
-                    </div>
-                </div>
             </div>
 
-            <!-- Database Maintenance & Capacity Sync Toolbar -->
-            <div class="bg-surface-container-low/60 border border-outline-variant/30 p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 rounded-sm">
-                <div>
-                    <h2 class="font-headline-md text-on-surface text-base">Capacity Management &amp; Exporters</h2>
-                    <p class="text-xs text-on-surface-variant mt-0.5">Recalibrate capacity count, download attendee sheets, or purge test records.</p>
+            <!-- Per-Event Excel Download Row -->
+            <div class="bg-surface-container border border-primary/20 p-4 rounded-xs">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="material-symbols-outlined text-primary text-base">table_chart</span>
+                    <span class="font-orbitron text-xs font-bold text-primary uppercase tracking-wider">Download Registrations by Event</span>
                 </div>
-                <div class="flex items-center gap-2.5 flex-wrap">
-                    <button id="export-csv-btn" class="bg-primary/20 hover:bg-primary text-primary hover:text-on-primary border border-primary font-label-sm px-3 py-2 text-xs uppercase tracking-widest transition-all flex items-center gap-1 rounded-sm cursor-pointer">
-                        <span class="material-symbols-outlined text-sm">download</span> CSV
+                <div class="flex flex-wrap gap-2 font-mono text-xs">
+                    <button onclick="exportEventExcel('paper-presentation','Paper Presentation')"    class="bg-surface-container-high hover:bg-primary hover:text-black text-white border border-outline-variant/40 px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-bold">
+                        <span class="material-symbols-outlined text-sm">download</span> Paper Presentation
                     </button>
-                    <button id="export-excel-btn" class="bg-surface-container-highest hover:bg-primary hover:text-on-primary text-on-surface border border-outline-variant hover:border-primary font-label-sm px-3 py-2 text-xs uppercase tracking-widest transition-all flex items-center gap-1 rounded-sm cursor-pointer">
-                        <span class="material-symbols-outlined text-sm">table_chart</span> Excel
+                    <button onclick="exportEventExcel('project-presentation','Project Presentation')" class="bg-surface-container-high hover:bg-primary hover:text-black text-white border border-outline-variant/40 px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-bold">
+                        <span class="material-symbols-outlined text-sm">download</span> Project Presentation
                     </button>
-                    <button id="whatsapp-alerts-setup-btn" class="bg-[#25D366]/20 hover:bg-[#25D366] text-[#25D366] hover:text-white border border-[#25D366]/50 font-label-sm px-3 py-2 text-xs uppercase tracking-widest transition-all flex items-center gap-1.5 rounded-sm cursor-pointer font-bold">
-                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                        WA Alerts Setup
+                    <button onclick="exportEventExcel('ai-sprint','AI Sprint')"                     class="bg-surface-container-high hover:bg-primary hover:text-black text-white border border-outline-variant/40 px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-bold">
+                        <span class="material-symbols-outlined text-sm">download</span> AI Sprint
                     </button>
-                    <button id="init-capacity-btn" class="bg-surface-container-highest hover:bg-primary hover:text-on-primary border border-primary/40 font-label-sm px-3 py-2 text-xs uppercase tracking-widest transition-colors rounded-sm cursor-pointer">
-                        Sync Capacity
+                    <button onclick="exportEventExcel('electrobid','ElectroBid')"                   class="bg-surface-container-high hover:bg-primary hover:text-black text-white border border-outline-variant/40 px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-bold">
+                        <span class="material-symbols-outlined text-sm">download</span> ElectroBid
                     </button>
-                    <button id="purge-data-btn" class="bg-error-container/30 hover:bg-error hover:text-on-error border border-error/50 text-error font-label-sm px-3 py-2 text-xs uppercase tracking-widest transition-colors flex items-center gap-1 rounded-sm cursor-pointer">
-                        <span class="material-symbols-outlined text-sm">delete_forever</span> Purge
+                    <button onclick="exportEventExcel('line-following-robot','Line Following Robot')" class="bg-surface-container-high hover:bg-primary hover:text-black text-white border border-outline-variant/40 px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-bold">
+                        <span class="material-symbols-outlined text-sm">download</span> Line Following Robot
+                    </button>
+                    <button onclick="exportAllExcelSheets()" class="bg-primary/15 hover:bg-primary hover:text-black text-primary border border-primary/50 px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-bold">
+                        <span class="material-symbols-outlined text-sm">table_chart</span> All Events (Multi-Sheet)
                     </button>
                 </div>
             </div>
 
-            <!-- Bulk Actions Floating Toolbar (Appears when rows selected) -->
-            <div id="bulk-toolbar" class="hidden bg-surface-container-high border-2 border-primary p-4 rounded-sm shadow-[0_0_30px_rgba(240,193,44,0.25)] flex items-center justify-between flex-wrap gap-3 animate-fade-in-up">
-                <div class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary">checklist</span>
-                    <span class="font-bold text-sm text-primary font-label-sm" id="bulk-count">0 Teams Selected</span>
-                </div>
-                <div class="flex items-center gap-2 flex-wrap">
-                    <button id="bulk-verify-btn" class="bg-emerald-900 hover:bg-emerald-800 text-emerald-300 border border-emerald-500/50 font-label-sm px-3 py-1.5 text-xs uppercase tracking-wider rounded-sm transition-all cursor-pointer flex items-center gap-1">
-                        <span class="material-symbols-outlined text-[14px]">verified</span> Mark Verified
-                    </button>
-                    <button id="bulk-flag-btn" class="bg-amber-950 hover:bg-amber-900 text-amber-300 border border-amber-500/50 font-label-sm px-3 py-1.5 text-xs uppercase tracking-wider rounded-sm transition-all cursor-pointer flex items-center gap-1">
-                        <span class="material-symbols-outlined text-[14px]">flag</span> Mark Flagged
-                    </button>
-                    <button id="bulk-delete-btn" class="bg-error-container hover:bg-error text-on-error font-label-sm px-3 py-1.5 text-xs uppercase tracking-wider rounded-sm transition-all cursor-pointer flex items-center gap-1">
-                        <span class="material-symbols-outlined text-[14px]">delete</span> Delete Selected
-                    </button>
-                    <button id="bulk-cancel-btn" class="text-outline hover:text-on-surface font-label-sm px-2.5 py-1.5 text-xs uppercase tracking-wider rounded-sm transition-all cursor-pointer">
-                        Cancel
-                    </button>
-                </div>
-            </div>
-
-            <!-- Search, Filter & Registrations Table -->
-            <div class="bg-surface-container-low border border-primary/20 overflow-hidden rounded-sm shadow-xl">
-                <div class="p-6 border-b border-outline-variant/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <!-- Toolbar: Search, Filters & Bulk Actions -->
+            <div class="bg-surface-container border border-primary/30 p-5 rounded-xs space-y-4">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
                     <div>
-                        <h2 class="font-headline-md text-on-surface text-xl uppercase">Registered Teams Master Log</h2>
-                        <div class="text-xs font-label-sm text-primary tracking-widest mt-1" id="sync-indicator">LIVE SYNC ACTIVE</div>
+                        <h2 class="font-orbitron text-base font-bold text-white uppercase">SQUAD REGISTRATIONS LOG</h2>
+                        <div class="font-mono text-xs text-primary tracking-widest mt-0.5">INTRA-COLLEGE MASTER DATABASE</div>
                     </div>
-                    
-                    <!-- Search & Filter Controls -->
-                    <div class="flex items-center gap-3 w-full md:w-auto flex-wrap">
-                        <div class="relative flex-1 md:w-64">
-                            <input type="text" id="search-input" placeholder="Search team, leader, UTR..." class="w-full bg-surface-container border border-outline-variant/50 focus:border-primary text-xs py-2 pl-8 pr-3 text-on-surface outline-none rounded-sm" />
-                            <span class="material-symbols-outlined text-outline text-sm absolute left-2.5 top-2.5">search</span>
+
+                    <!-- Search & Filter Bar -->
+                    <div class="flex items-center gap-3 w-full md:w-auto flex-wrap font-mono text-xs">
+                        <!-- Search Box -->
+                        <div class="relative flex-1 md:w-60">
+                            <input type="text" id="search-input" placeholder="Search squad, leader, contact..." class="w-full bg-surface-container-lowest border border-outline-variant/50 focus:border-primary text-xs py-2 pl-8 pr-3 text-white outline-none rounded-xs" />
+                            <span class="material-symbols-outlined text-zinc-500 text-sm absolute left-2.5 top-2.5">search</span>
                         </div>
-                        <select id="status-filter" class="bg-surface-container border border-outline-variant/50 text-xs py-2 px-3 text-on-surface outline-none rounded-sm">
-                            <option value="all">Status: All Teams</option>
-                            <option value="verified">Verified Only</option>
-                            <option value="pending_verification">Pending Only</option>
-                            <option value="flagged">Flagged / Invalid UTR</option>
+
+                        <!-- Event Track Filter -->
+                        <select id="event-filter" class="bg-surface-container-lowest border border-outline-variant/50 focus:border-primary text-xs py-2 px-3 text-white outline-none rounded-xs cursor-pointer">
+                            <option value="all">Track: All 5 Events</option>
+                            <option value="Paper Presentation">Paper Presentation</option>
+                            <option value="Project Presentation">Project Presentation</option>
+                            <option value="AI Sprint">AI Sprint</option>
+                            <option value="ElectroBid">ElectroBid</option>
+                            <option value="Line Following Robot">Line Following Robot</option>
+                        </select>
+
+                        <!-- Status Filter -->
+                        <select id="status-filter" class="bg-surface-container-lowest border border-outline-variant/50 focus:border-primary text-xs py-2 px-3 text-white outline-none rounded-xs cursor-pointer">
+                            <option value="all">Status: All Squads</option>
                             <option value="checked_in">Checked-In Only</option>
+                            <option value="pending_checkin">Not Yet Checked-In</option>
                         </select>
                     </div>
                 </div>
 
+                <!-- Bulk Action Bar (Visible on Selection) -->
+                <div id="bulk-toolbar" class="hidden bg-surface-container-high border border-primary p-3 rounded-xs flex items-center justify-between gap-3 font-mono text-xs">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-base">checklist</span>
+                        <span class="font-bold text-primary" id="bulk-count">0 Squads Selected</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button id="bulk-checkin-btn" class="bg-emerald-900 hover:bg-emerald-800 text-emerald-300 border border-emerald-500/50 px-3 py-1 rounded-xs transition-colors cursor-pointer">
+                            Mark Checked-In
+                        </button>
+                        <button id="bulk-delete-btn" class="bg-error-container hover:bg-error text-white px-3 py-1 rounded-xs transition-colors cursor-pointer">
+                            Delete Selected
+                        </button>
+                        <button id="bulk-cancel-btn" class="text-zinc-400 hover:text-white px-2 py-1 transition-colors cursor-pointer">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table -->
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs font-body-md border-collapse">
+                    <table class="w-full text-left font-mono text-xs border-collapse">
                         <thead>
-                            <tr class="bg-surface-container border-b border-outline-variant/30 text-outline uppercase tracking-wider font-label-sm">
-                                <th class="py-3.5 px-3 text-center w-10">
-                                    <input type="checkbox" id="select-all-checkbox" class="accent-primary cursor-pointer w-3.5 h-3.5" title="Select All" />
+                            <tr class="bg-surface-container-lowest border-b border-primary/20 text-zinc-400 uppercase tracking-wider text-[11px]">
+                                <th class="py-3 px-3 text-center w-8">
+                                    <input type="checkbox" id="select-all-checkbox" class="accent-primary cursor-pointer" title="Select All" />
                                 </th>
-                                <th class="py-3.5 px-3">#</th>
-                                <th class="py-3.5 px-4">Team Name</th>
-                                <th class="py-3.5 px-4">Leader (Member 1)</th>
-                                <th class="py-3.5 px-4">Member 2</th>
-                                <th class="py-3.5 px-4">Member 3</th>
-                                <th class="py-3.5 px-4">Member 4</th>
-                                <th class="py-3.5 px-4">UTR / Screenshot</th>
-                                <th class="py-3.5 px-4">Status &amp; Gate Check-In</th>
-                                <th class="py-3.5 px-4 text-center">Actions</th>
+                                <th class="py-3 px-3">#</th>
+                                <th class="py-3 px-4">Squad Name</th>
+                                <th class="py-3 px-4">Event Track</th>
+                                <th class="py-3 px-4">Leader (Member 1)</th>
+                                <th class="py-3 px-4">Member 2</th>
+                                <th class="py-3 px-4">Member 3</th>
+                                <th class="py-3 px-4">Topic / Project</th>
+                                <th class="py-3 px-4">Gate Check-In</th>
+                                <th class="py-3 px-4 text-center">Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="teams-table-body" class="divide-y divide-outline-variant/10 text-on-surface">
+                        <tbody id="teams-table-body" class="divide-y divide-outline-variant/15 text-white">
                             <tr>
-                                <td colspan="10" class="py-8 text-center text-on-surface-variant font-label-sm tracking-widest">
-                                    Loading registrations from Firestore...
+                                <td colspan="10" class="py-8 text-center text-zinc-500 tracking-widest">
+                                    Loading registrations from database...
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+
         </main>
+
+        <!-- Footer -->
+        <footer class="bg-[#050608] border-t border-primary/20 py-4 text-center font-mono text-xs text-zinc-500">
+            <div>VISION 2K26 • IEEE ANTENNAS AND PROPAGATION SOCIETY (IEEE APS) KEC</div>
+        </footer>
     </div>
 
-    <!-- ============ RECEIPT SCREENSHOT INSPECTOR MODAL ============ -->
-    <div id="receipt-modal" class="fixed inset-0 z-[999999] hidden flex items-center justify-center bg-black/85 backdrop-blur-md p-4">
-        <div class="bg-surface-container-low border border-primary max-w-xl w-full p-6 rounded-sm relative shadow-2xl">
-            <div class="flex items-center justify-between border-b border-outline-variant/30 pb-3 mb-4">
-                <h3 class="font-headline-md text-primary text-base uppercase flex items-center gap-2">
-                    <span class="material-symbols-outlined">receipt_long</span> Payment Proof Inspector
-                </h3>
-                <button id="close-receipt-btn" class="text-outline hover:text-primary">
-                    <span class="material-symbols-outlined">close</span>
-                </button>
-            </div>
-            <div class="flex flex-col items-center justify-center bg-black p-4 rounded-sm max-h-[70vh] overflow-auto">
-                <img id="receipt-modal-img" src="" alt="Payment screenshot" class="max-h-[60vh] object-contain rounded-xs border border-outline-variant/40" />
-            </div>
-            <div class="mt-4 text-right">
-                <button id="receipt-download-btn" class="bg-primary/20 hover:bg-primary text-primary hover:text-on-primary border border-primary font-label-sm px-4 py-2 text-xs uppercase tracking-widest transition-colors rounded-sm">
-                    Open Full Image
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ============ ON-DAY GATE ENTRY QR SCANNER MODAL ============ -->
-    <div id="scanner-modal" class="fixed inset-0 z-[999999] hidden flex items-center justify-center bg-black/90 backdrop-blur-md p-4 overflow-y-auto">
-        <div class="bg-surface-container-low border-2 border-primary max-w-lg w-full p-5 sm:p-6 rounded-sm relative shadow-[0_0_50px_rgba(240,193,44,0.3)] my-8">
+    <!-- ============ ON-DAY GATE QR CAMERA SCANNER MODAL ============ -->
+    <div id="scanner-modal" class="fixed inset-0 z-[999999] hidden flex items-center justify-center bg-black/90 backdrop-blur-md p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-surface-container-low border-2 border-primary max-w-lg w-full p-5 sm:p-6 rounded-xs relative shadow-[0_0_50px_rgba(240,193,44,0.35)] my-8 animate-fade-in-up">
+            
             <div class="flex items-center justify-between border-b border-outline-variant/30 pb-3 mb-3">
                 <div class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary text-2xl">qr_code_scanner</span>
-                    <div>
-                        <h3 class="font-headline-md text-primary text-base sm:text-lg uppercase leading-tight">On-Day Campus Gate Scanner</h3>
-                        <span class="text-[10px] font-label-sm text-outline uppercase tracking-wider block">Continuous Autofocus &amp; Hardware Barcode Detection</span>
-                    </div>
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                    <h3 class="font-orbitron text-sm font-bold text-primary uppercase tracking-wider">
+                        GATE ENTRY SCANNER // VISION 2K26
+                    </h3>
                 </div>
-                <div class="flex items-center gap-2">
-                    <button id="tts-toggle-btn" title="Toggle voice announcements" class="px-2.5 py-1 text-[11px] font-label-sm rounded-xs border border-primary/50 bg-primary/10 text-primary hover:bg-primary hover:text-on-primary transition-all flex items-center gap-1 cursor-pointer">
-                        <span class="material-symbols-outlined text-[14px]">volume_up</span>
-                        <span id="tts-toggle-label">Voice ON</span>
-                    </button>
-                    <button id="close-scanner-btn" class="text-outline hover:text-primary p-1 cursor-pointer transition-colors" title="Close Scanner">
-                        <span class="material-symbols-outlined text-2xl">close</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Multi-Camera Selector & Controls Toolbar -->
-            <div class="bg-surface-container-lowest border border-outline-variant/40 p-2.5 rounded-sm mb-3 space-y-2">
-                <div class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary text-lg">videocam</span>
-                    <select id="scanner-camera-select" class="flex-1 bg-surface-container border border-outline-variant/60 focus:border-primary text-[11px] font-label-sm py-1.5 px-2 text-on-surface outline-none rounded-xs cursor-pointer">
-                        <option value="">Detecting Cameras...</option>
-                    </select>
-                    <button id="scanner-flip-cam-btn" title="Switch / Flip Camera" class="bg-surface-container hover:bg-surface-container-high border border-outline-variant/60 text-outline hover:text-primary p-1.5 rounded-xs transition-colors cursor-pointer flex items-center justify-center">
-                        <span class="material-symbols-outlined text-base">cameraswitch</span>
-                    </button>
-                </div>
-
-                <!-- Hardware Controls: Torch, Zoom Presets, File Upload -->
-                <div class="flex items-center justify-between gap-2 pt-1 border-t border-outline-variant/20 flex-wrap">
-                    <!-- Zoom Options -->
-                    <div id="scanner-zoom-wrap" class="flex items-center gap-1">
-                        <span class="text-[10px] font-label-sm text-outline uppercase mr-1">Zoom:</span>
-                        <button type="button" data-zoom="1" class="scanner-zoom-btn px-2 py-0.5 text-[10px] font-label-sm bg-primary text-on-primary font-bold border border-primary rounded-xs transition-all">1x</button>
-                        <button type="button" data-zoom="1.5" class="scanner-zoom-btn px-2 py-0.5 text-[10px] font-label-sm bg-surface-container text-outline border border-outline-variant/40 rounded-xs hover:text-primary transition-all">1.5x</button>
-                        <button type="button" data-zoom="2" class="scanner-zoom-btn px-2 py-0.5 text-[10px] font-label-sm bg-surface-container text-outline border border-outline-variant/40 rounded-xs hover:text-primary transition-all">2x</button>
-                    </div>
-
-                    <div class="flex items-center gap-1.5 ml-auto">
-                        <!-- Torch Toggle -->
-                        <button id="scanner-torch-btn" type="button" title="Toggle Camera Flashlight" class="hidden px-2.5 py-1 text-[11px] font-label-sm rounded-xs border border-outline-variant/60 bg-surface-container text-outline hover:text-primary transition-all flex items-center gap-1 cursor-pointer">
-                            <span class="material-symbols-outlined text-[14px]">flash_on</span>
-                            <span id="scanner-torch-label">Torch</span>
-                        </button>
-                        
-                        <!-- Upload Image Fallback -->
-                        <label for="scanner-file-input" title="Scan QR from saved photo or screenshot" class="px-2.5 py-1 text-[11px] font-label-sm rounded-xs border border-outline-variant/60 bg-surface-container text-outline hover:text-primary transition-all flex items-center gap-1 cursor-pointer">
-                            <span class="material-symbols-outlined text-[14px]">photo_library</span>
-                            <span>Upload QR</span>
-                            <input type="file" id="scanner-file-input" accept="image/*" class="hidden" />
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Scanner Camera Viewfinder with HUD Reticles -->
-            <div id="qr-viewfinder-container" class="relative bg-black rounded-sm overflow-hidden border border-outline-variant/50 mb-3 select-none cursor-crosshair">
-                <div class="scanner-laser"></div>
-                <!-- Cyberpunk HUD corner brackets -->
-                <div class="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-primary pointer-events-none z-20"></div>
-                <div class="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-primary pointer-events-none z-20"></div>
-                <div class="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-primary pointer-events-none z-20"></div>
-                <div class="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-primary pointer-events-none z-20"></div>
-
-                <div id="qr-reader" class="w-full min-h-[280px]"></div>
-
-                <!-- Status & Tap Tip -->
-                <div id="scanner-status" class="text-[11px] font-label-sm text-center py-1.5 bg-surface-container-lowest/90 border-t border-outline-variant/30 text-outline flex items-center justify-center gap-1.5 px-3">
-                    <span class="material-symbols-outlined text-primary text-[14px] animate-pulse">center_focus_strong</span>
-                    <span id="scanner-status-text">Align QR code in center. Tap to re-focus.</span>
-                </div>
-            </div>
-
-            <!-- Manual Lookup Alternate Input -->
-            <div class="mb-4">
-                <label class="text-[10px] font-label-sm text-outline uppercase block mb-1">Manual Pass / UTR / Team Lookup:</label>
-                <div class="flex gap-2">
-                    <input type="text" id="scanner-manual-input" placeholder="Enter UTR ID, Pass Ref, or Team..." class="flex-1 bg-surface-container border border-outline-variant/60 focus:border-primary text-xs py-2 px-3 text-on-surface outline-none rounded-sm uppercase" />
-                    <button id="scanner-manual-btn" class="bg-primary/20 hover:bg-primary text-primary hover:text-on-primary border border-primary font-label-sm px-4 py-2 text-xs uppercase tracking-wider rounded-sm transition-all cursor-pointer font-bold">
-                        Search
-                    </button>
-                </div>
-            </div>
-
-            <!-- Scanned Team Result Hologram Card -->
-            <div id="scanner-result" class="hidden bg-surface-container-lowest border border-primary/50 p-4 rounded-sm space-y-3 animate-fade-in-up">
-                <div class="flex justify-between items-start border-b border-outline-variant/20 pb-2">
-                    <div>
-                        <span class="text-[9px] font-label-sm text-outline uppercase block">MATCHED SQUAD</span>
-                        <h4 class="font-headline-md text-lg text-primary uppercase" id="scan-team-name">TEAM NAME</h4>
-                    </div>
-                    <div id="scan-status-badge">
-                        <span class="px-2 py-0.5 text-[10px] font-label-sm rounded-xs bg-emerald-950 text-emerald-400 border border-emerald-500/40 uppercase">VERIFIED</span>
-                    </div>
-                </div>
-
-                <div class="text-xs space-y-1 font-body-md text-on-surface-variant">
-                    <div><strong class="text-on-surface">Leader:</strong> <span id="scan-leader">--</span></div>
-                    <div><strong class="text-on-surface">Squad Members:</strong> <span id="scan-members">--</span></div>
-                    <div><strong class="text-on-surface">Txn UTR:</strong> <span class="font-orbitron text-primary" id="scan-utr">--</span></div>
-                    <div><strong class="text-on-surface">Check-In Status:</strong> <span id="scan-checkin-status">--</span></div>
-                </div>
-
-                <div class="pt-2 flex gap-2 flex-wrap">
-                    <button id="scan-checkin-btn" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-label-sm py-2.5 px-3 text-xs uppercase tracking-wider rounded-sm font-bold transition-all cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.4)] flex items-center justify-center gap-1">
-                        <span class="material-symbols-outlined text-sm">how_to_reg</span> Issue Badges &amp; Admit
-                    </button>
-                    <button id="scan-whatsapp-btn" title="WhatsApp Admit Pass to leader" class="bg-[#25D366]/20 hover:bg-[#25D366] text-[#25D366] hover:text-white border border-[#25D366]/50 font-label-sm py-2 px-3 text-xs uppercase rounded-sm transition-colors cursor-pointer flex items-center gap-1.5 font-bold">
-                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                        WA Notify
-                    </button>
-                    <button id="scan-print-badge-btn" title="Print ID lanyard badge for this team" class="bg-primary/20 hover:bg-primary text-primary hover:text-on-primary border border-primary/50 font-label-sm py-2 px-3 text-xs uppercase rounded-sm transition-colors cursor-pointer flex items-center gap-1 font-bold">
-                        <span class="material-symbols-outlined text-sm">badge</span> Print Badge
-                    </button>
-                    <button id="scan-reset-checkin-btn" class="bg-surface-container hover:bg-surface-container-high text-outline hover:text-error border border-outline-variant/50 font-label-sm py-2 px-2.5 text-xs uppercase rounded-sm transition-colors cursor-pointer">
-                        Undo
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ============ ORGANIZER TELEGRAM & WHATSAPP ALERTS SETUP MODAL ============ -->
-    <div id="wa-alerts-modal" class="fixed inset-0 z-[99999] hidden flex items-center justify-center bg-black/85 backdrop-blur-md p-4 transition-all duration-300">
-        <div class="relative w-full max-w-xl bg-surface-container-lowest border-2 border-primary/60 rounded-xs shadow-[0_0_50px_rgba(240,193,44,0.25)] flex flex-col overflow-hidden animate-fade-in-up">
-            
-            <div class="p-4 bg-surface-container border-b border-outline-variant/30 flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></span>
-                    <span class="font-orbitron text-xs sm:text-sm font-bold tracking-widest text-primary uppercase">REAL-TIME ORGANIZER ALERTS SETUP</span>
-                </div>
-                <button id="close-wa-alerts-btn" class="w-8 h-8 flex items-center justify-center text-outline hover:text-white rounded cursor-pointer" title="Close">
+                <button id="close-scanner-btn" class="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white rounded cursor-pointer">
                     <span class="material-symbols-outlined text-xl">close</span>
                 </button>
             </div>
 
-            <div class="p-5 space-y-4 text-xs font-body-md text-zinc-300 bg-[#090a0f] max-h-[75vh] overflow-y-auto">
-                
-                <!-- Telegram Bot Section (Recommended) -->
-                <div class="bg-surface-container border-2 border-[#2AABEE]/60 p-3.5 rounded space-y-3">
-                    <div class="flex items-center justify-between">
-                        <div class="font-bold text-white flex items-center gap-1.5 text-sm">
-                            <span class="text-[#2AABEE] text-base">✈️</span> Telegram Bot Alert <span class="bg-[#2AABEE]/20 text-[#2AABEE] text-[9px] px-1.5 py-0.5 rounded font-mono font-bold uppercase">100% Instant &amp; Free</span>
-                        </div>
-                    </div>
-                    <p class="text-[11px] text-zinc-400">Pings your phone the millisecond a squad registers with complete squad and payment details.</p>
+            <!-- Viewfinder Area -->
+            <div class="relative overflow-hidden rounded-xs border border-primary/50 bg-black min-h-[260px] flex items-center justify-center" id="qr-viewfinder-container">
+                <div id="qr-reader" class="w-full h-full"></div>
+            </div>
 
-                    <div class="space-y-2">
-                        <div>
-                            <label class="font-bold text-white text-[10px] uppercase tracking-wider block mb-1">Telegram Bot Token</label>
-                            <input type="text" id="tg-token-input" placeholder="e.g. 7123456789:AAHq_ABCDEF123456789" class="w-full bg-black/60 border border-outline-variant/50 rounded p-2 text-white font-mono text-xs focus:border-[#2AABEE] outline-none" />
-                        </div>
-                        <div>
-                            <label class="font-bold text-white text-[10px] uppercase tracking-wider block mb-1">Your Telegram Chat ID</label>
-                            <input type="text" id="tg-chat-id-input" placeholder="e.g. 123456789" class="w-full bg-black/60 border border-outline-variant/50 rounded p-2 text-white font-mono text-xs focus:border-[#2AABEE] outline-none" />
-                        </div>
-                    </div>
+            <!-- Scanner Controls -->
+            <div class="mt-3 flex items-center justify-between gap-2 font-mono text-xs">
+                <button id="scanner-flip-cam-btn" class="bg-surface-container hover:bg-surface-container-high border border-outline-variant/40 px-2.5 py-1 rounded text-zinc-300 flex items-center gap-1 cursor-pointer">
+                    <span class="material-symbols-outlined text-sm">flip_camera_ios</span> Switch Cam
+                </button>
+                <button id="tts-toggle-btn" class="bg-surface-container hover:bg-surface-container-high border border-outline-variant/40 px-2.5 py-1 rounded text-primary flex items-center gap-1 cursor-pointer font-bold">
+                    <span class="material-symbols-outlined text-sm">volume_up</span> <span id="tts-toggle-label">Voice ON</span>
+                </button>
+            </div>
 
-                    <div class="bg-black/80 border border-[#2AABEE]/30 p-2.5 rounded text-[10.5px] space-y-1 text-zinc-300 font-mono">
-                        <div class="font-bold text-[#2AABEE]">⚡ How to set up in 20 seconds:</div>
-                        <div>1. Open Telegram, message <strong class="text-white">@BotFather</strong>, send <code class="text-amber-300">/newbot</code> &rarr; copy the <strong class="text-white">Bot Token</strong>.</div>
-                        <div>2. Start your new bot, then message <strong class="text-white">@userinfobot</strong> &rarr; copy your <strong class="text-white">Chat ID</strong>.</div>
-                        <div>3. Paste both above, click Save &amp; Test!</div>
-                    </div>
+            <!-- Manual Lookup Input -->
+            <div class="mt-3 flex gap-2 font-mono text-xs">
+                <input type="text" id="scanner-manual-input" placeholder="Enter Squad Name or Pass ID..." class="flex-1 bg-surface-container-lowest border border-outline-variant/50 px-3 py-1.5 rounded-xs text-white outline-none focus:border-primary" />
+                <button id="scanner-manual-btn" class="bg-primary hover:bg-primary-container text-black font-bold px-3 py-1.5 rounded-xs cursor-pointer">
+                    Lookup
+                </button>
+            </div>
+
+            <!-- Scanned Result Card -->
+            <div id="scanner-result" class="hidden mt-4 p-4 bg-black border border-primary rounded-xs space-y-2.5 font-mono text-xs animate-fade-in-up">
+                <div class="flex items-center justify-between border-b border-primary/30 pb-1.5">
+                    <div class="font-orbitron text-sm font-bold text-primary" id="scan-team-name">SQUAD NAME</div>
+                    <span id="scan-event-badge" class="bg-primary/20 text-primary border border-primary/40 px-2 py-0.5 rounded text-[10px] font-bold">EVENT TRACK</span>
+                </div>
+                <div class="space-y-1 text-zinc-300">
+                    <div><strong>Leader:</strong> <span id="scan-leader">--</span></div>
+                    <div><strong>Squad Members:</strong> <span id="scan-members">--</span></div>
+                    <div><strong>Gate Status:</strong> <span id="scan-checkin-status">--</span></div>
                 </div>
 
-                <!-- WhatsApp Option -->
-                <div class="bg-surface-container border border-outline-variant/40 p-3.5 rounded space-y-2.5">
-                    <div class="font-bold text-white flex items-center gap-1.5">
-                        <span class="text-[#25D366] text-base">💬</span> WhatsApp Bot (CallMeBot)
-                    </div>
-                    <div class="font-mono text-xs text-zinc-300">Target Phone: <span class="text-[#25D366] font-bold">+91 73394 36468</span></div>
-                    <div>
-                        <label class="font-bold text-white text-[10px] uppercase tracking-wider block mb-1">CallMeBot API Key</label>
-                        <input type="text" id="callmebot-key-input" placeholder="e.g. 123456" class="w-full bg-black/60 border border-outline-variant/50 rounded p-2 text-white font-mono text-xs focus:border-[#25D366] outline-none" />
-                    </div>
-                </div>
-
-                <!-- Custom Webhook Option -->
-                <div class="bg-surface-container border border-outline-variant/40 p-3 rounded space-y-1.5">
-                    <label class="font-bold text-white uppercase text-[10px] tracking-wider block">Custom Webhook (Discord / Make / Zapier)</label>
-                    <input type="url" id="custom-webhook-input" placeholder="https://discord.com/api/webhooks/..." class="w-full bg-black/60 border border-outline-variant/50 rounded p-2 text-white font-mono text-xs focus:border-primary outline-none" />
+                <div class="pt-2 flex items-center gap-2">
+                    <button id="scan-checkin-btn" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xs flex items-center justify-center gap-1.5 cursor-pointer">
+                        <span class="material-symbols-outlined text-base">how_to_reg</span> Admit Entry &amp; Check-In
+                    </button>
+                    <button id="scan-print-badge-btn" class="bg-surface-container border border-primary/50 text-primary hover:bg-primary/10 px-3 py-2 rounded-xs flex items-center gap-1 cursor-pointer">
+                        <span class="material-symbols-outlined text-base">badge</span> Badge
+                    </button>
                 </div>
             </div>
 
-            <div class="p-4 bg-surface-container border-t border-outline-variant/30 flex flex-col sm:flex-row items-center justify-between gap-3">
-                <div class="flex items-center gap-2 w-full sm:w-auto">
-                    <button id="test-tg-alert-btn" class="flex-1 sm:flex-initial bg-[#2AABEE]/20 hover:bg-[#2AABEE] text-[#2AABEE] hover:text-white border border-[#2AABEE]/50 font-label-sm px-3 py-2 text-xs uppercase tracking-wider rounded transition-colors cursor-pointer flex items-center justify-center gap-1 font-bold">
-                        <span>✈️</span> Test Telegram
-                    </button>
-                    <button id="test-wa-alert-btn" class="flex-1 sm:flex-initial bg-[#25D366]/20 hover:bg-[#25D366] text-[#25D366] hover:text-white border border-[#25D366]/50 font-label-sm px-3 py-2 text-xs uppercase tracking-wider rounded transition-colors cursor-pointer flex items-center justify-center gap-1 font-bold">
-                        <span>💬</span> Test WA
-                    </button>
-                </div>
-                <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-                    <button id="cancel-wa-alerts-btn" class="bg-surface-container-high text-outline px-3 py-2 text-xs uppercase rounded cursor-pointer">Close</button>
-                    <button id="save-wa-alerts-btn" class="bg-primary hover:bg-primary-container text-on-primary font-bold px-4 py-2 text-xs uppercase tracking-wider rounded transition-all cursor-pointer shadow-md">Save Settings</button>
-                </div>
-            </div>
         </div>
     </div>
 
-    <!-- Logic Script -->
+    <!-- Scripts -->
     <script type="module">
         import { firebaseConfig, isFirebaseConfigured, organizerConfig } from './firebase-config.js';
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js';
         import { 
             getFirestore, 
             doc, 
-            setDoc, 
             updateDoc,
             deleteDoc,
             collection, 
-            getDocs,
             onSnapshot, 
             query
         } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
@@ -571,7 +465,7 @@
         window._SFX = SFX;
 
         /* =========================================================
-           AUTHENTICATION GATE LOGIC
+           AUTH GATE
            ========================================================= */
         const MASTER_PIN = "ENIYAN$DARKIE@6468";
         const authModal = document.getElementById('auth-gate-modal');
@@ -581,52 +475,30 @@
         const terminalContent = document.getElementById('terminal-content');
         const lockBtn = document.getElementById('lock-terminal-btn');
 
-        let failedAttempts = 0;
-        let lockoutUntil = 0;
-
-        function checkAuthSession() {
-            const isAuth = sessionStorage.getItem('vision_admin_auth') === 'true';
-            if (isAuth) {
+        function checkAuth() {
+            if (sessionStorage.getItem('vision_admin_auth') === 'true') {
                 authModal.classList.add('hidden');
                 terminalContent.classList.remove('hidden');
-                SFX.attachClickSounds();
             } else {
                 authModal.classList.remove('hidden');
                 terminalContent.classList.add('hidden');
             }
         }
-        checkAuthSession();
+        checkAuth();
 
         if (authForm) {
             authForm.addEventListener('submit', (e) => {
                 e.preventDefault();
-                const now = Date.now();
-                if (now < lockoutUntil) {
-                    const secsLeft = Math.ceil((lockoutUntil - now) / 1000);
-                    authErrorMsg.textContent = `// TOO MANY ATTEMPTS: LOCKOUT (${secsLeft}s)`;
-                    authErrorMsg.classList.remove('hidden');
-                    SFX.error();
-                    return;
-                }
-
                 if (adminPasscode.value.trim() === MASTER_PIN) {
                     sessionStorage.setItem('vision_admin_auth', 'true');
-                    failedAttempts = 0;
                     authModal.classList.add('hidden');
                     terminalContent.classList.remove('hidden');
                     SFX.success();
-                    SFX.attachClickSounds();
                 } else {
-                    failedAttempts++;
-                    SFX.error();
-                    if (failedAttempts >= 3) {
-                        lockoutUntil = Date.now() + 60000;
-                        authErrorMsg.textContent = `// 3 FAILED ATTEMPTS: LOCKED FOR 60s`;
-                    } else {
-                        authErrorMsg.textContent = `// ACCESS DENIED: INVALID PASSCODE (${3 - failedAttempts} tries left)`;
-                    }
+                    authErrorMsg.textContent = '// ACCESS DENIED: INVALID PASSCODE';
                     authErrorMsg.classList.remove('hidden');
                     adminPasscode.value = '';
+                    SFX.error();
                 }
             });
         }
@@ -639,582 +511,133 @@
         }
 
         /* =========================================================
-           TERMINAL DATABASE & UI LOGIC
+           FIRESTORE DATABASE & METRICS
            ========================================================= */
-        const adminSeats = document.getElementById('admin-seats');
-        const adminSeatsSub = document.getElementById('admin-seats-sub');
-        const adminTotal = document.getElementById('admin-total');
-        const statusBreakdown = document.getElementById('status-breakdown');
-        const adminRevenue = document.getElementById('admin-revenue');
-        const adminPendingRevenue = document.getElementById('admin-pending-revenue');
-        const adminCheckedIn = document.getElementById('admin-checked-in');
-        const adminCheckedInSub = document.getElementById('admin-checked-in-sub');
-
-        const tableBody = document.getElementById('teams-table-body');
-        const initBtn = document.getElementById('init-capacity-btn');
-        const purgeBtn = document.getElementById('purge-data-btn');
-        const exportBtn = document.getElementById('export-csv-btn');
-        const exportExcelBtn = document.getElementById('export-excel-btn');
-        const syncIndicator = document.getElementById('sync-indicator');
-        const searchInput = document.getElementById('search-input');
-        const statusFilter = document.getElementById('status-filter');
-
-        const receiptModal = document.getElementById('receipt-modal');
-        const receiptModalImg = document.getElementById('receipt-modal-img');
-        const closeReceiptBtn = document.getElementById('close-receipt-btn');
-        const receiptDownloadBtn = document.getElementById('receipt-download-btn');
-
-        // Bulk Selection Elements
-        const selectAllCheckbox = document.getElementById('select-all-checkbox');
-        const bulkToolbar = document.getElementById('bulk-toolbar');
-        const bulkCount = document.getElementById('bulk-count');
-        const bulkVerifyBtn = document.getElementById('bulk-verify-btn');
-        const bulkFlagBtn = document.getElementById('bulk-flag-btn');
-        const bulkDeleteBtn = document.getElementById('bulk-delete-btn');
-        const bulkCancelBtn = document.getElementById('bulk-cancel-btn');
-        let selectedTeamIds = new Set();
-
-        // QR Scanner Elements & Advanced Controls
-        const openScannerBtn = document.getElementById('open-scanner-btn');
-        const scannerModal = document.getElementById('scanner-modal');
-        const closeScannerBtn = document.getElementById('close-scanner-btn');
-        const scannerStatus = document.getElementById('scanner-status');
-        const scannerStatusText = document.getElementById('scanner-status-text');
-        const scannerCameraSelect = document.getElementById('scanner-camera-select');
-        const scannerFlipCamBtn = document.getElementById('scanner-flip-cam-btn');
-        const scannerTorchBtn = document.getElementById('scanner-torch-btn');
-        const scannerTorchLabel = document.getElementById('scanner-torch-label');
-        const scannerZoomWrap = document.getElementById('scanner-zoom-wrap');
-        const scannerFileInput = document.getElementById('scanner-file-input');
-        const qrViewfinderContainer = document.getElementById('qr-viewfinder-container');
-        const scannerManualInput = document.getElementById('scanner-manual-input');
-        const scannerManualBtn = document.getElementById('scanner-manual-btn');
-        const scannerResult = document.getElementById('scanner-result');
-        const scanTeamName = document.getElementById('scan-team-name');
-        const scanStatusBadge = document.getElementById('scan-status-badge');
-        const scanLeader = document.getElementById('scan-leader');
-        const scanMembers = document.getElementById('scan-members');
-        const scanUtr = document.getElementById('scan-utr');
-        const scanCheckinStatus = document.getElementById('scan-checkin-status');
-        const scanCheckinBtn = document.getElementById('scan-checkin-btn');
-        const scanResetCheckinBtn = document.getElementById('scan-reset-checkin-btn');
-
-        let html5QrScanner = null;
-        let isScannerRunning = false;
-        let availableCameras = [];
-        let currentCameraIndex = 0;
-        let isTorchOn = false;
-        let currentZoomLevel = 1.0;
-        let scanCooldown = false;
-        let activeScannedTeam = null;
-        let registeredTeams = [];
         let db = null;
+        let registeredTeams = [];
 
-        if (closeReceiptBtn) {
-            closeReceiptBtn.addEventListener('click', () => {
-                receiptModal.classList.add('hidden');
-            });
-        }
+        const adminTotal = document.getElementById('admin-total');
+        const adminCheckedIn = document.getElementById('admin-checked-in');
+        const attendancePct = document.getElementById('attendance-pct');
+        const attendanceBar = document.getElementById('attendance-bar');
+        const adminCheckedInSub = document.getElementById('admin-checked-in-sub');
+        const tableBody = document.getElementById('teams-table-body');
+        const searchInput = document.getElementById('search-input');
+        const eventFilter = document.getElementById('event-filter');
+        const statusFilter = document.getElementById('status-filter');
+        const exportExcelBtn = document.getElementById('export-excel-btn');
+        const exportCsvBtn = document.getElementById('export-csv-btn');
 
-        window.openReceipt = function(b64) {
-            receiptModalImg.src = b64;
-            receiptDownloadBtn.onclick = () => {
-                const win = window.open();
-                win.document.write(`<img src="${b64}" style="max-width:100%;height:auto;"/>`);
-            };
-            receiptModal.classList.remove('hidden');
-            SFX.click();
-        };
+        // Event Chips for all 5 events
+        const chipPaper   = document.getElementById('chip-paper');
+        const chipProject = document.getElementById('chip-project');
+        const chipAi      = document.getElementById('chip-ai');
+        const chipBid     = document.getElementById('chip-bid');
+        const chipRobot   = document.getElementById('chip-robot');
 
-        window.updateTeamStatus = async function(docId, newStatus) {
-            if (!db) return;
-            try {
-                await updateDoc(doc(db, 'registrations', docId), {
-                    status: newStatus
-                });
-                SFX.success();
-            } catch (err) {
-                alert('Status update failed: ' + err.message);
-                SFX.error();
-            }
-        };
+        // Event ID map — mirrors register.html
+        const EVENTS = [
+            { id: 'paper-presentation',   label: 'Paper Presentation',   short: 'Paper'   },
+            { id: 'project-presentation', label: 'Project Presentation', short: 'Project' },
+            { id: 'ai-sprint',            label: 'AI Sprint',            short: 'AI'      },
+            { id: 'electrobid',           label: 'ElectroBid',           short: 'Bid'     },
+            { id: 'line-following-robot', label: 'Line Following Robot', short: 'Robot'   }
+        ];
 
-        window.toggleCheckIn = async function(docId, currentCheckedIn) {
-            if (!db) return;
-            try {
-                const nextState = !currentCheckedIn;
-                await updateDoc(doc(db, 'registrations', docId), {
-                    checked_in: nextState,
-                    check_in_timestamp: nextState ? new Date().toISOString() : null
-                });
-                SFX.success();
-            } catch (err) {
-                alert('Check-in status update failed: ' + err.message);
-                SFX.error();
-            }
-        };
-
-        window.resendPassEmail = function(teamName, leaderEmail, leaderName, txnId, m2Email, m3Email, m4Email, status = 'verified') {
-            SFX.click();
-            const ccList = [m2Email, m3Email, m4Email].filter(Boolean).join(',');
-            
-            let subject = '';
-            let body = '';
-
-            if (status === 'flagged') {
-                subject = encodeURIComponent(`[NOT VERIFIED - ACTION REQUIRED] Vision 2026 Hackathon Registration - Team ${teamName}`);
-                body = encodeURIComponent(
-`Greetings Team ${teamName} (Leader: ${leaderName}),
-
-This is an official notice regarding your registration for the Vision 2026 Hackathon at Kongu Engineering College.
-
-Your registration status is currently: NOT VERIFIED (FLAGGED).
-
-=== REGISTRATION STATUS SUMMARY ===
-Team Name: ${teamName}
-Leader Name: ${leaderName}
-Submitted UTR / Txn ID: ${txnId || 'N/A'}
-Status: NOT VERIFIED // FLAGGED
-
-=== REASON FOR FLAG ===
-Your payment transaction ID (UTR) or payment screenshot could not be verified against our official bank statement. This may occur due to an incorrect 12-digit reference number, incomplete transaction, or missing payment proof.
-
-=== IMMEDIATE ACTION REQUIRED ===
-To validate your slot and obtain your official Verified Admit Pass:
-1. Reply directly to this email with an official payment confirmation screenshot clearly displaying the 12-digit bank UTR/Reference ID, payment date, and transaction timestamp.
-2. Confirm your squad member details in your reply.
-3. If your previous transaction was reversed or failed, please complete the registration fee payment and reply with the new transaction UTR immediately.
-
-⚠️ IMPORTANT: Unverified and flagged registrations will be released if not resolved.
-
-Vision 2026 Hackathon Organizing Committee
-Department of ECE & IEEE AP-S Student Chapter
-Kongu Engineering College, Perundurai
-Support / Verification Desk: terminal@vision.hack`
-                );
-            } else if (status === 'pending_verification') {
-                subject = encodeURIComponent(`[PENDING VERIFICATION] Vision 2026 Hackathon Registration - Team ${teamName}`);
-                body = encodeURIComponent(
-`Greetings Team ${teamName} (Leader: ${leaderName}),
-
-Thank you for registering for the Vision 2026 Hackathon at Kongu Engineering College.
-
-=== REGISTRATION SUMMARY ===
-Team Name: ${teamName}
-Leader Name: ${leaderName}
-Submitted UTR / Txn ID: ${txnId || 'Pending'}
-Status: PENDING VERIFICATION
-
-Our finance verification team is currently validating your payment reference. Once confirmed, you will receive your official Verified Admit Pass.
-
-=== EVENT DETAILS ===
-Dates: September 20-21, 2026
-Venue: Main Auditorium, Kongu Engineering College
-Reporting Time: 08:30 AM IST
-
-Organizing Committee // Vision 2026
-terminal@vision.hack`
-                );
-            } else {
-                subject = encodeURIComponent(`[VERIFIED] Vision 2026 Hackathon Official Admit Pass - Team ${teamName}`);
-                body = encodeURIComponent(
-`Greetings Team ${teamName} (Leader: ${leaderName}),
-
-Your registration status has been verified by the Vision Hackathon Organizing Committee!
-
-=== ADMIT PASS SUMMARY ===
-Team: ${teamName}
-UTR / Txn ID: ${txnId}
-Status: VERIFIED & CONFIRMED
-
-=== EVENT DETAILS ===
-Dates: September 20-21, 2026
-Venue: Main Auditorium, Kongu Engineering College
-Reporting Time: 08:30 AM IST
-
-Please present this confirmation email at the campus check-in desk.
-
-Organizing Committee // Vision 2026
-terminal@vision.hack`
-                );
-            }
-
-            window.location.href = `mailto:${leaderEmail}?cc=${ccList}&subject=${subject}&body=${body}`;
-        };
-
-        /* =========================================================
-           WHATSAPP QUICK-NOTIFIER (One-Click Direct Dispatch)
-           ========================================================= */
-        window.sendWhatsAppPass = function(teamName, leaderMobile, leaderName, txnId, status = 'verified') {
-            SFX.click();
-            let cleanPhone = (leaderMobile || '').replace(/\D/g, '');
-            if (!cleanPhone) {
-                alert('No valid mobile number recorded for squad leader.');
-                return;
-            }
-            if (cleanPhone.length === 10) {
-                cleanPhone = '91' + cleanPhone;
-            } else if (cleanPhone.length === 11 && cleanPhone.startsWith('0')) {
-                cleanPhone = '91' + cleanPhone.slice(1);
-            }
-
-            let msg = '';
-            if (status === 'flagged') {
-                msg = 
-`⚠️ *VISION 2026 HACKATHON — ACTION REQUIRED (NOT VERIFIED)*
-
-Greetings Team *${teamName}* (Leader: ${leaderName}),
-
-Your registration status for Vision 2026 is currently *NOT VERIFIED & FLAGGED* by our verification desk.
-
-*Registration Summary:*
-• Team: *${teamName}*
-• Submitted UTR: *${txnId || 'N/A'}*
-• Status: ❌ *NOT VERIFIED / FLAGGED*
-
-*Reason:*
-Your payment transaction ID or receipt could not be verified with bank records.
-
-*Action Required:*
-Please reply to this WhatsApp message with a clear screenshot of your payment receipt showing the 12-digit UTR reference ID to validate your slot before registration closes.
-
-— *Organizing Committee // Vision 2026*
-Kongu Engineering College, Perundurai`;
-            } else if (status === 'pending_verification') {
-                msg = 
-`⏳ *VISION 2026 HACKATHON — REGISTRATION ACKNOWLEDGEMENT*
-
-Greetings Team *${teamName}* (Leader: ${leaderName}),
-
-We have received your registration for Vision 2026 (24-Hour Hackathon).
-
-• Team: *${teamName}*
-• Submitted UTR: *${txnId || 'Pending'}*
-• Status: 🟡 *PENDING VERIFICATION*
-
-Our finance team is currently validating your payment reference. You will receive your official Verified Admit Pass shortly.
-
-— *Organizing Committee // Vision 2026*
-Kongu Engineering College`;
-            } else {
-                msg = 
-`⚡ *VISION 2026 HACKATHON — OFFICIAL ADMIT PASS CONFIRMED*
-
-Greetings Team *${teamName}* (Leader: ${leaderName})!
-
-Your registration has been *VERIFIED & CONFIRMED* by the Vision Hackathon Organizing Committee!
-
-*=== ADMIT PASS SUMMARY ===*
-• Team Name: *${teamName}*
-• UTR / Txn ID: *${txnId || 'VERIFIED'}*
-• Status: ✅ *VERIFIED & CONFIRMED*
-
-*=== EVENT DETAILS ===*
-• Dates: *September 20–21, 2026*
-• Venue: *Dept of ECE / Main Auditorium, Kongu Engineering College*
-• Reporting Time: *08:30 AM IST (24-Hour Sprint)*
-
-Please present your digital admit pass or this WhatsApp confirmation at the campus check-in desk on arrival.
-
-— *Organizing Committee // Vision 2026*
-Kongu Engineering College`;
-            }
-
-            const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
-            window.open(waUrl, '_blank', 'noopener,noreferrer');
-        };
-
-        window.deleteSingleTeam = async function(docId, teamName) {
-            if (!confirm(`Delete registration for "${teamName}"? This will free up 1 slot.`)) return;
-            try {
-                await deleteDoc(doc(db, 'registrations', docId));
-                const newCount = Math.max(0, registeredTeams.length - 1);
-                await setDoc(doc(db, 'metadata', 'capacity'), {
-                    max_teams: 35,
-                    registered_count: newCount,
-                    seats_remaining: Math.max(0, 35 - newCount)
-                }, { merge: true });
-                SFX.click();
-            } catch (err) {
-                alert('Failed to delete team: ' + err.message);
-                SFX.error();
-            }
-        };
+        // Per-event team buckets (keyed by event id)
+        const teamsByEvent = {};
+        EVENTS.forEach(ev => { teamsByEvent[ev.id] = []; });
 
         if (isFirebaseConfigured()) {
             try {
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
 
-                // Listen to capacity
-                onSnapshot(doc(db, 'metadata', 'capacity'), (docSnap) => {
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        const rem = typeof data.seats_remaining === 'number' ? data.seats_remaining : 35;
-                        const reg = typeof data.registered_count === 'number' ? data.registered_count : 0;
-                        const max = typeof data.max_teams === 'number' ? data.max_teams : 35;
-                        adminSeats.textContent = `${rem} / ${max}`;
-                        adminSeatsSub.textContent = `${reg} teams registered (${rem} slots left)`;
-                    } else {
-                        adminSeats.textContent = 'UNINITIALIZED';
-                        adminSeatsSub.textContent = 'Click "Sync Capacity" button above.';
-                    }
-                });
+                // Attach one real-time listener PER EVENT subcollection
+                EVENTS.forEach(ev => {
+                    const colRef = collection(db, 'events', ev.id, 'registrations');
+                    onSnapshot(query(colRef), (snapshot) => {
+                        // Rebuild this event's bucket
+                        teamsByEvent[ev.id] = [];
+                        snapshot.forEach(d => {
+                            teamsByEvent[ev.id].push({ id: d.id, _colId: ev.id, ...d.data() });
+                        });
 
-                // Listen to registrations & update financial metrics
-                const regQuery = query(collection(db, 'registrations'));
-                onSnapshot(regQuery, (snapshot) => {
-                    registeredTeams = [];
-                    snapshot.forEach(docSnap => {
-                        registeredTeams.push({ id: docSnap.id, ...docSnap.data() });
+                        // Merge all buckets → registeredTeams (sorted by createdAt desc)
+                        registeredTeams = [];
+                        EVENTS.forEach(e => {
+                            registeredTeams = registeredTeams.concat(teamsByEvent[e.id]);
+                        });
+                        registeredTeams.sort((a, b) => {
+                            const ta = a.createdAt?.seconds || 0;
+                            const tb = b.createdAt?.seconds || 0;
+                            return tb - ta;
+                        });
+
+                        updateMetrics();
+                        applyFilterAndRender();
                     });
-
-                    adminTotal.textContent = registeredTeams.length;
-                    
-                    const verifiedCount = registeredTeams.filter(t => t.status === 'verified').length;
-                    const pendingCount = registeredTeams.filter(t => t.status !== 'verified' && t.status !== 'flagged').length;
-                    const checkedInCount = registeredTeams.filter(t => t.checked_in === true).length;
-
-                    // Update card-2 badge chips
-                    const badgeVerified = document.getElementById('badge-verified-count');
-                    const badgePending = document.getElementById('badge-pending-count');
-                    const badgeFlagged = document.getElementById('badge-flagged-count');
-                    const flaggedCount = registeredTeams.filter(t => t.status === 'flagged').length;
-                    if (badgeVerified) badgeVerified.textContent = `${verifiedCount} Verified`;
-                    if (badgePending) badgePending.textContent = `${pendingCount} Pending`;
-                    if (badgeFlagged) badgeFlagged.textContent = `${flaggedCount} Flagged`;
-
-                    // Card-1 capacity progress bar
-                    const capacityBar = document.getElementById('capacity-bar');
-                    if (capacityBar) {
-                        const pctFull = Math.min(100, Math.round((registeredTeams.length / 35) * 100));
-                        capacityBar.style.width = pctFull + '%';
-                        capacityBar.style.background = pctFull >= 90 ? '#ef4444' : pctFull >= 70 ? '#f59e0b' : '#f0c12c';
-                    }
-
-                    // Financial metrics (₹1600 per 4-person squad)
-                    if (adminRevenue) {
-                        adminRevenue.textContent = `₹${(verifiedCount * 1600).toLocaleString('en-IN')}`;
-                    }
-                    if (adminPendingRevenue) {
-                        adminPendingRevenue.textContent = `Pending Pipeline: ₹${(pendingCount * 1600).toLocaleString('en-IN')} (${pendingCount} squads)`;
-                    }
-
-                    // Card-4 attendance bar & live gauge
-                    if (adminCheckedIn) {
-                        adminCheckedIn.textContent = `${checkedInCount} / ${verifiedCount || registeredTeams.length}`;
-                    }
-                    if (adminCheckedInSub) {
-                        adminCheckedInSub.textContent = `${checkedInCount} Verified squad${checkedInCount !== 1 ? 's' : ''} admitted at gate`;
-                    }
-                    const pct = verifiedCount > 0 ? Math.round((checkedInCount / verifiedCount) * 100) : 0;
-                    const attendancePct = document.getElementById('attendance-pct');
-                    const attendanceBar = document.getElementById('attendance-bar');
-                    if (attendancePct) attendancePct.textContent = pct + '%';
-                    if (attendanceBar) attendanceBar.style.width = pct + '%';
-
-                    applyFilterAndRender();
-                });
-
-                // Sync capacity button handler
-                initBtn.addEventListener('click', async () => {
-                    const count = registeredTeams.length;
-                    const rem = Math.max(0, 35 - count);
-                    if (confirm(`Sync capacity with current database count (${count} registered, ${rem} slots remaining)?`)) {
-                        initBtn.disabled = true;
-                        initBtn.textContent = 'SYNCING...';
-                        try {
-                            await setDoc(doc(db, 'metadata', 'capacity'), {
-                                max_teams: 35,
-                                registered_count: count,
-                                seats_remaining: rem
-                            });
-                            SFX.success();
-                        } catch (err) {
-                            alert('Failed to update: ' + err.message);
-                            SFX.error();
-                        } finally {
-                            initBtn.disabled = false;
-                            initBtn.textContent = 'Sync Capacity';
-                        }
-                    }
-                });
-
-                // Purge all test data button handler
-                purgeBtn.addEventListener('click', async () => {
-                    const pwd = prompt('DANGER: This will permanently delete ALL registration records and reset capacity to 35.\n\nType "PURGE" to confirm:');
-                    if (pwd === 'PURGE') {
-                        purgeBtn.disabled = true;
-                        purgeBtn.textContent = 'PURGING...';
-                        try {
-                            const snapshot = await getDocs(collection(db, 'registrations'));
-                            const deletePromises = [];
-                            snapshot.forEach(d => {
-                                deletePromises.push(deleteDoc(doc(db, 'registrations', d.id)));
-                            });
-                            await Promise.all(deletePromises);
-
-                            await setDoc(doc(db, 'metadata', 'capacity'), {
-                                max_teams: 35,
-                                registered_count: 0,
-                                seats_remaining: 35
-                            });
-                            SFX.success();
-                            alert('All registrations purged and capacity reset to 35!');
-                        } catch (err) {
-                            alert('Purge failed: ' + err.message);
-                            SFX.error();
-                        } finally {
-                            purgeBtn.disabled = false;
-                            purgeBtn.innerHTML = '<span class="material-symbols-outlined text-sm">delete_forever</span> Purge';
-                        }
-                    }
                 });
 
             } catch (err) {
-                console.error('Firebase Admin Error:', err);
+                console.error('Firebase error:', err);
             }
         }
 
-        /* ---------- Bulk Selection Logic ---------- */
-        function updateBulkToolbar() {
-            if (!bulkToolbar || !bulkCount) return;
-            const count = selectedTeamIds.size;
-            if (count > 0) {
-                bulkCount.textContent = `${count} Team${count > 1 ? 's' : ''} Selected`;
-                bulkToolbar.classList.remove('hidden');
-            } else {
-                bulkToolbar.classList.add('hidden');
-            }
-            if (selectAllCheckbox) {
-                const visibleCheckboxes = document.querySelectorAll('.team-select-checkbox');
-                selectAllCheckbox.checked = visibleCheckboxes.length > 0 && Array.from(visibleCheckboxes).every(cb => cb.checked);
-            }
-        }
+        function updateMetrics() {
+            const total = registeredTeams.length;
+            if (adminTotal) adminTotal.textContent = total;
 
-        if (selectAllCheckbox) {
-            selectAllCheckbox.addEventListener('change', () => {
-                const checked = selectAllCheckbox.checked;
-                document.querySelectorAll('.team-select-checkbox').forEach(cb => {
-                    cb.checked = checked;
-                    const docId = cb.dataset.id;
-                    if (checked) selectedTeamIds.add(docId);
-                    else selectedTeamIds.delete(docId);
-                });
-                updateBulkToolbar();
-            });
-        }
+            const checkedIn = registeredTeams.filter(t => t.checked_in === true).length;
+            if (adminCheckedIn) adminCheckedIn.textContent = `${checkedIn} / ${total}`;
+            const pct = total > 0 ? Math.round((checkedIn / total) * 100) : 0;
+            if (attendancePct) attendancePct.textContent = `${pct}%`;
+            if (attendanceBar) attendanceBar.style.width = `${pct}%`;
+            if (adminCheckedInSub) adminCheckedInSub.textContent = `${checkedIn} admitted squad${checkedIn !== 1 ? 's' : ''}`;
 
-        if (bulkCancelBtn) {
-            bulkCancelBtn.addEventListener('click', () => {
-                selectedTeamIds.clear();
-                document.querySelectorAll('.team-select-checkbox').forEach(cb => cb.checked = false);
-                if (selectAllCheckbox) selectAllCheckbox.checked = false;
-                updateBulkToolbar();
-            });
-        }
-
-        if (bulkVerifyBtn) {
-            bulkVerifyBtn.addEventListener('click', async () => {
-                if (!db || selectedTeamIds.size === 0) return;
-                if (!confirm(`Mark ${selectedTeamIds.size} teams as VERIFIED?`)) return;
-                try {
-                    const updates = Array.from(selectedTeamIds).map(id => updateDoc(doc(db, 'registrations', id), { status: 'verified' }));
-                    await Promise.all(updates);
-                    selectedTeamIds.clear();
-                    updateBulkToolbar();
-                    SFX.success();
-                } catch (err) {
-                    alert('Bulk verify error: ' + err.message);
-                    SFX.error();
-                }
-            });
-        }
-
-        if (bulkFlagBtn) {
-            bulkFlagBtn.addEventListener('click', async () => {
-                if (!db || selectedTeamIds.size === 0) return;
-                if (!confirm(`Mark ${selectedTeamIds.size} teams as FLAGGED?`)) return;
-                try {
-                    const updates = Array.from(selectedTeamIds).map(id => updateDoc(doc(db, 'registrations', id), { status: 'flagged' }));
-                    await Promise.all(updates);
-                    selectedTeamIds.clear();
-                    updateBulkToolbar();
-                    SFX.success();
-                } catch (err) {
-                    alert('Bulk flag error: ' + err.message);
-                    SFX.error();
-                }
-            });
-        }
-
-        if (bulkDeleteBtn) {
-            bulkDeleteBtn.addEventListener('click', async () => {
-                if (!db || selectedTeamIds.size === 0) return;
-                const count = selectedTeamIds.size;
-                if (!confirm(`DANGER: Permanently delete ${count} selected team(s)?`)) return;
-                try {
-                    const deletes = Array.from(selectedTeamIds).map(id => deleteDoc(doc(db, 'registrations', id)));
-                    await Promise.all(deletes);
-                    const newCount = Math.max(0, registeredTeams.length - count);
-                    await setDoc(doc(db, 'metadata', 'capacity'), {
-                        max_teams: 35,
-                        registered_count: newCount,
-                        seats_remaining: Math.max(0, 35 - newCount)
-                    }, { merge: true });
-                    selectedTeamIds.clear();
-                    updateBulkToolbar();
-                    SFX.success();
-                } catch (err) {
-                    alert('Bulk delete error: ' + err.message);
-                    SFX.error();
-                }
-            });
+            // Count per event (from per-event buckets)
+            if (chipPaper)   chipPaper.textContent   = `Paper: ${teamsByEvent['paper-presentation'].length}`;
+            if (chipProject) chipProject.textContent = `Project: ${teamsByEvent['project-presentation'].length}`;
+            if (chipAi)      chipAi.textContent      = `AI Sprint: ${teamsByEvent['ai-sprint'].length}`;
+            if (chipBid)     chipBid.textContent     = `ElectroBid: ${teamsByEvent['electrobid'].length}`;
+            if (chipRobot)   chipRobot.textContent   = `Robot: ${teamsByEvent['line-following-robot'].length}`;
         }
 
         /* ---------- Filtering & Table Rendering ---------- */
         function applyFilterAndRender() {
-            const queryText = (searchInput.value || '').trim().toLowerCase();
-            const filterVal = statusFilter.value;
+            const q = (searchInput.value || '').trim().toLowerCase();
+            const ev = eventFilter.value;
+            const st = statusFilter.value;
 
             const filtered = registeredTeams.filter(t => {
-                const matchesFilter = filterVal === 'all' || 
-                    (filterVal === 'verified' && t.status === 'verified') ||
-                    (filterVal === 'pending_verification' && (t.status === 'pending_verification' || !t.status || t.status === 'pending')) ||
-                    (filterVal === 'flagged' && t.status === 'flagged') ||
-                    (filterVal === 'checked_in' && t.checked_in === true);
+                // Event filter
+                if (ev !== 'all' && t.event_name !== ev) return false;
 
-                if (!matchesFilter) return false;
+                // Status filter
+                if (st === 'checked_in' && t.checked_in !== true) return false;
+                if (st === 'pending_checkin' && t.checked_in === true) return false;
 
-                if (!queryText) return true;
-                const name = (t.team_name || '').toLowerCase();
-                const txn = (t.txn_id || '').toLowerCase();
-                const m1 = t.members && t.members[0] ? (t.members[0].name + ' ' + t.members[0].email).toLowerCase() : '';
-                return name.includes(queryText) || txn.includes(queryText) || m1.includes(queryText);
+                // Text search
+                if (!q) return true;
+                const team = (t.team_name || '').toLowerCase();
+                const eventName = (t.event_name || '').toLowerCase();
+                const m1 = t.members && t.members[0] ? (t.members[0].name + ' ' + t.members[0].email + ' ' + t.members[0].mobile).toLowerCase() : '';
+                return team.includes(q) || eventName.includes(q) || m1.includes(q);
             });
 
             renderTable(filtered);
         }
 
         if (searchInput) searchInput.addEventListener('input', applyFilterAndRender);
+        if (eventFilter) eventFilter.addEventListener('change', applyFilterAndRender);
         if (statusFilter) statusFilter.addEventListener('change', applyFilterAndRender);
 
-        /* ---------- Card Chip Quick-Filter Helper ---------- */
-        window.setFilter = function(val) {
-            if (statusFilter) {
-                statusFilter.value = val;
-                applyFilterAndRender();
-                // Scroll to table
-                const tbl = document.getElementById('registrations-table');
-                if (tbl) tbl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        };
-
         function renderTable(teams) {
+            if (!tableBody) return;
             if (teams.length === 0) {
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="10" class="py-8 text-center text-outline-variant font-label-sm tracking-widest">
+                        <td colspan="10" class="py-8 text-center text-zinc-500 tracking-widest font-mono text-xs">
                             NO MATCHING REGISTRATIONS FOUND.
                         </td>
                     </tr>
@@ -1222,101 +645,53 @@ Kongu Engineering College`;
                 return;
             }
 
-            tableBody.textContent = '';
+            tableBody.innerHTML = '';
             teams.forEach((t, idx) => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-surface-container-high/50 transition-colors';
 
-                const m1 = t.members && t.members[0] ? `${t.members[0].name} (${t.members[0].email} / ${t.members[0].mobile})` : '--';
-                const m2 = t.members && t.members[1] ? `${t.members[1].name} (${t.members[1].email} / ${t.members[1].mobile})` : '--';
-                const m3 = t.members && t.members[2] ? `${t.members[2].name} (${t.members[2].email} / ${t.members[2].mobile})` : '--';
-                const m4 = t.members && t.members[3] ? `${t.members[3].name} (${t.members[3].email} / ${t.members[3].mobile})` : '--';
+                const m1 = t.members && t.members[0] ? `${t.members[0].name} (${t.members[0].mobile})` : '--';
+                const m2 = t.members && t.members[1] ? `${t.members[1].name} (${t.members[1].mobile})` : '--';
+                const m3 = t.members && t.members[2] ? `${t.members[2].name} (${t.members[2].mobile})` : '--';
 
-                const leaderEmail = t.members && t.members[0] ? t.members[0].email : '';
-                const leaderName = t.members && t.members[0] ? t.members[0].name : '';
-                const m2Email = t.members && t.members[1] ? t.members[1].email : '';
-                const m3Email = t.members && t.members[2] ? t.members[2].email : '';
-                const m4Email = t.members && t.members[3] ? t.members[3].email : '';
-
-                const currentStatus = t.status || 'pending_verification';
                 const isCheckedIn = t.checked_in === true;
-
-                let statusBadge = '';
-                if (currentStatus === 'verified') {
-                    statusBadge = `<span class="inline-block px-2 py-0.5 text-[10px] uppercase font-label-sm rounded-xs bg-emerald-950 text-emerald-400 border border-emerald-500/40">Verified</span>`;
-                } else if (currentStatus === 'flagged') {
-                    statusBadge = `<span class="inline-block px-2 py-0.5 text-[10px] uppercase font-label-sm rounded-xs bg-error/20 text-error border border-error/40">Flagged</span>`;
-                } else {
-                    statusBadge = `<span class="inline-block px-2 py-0.5 text-[10px] uppercase font-label-sm rounded-xs bg-primary/10 text-primary border border-primary/30">Pending</span>`;
-                }
-
-                const checkinBadge = isCheckedIn 
-                    ? `<button onclick="toggleCheckIn('${t.id}', true)" class="mt-1 flex items-center gap-1 text-[10px] font-label-sm px-1.5 py-0.5 rounded-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 hover:bg-emerald-500/30" title="Click to undo check-in"><span class="material-symbols-outlined text-[12px]">check_circle</span> Checked-In</button>`
-                    : `<button onclick="toggleCheckIn('${t.id}', false)" class="mt-1 flex items-center gap-1 text-[10px] font-label-sm px-1.5 py-0.5 rounded-xs bg-surface-container text-outline border border-outline-variant/40 hover:border-primary hover:text-primary" title="Click to check-in"><span class="material-symbols-outlined text-[12px]">how_to_reg</span> Admit Entry</button>`;
-
-                const screenshotBtn = t.screenshot ? `
-                    <button onclick="openReceipt('${t.screenshot}')" class="mt-1 flex items-center gap-1 text-[10px] text-primary hover:underline cursor-pointer">
-                        <span class="material-symbols-outlined text-[12px]">image</span> View Proof
-                    </button>
-                ` : '';
-
-                const isSelected = selectedTeamIds.has(t.id);
+                const checkinBadge = isCheckedIn
+                    ? `<button onclick="toggleCheckIn('${t.id}', true)" class="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 hover:bg-emerald-500/30 cursor-pointer"><span class="material-symbols-outlined text-[12px]">check_circle</span> Checked-In</button>`
+                    : `<button onclick="toggleCheckIn('${t.id}', false)" class="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded bg-surface-container text-zinc-400 border border-outline-variant/40 hover:border-primary hover:text-primary cursor-pointer"><span class="material-symbols-outlined text-[12px]">how_to_reg</span> Admit Entry</button>`;
 
                 tr.innerHTML = `
                     <td class="py-3 px-3 text-center">
-                        <input type="checkbox" data-id="${t.id}" class="team-select-checkbox accent-primary cursor-pointer w-3.5 h-3.5" ${isSelected ? 'checked' : ''} />
+                        <input type="checkbox" data-id="${t.id}" class="team-select-checkbox accent-primary cursor-pointer" />
                     </td>
-                    <td class="py-3 px-3 font-label-sm text-outline">${idx + 1}</td>
+                    <td class="py-3 px-3 text-zinc-500">${idx + 1}</td>
                     <td class="py-3 px-4 font-bold text-primary">${escapeHtml(t.team_name || 'N/A')}</td>
-                    <td class="py-3 px-4">${escapeHtml(m1)}</td>
-                    <td class="py-3 px-4">${escapeHtml(m2)}</td>
-                    <td class="py-3 px-4">${escapeHtml(m3)}</td>
-                    <td class="py-3 px-4">${escapeHtml(m4)}</td>
-                    <td class="py-3 px-4 font-label-sm uppercase text-outline-variant">
-                        <div>${escapeHtml(t.txn_id || 'N/A')}</div>
-                        ${screenshotBtn}
-                    </td>
                     <td class="py-3 px-4">
-                        <div class="space-y-1">
-                            <div class="flex items-center gap-2">
-                                ${statusBadge}
-                                <select onchange="updateTeamStatus('${t.id}', this.value)" class="bg-surface-container border border-outline-variant/40 text-[10px] py-1 px-1.5 rounded-xs text-on-surface outline-none cursor-pointer">
-                                    <option value="pending_verification" ${currentStatus === 'pending_verification' ? 'selected' : ''}>Pending</option>
-                                    <option value="verified" ${currentStatus === 'verified' ? 'selected' : ''}>Verify</option>
-                                    <option value="flagged" ${currentStatus === 'flagged' ? 'selected' : ''}>Flag</option>
-                                </select>
-                            </div>
-                            ${checkinBadge}
-                        </div>
+                        <span class="inline-block px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/30 text-[10px] font-bold uppercase">
+                            ${escapeHtml(t.event_name || 'Event')}
+                        </span>
                     </td>
+                    <td class="py-3 px-4">${escapeHtml(m1)}</td>
+                    <td class="py-3 px-4 text-zinc-400">${escapeHtml(m2)}</td>
+                    <td class="py-3 px-4 text-zinc-400">${escapeHtml(m3)}</td>
+                    <td class="py-3 px-4 text-zinc-400 text-[11px] max-w-[150px] truncate" title="${escapeHtml(t.project_title || '')}">
+                        ${escapeHtml(t.project_title || '--')}
+                    </td>
+                    <td class="py-3 px-4">${checkinBadge}</td>
                     <td class="py-3 px-4 text-center">
-                        <div class="flex items-center justify-center gap-1">
-                            <button onclick="resendPassEmail('${escapeHtml(t.team_name || 'Team')}', '${escapeHtml(leaderEmail)}', '${escapeHtml(leaderName)}', '${escapeHtml(t.txn_id || '')}', '${escapeHtml(m2Email)}', '${escapeHtml(m3Email)}', '${escapeHtml(m4Email)}', '${escapeHtml(currentStatus)}')" class="${currentStatus === 'flagged' ? 'text-error hover:bg-error/10' : (currentStatus === 'verified' ? 'text-emerald-400 hover:bg-emerald-500/10' : 'text-primary hover:bg-primary/10')} p-1.5 rounded transition-colors cursor-pointer" title="${currentStatus === 'flagged' ? 'Send NOT VERIFIED / Flagged Notice Email' : (currentStatus === 'verified' ? 'Send Verified Admit Pass Email' : 'Send Pending Verification Notice Email')}">
-                                <span class="material-symbols-outlined text-sm align-middle">${currentStatus === 'flagged' ? 'mark_email_unread' : 'mail'}</span>
+                        <div class="flex items-center justify-center gap-1.5">
+                            <button onclick="printLanyardBadge('${t.id}')" class="p-1 rounded text-primary hover:bg-primary/15 transition-colors cursor-pointer" title="Print Lanyard Badge">
+                                <span class="material-symbols-outlined text-base">badge</span>
                             </button>
-                            <button onclick="sendWhatsAppPass('${escapeHtml(t.team_name || 'Team')}', '${escapeHtml(t.members && t.members[0] ? t.members[0].mobile : '')}', '${escapeHtml(leaderName)}', '${escapeHtml(t.txn_id || '')}', '${escapeHtml(currentStatus)}')" class="text-[#25D366] hover:bg-[#25D366]/10 p-1.5 rounded transition-colors cursor-pointer" title="WhatsApp Quick-Notify Leader — ${currentStatus === 'flagged' ? 'NOT VERIFIED Warning' : currentStatus === 'verified' ? 'Send Admit Pass' : 'Send Pending Notice'}">
-                                <svg class="w-3.5 h-3.5 inline-block align-middle" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                            <button onclick="notifyWhatsApp('${t.id}')" class="p-1 rounded text-[#25D366] hover:bg-[#25D366]/15 transition-colors cursor-pointer" title="WhatsApp Message">
+                                <svg class="w-4 h-4 inline-block" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                             </button>
-                            <button onclick="openBadgePrintById('${t.id}')" class="text-primary/70 hover:text-primary hover:bg-primary/10 p-1.5 rounded transition-colors cursor-pointer" title="Print ID Badge">
-                                <span class="material-symbols-outlined text-sm align-middle">badge</span>
-                            </button>
-                            <button onclick="deleteSingleTeam('${t.id}', '${escapeHtml(t.team_name || 'Team')}')" class="text-error/70 hover:text-error hover:bg-error/10 p-1.5 rounded transition-colors cursor-pointer" title="Delete Team">
-                                <span class="material-symbols-outlined text-sm align-middle">delete</span>
+                            <button onclick="deleteSquad('${t.id}', '${escapeHtml(t.team_name || '')}')" class="p-1 rounded text-error hover:bg-error/15 transition-colors cursor-pointer" title="Delete Squad">
+                                <span class="material-symbols-outlined text-base">delete</span>
                             </button>
                         </div>
                     </td>
                 `;
                 tableBody.appendChild(tr);
-            });
-
-            // Attach checkbox event listeners
-            document.querySelectorAll('.team-select-checkbox').forEach(cb => {
-                cb.addEventListener('change', (e) => {
-                    const id = e.target.dataset.id;
-                    if (e.target.checked) selectedTeamIds.add(id);
-                    else selectedTeamIds.delete(id);
-                    updateBulkToolbar();
-                });
             });
         }
 
@@ -1325,802 +700,330 @@ Kongu Engineering College`;
             return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/'/g, '&#39;');
         }
 
-        /* ---------- Advanced On-Day Gate QR Scanner Engine ---------- */
-        function getActiveVideoTrack() {
-            const videoEl = document.querySelector('#qr-reader video');
-            return videoEl && videoEl.srcObject ? videoEl.srcObject.getVideoTracks()[0] : null;
-        }
-
-        async function populateAvailableCameras() {
-            if (!window.Html5Qrcode) return;
+        window.toggleCheckIn = async function(docId, currentState) {
+            if (!db) return;
+            // Find the team to get its _colId (Firestore event subcollection)
+            const team = registeredTeams.find(t => t.id === docId);
+            const colId = team?._colId || 'paper-presentation';
             try {
-                const devices = await Html5Qrcode.getCameras();
-                if (devices && devices.length > 0) {
-                    availableCameras = devices;
-                    scannerCameraSelect.innerHTML = '';
-                    
-                    devices.forEach((dev, idx) => {
-                        const opt = document.createElement('option');
-                        opt.value = dev.id;
-                        const labelLower = (dev.label || '').toLowerCase();
-                        let friendlyName = dev.label || `Camera ${idx + 1}`;
-                        
-                        if (labelLower.includes('back') || labelLower.includes('rear') || labelLower.includes('environment') || labelLower.includes('facing 0')) {
-                            friendlyName = `📷 Rear: ${dev.label || 'Primary'}`;
-                        } else if (labelLower.includes('front') || labelLower.includes('user') || labelLower.includes('facing 1')) {
-                            friendlyName = `🤳 Front: ${dev.label || 'Selfie'}`;
-                        } else if (labelLower.includes('wide')) {
-                            friendlyName = `🔭 Wide: ${dev.label}`;
-                        }
-                        
-                        opt.textContent = friendlyName;
-                        scannerCameraSelect.appendChild(opt);
-                    });
-
-                    // Prefer previously stored or rear camera
-                    const savedCam = localStorage.getItem('vision_admin_cam_id');
-                    const preferredCam = devices.find(d => d.id === savedCam) 
-                        || devices.find(d => {
-                            const l = (d.label || '').toLowerCase();
-                            return (l.includes('back') || l.includes('rear') || l.includes('environment')) && !l.includes('wide');
-                        })
-                        || devices.find(d => (d.label || '').toLowerCase().includes('back') || (d.label || '').toLowerCase().includes('rear'))
-                        || devices[0];
-
-                    if (preferredCam) {
-                        scannerCameraSelect.value = preferredCam.id;
-                        currentCameraIndex = devices.findIndex(d => d.id === preferredCam.id);
-                        if (currentCameraIndex === -1) currentCameraIndex = 0;
-                    }
-                } else {
-                    scannerCameraSelect.innerHTML = '<option value="">Default Camera</option>';
-                }
-            } catch (err) {
-                console.warn('Camera enumeration error:', err);
-                scannerCameraSelect.innerHTML = '<option value="">Auto Camera</option>';
-            }
-        }
-
-        async function startGateScanner(selectedCameraId) {
-            if (!window.Html5Qrcode) {
-                scannerStatusText.textContent = 'Scanner library missing. Use manual lookup.';
-                return;
-            }
-
-            if (isScannerRunning) {
-                await stopGateScannerInstance();
-            }
-
-            const qrReaderDiv = document.getElementById('qr-reader');
-            if (qrReaderDiv) {
-                qrReaderDiv.innerHTML = '';
-            }
-
-            try {
-                scannerStatusText.textContent = 'Initializing camera autofocus stream...';
-                
-                html5QrScanner = new Html5Qrcode("qr-reader", {
-                    experimentalFeatures: {
-                        useBarCodeDetectorIfSupported: true
-                    },
-                    formatsToSupport: [0] // 0 = QR_CODE only for maximum performance & rapid scanning
+                await updateDoc(doc(db, 'events', colId, 'registrations', docId), {
+                    checked_in: !currentState,
+                    check_in_timestamp: !currentState ? new Date().toISOString() : null
                 });
-
-                const targetCam = selectedCameraId 
-                    ? { deviceId: { exact: selectedCameraId } }
-                    : { facingMode: { ideal: "environment" } };
-
-                const config = {
-                    fps: 25,
-                    qrbox: (viewfinderWidth, viewfinderHeight) => {
-                        const minDimension = Math.min(viewfinderWidth, viewfinderHeight);
-                        const boxSize = Math.max(190, Math.floor(minDimension * 0.78));
-                        return { width: boxSize, height: boxSize };
-                    },
-                    aspectRatio: 1.0,
-                    videoConstraints: {
-                        ...(selectedCameraId ? { deviceId: { exact: selectedCameraId } } : { facingMode: { ideal: "environment" } }),
-                        width: { min: 640, ideal: 1280, max: 1920 },
-                        height: { min: 480, ideal: 720, max: 1080 },
-                        focusMode: "continuous",
-                        advanced: [
-                            { focusMode: "continuous" }
-                        ]
-                    }
-                };
-
-                await html5QrScanner.start(
-                    targetCam,
-                    config,
-                    onQrCodeScanned,
-                    (errorMessage) => {
-                        // Silent frame scanning failures
-                    }
-                );
-
-                isScannerRunning = true;
-                scannerStatusText.textContent = 'Camera active. Tap screen to refocus.';
-
-                if (selectedCameraId) {
-                    localStorage.setItem('vision_admin_cam_id', selectedCameraId);
-                }
-
-                // Post-start hardware feature check (autofocus, torch, zoom)
-                setTimeout(applyHardwareCapabilities, 400);
-
+                SFX.success();
             } catch (err) {
-                console.warn('Camera start failed, retrying with fallback:', err);
-                try {
-                    await html5QrScanner.start(
-                        { facingMode: "environment" },
-                        { fps: 20, qrbox: { width: 240, height: 240 } },
-                        onQrCodeScanned,
-                        () => {}
-                    );
-                    isScannerRunning = true;
-                    scannerStatusText.textContent = 'Camera active (standard mode). Tap to focus.';
-                    setTimeout(applyHardwareCapabilities, 400);
-                } catch (fallbackErr) {
-                    console.error('All camera attempts failed:', fallbackErr);
-                    scannerStatusText.textContent = 'Camera unavailable. Use manual lookup or upload image.';
-                }
+                alert('Update failed: ' + err.message);
             }
-        }
-
-        async function stopGateScannerInstance() {
-            if (html5QrScanner && isScannerRunning) {
-                try {
-                    await html5QrScanner.stop();
-                } catch (e) {
-                    console.warn('Error stopping scanner:', e);
-                }
-                isScannerRunning = false;
-                isTorchOn = false;
-                if (scannerTorchBtn) {
-                    scannerTorchBtn.classList.remove('bg-primary', 'text-on-primary', 'font-bold', 'shadow-[0_0_12px_rgba(240,193,44,0.6)]');
-                    scannerTorchBtn.classList.add('bg-surface-container', 'text-outline');
-                    scannerTorchLabel.textContent = 'Torch';
-                }
-            }
-        }
-
-        function applyHardwareCapabilities() {
-            const track = getActiveVideoTrack();
-            if (!track) return;
-
-            const caps = typeof track.getCapabilities === 'function' ? track.getCapabilities() : {};
-
-            // 1. Enforce continuous auto-focus if supported
-            if (caps.focusMode && caps.focusMode.includes('continuous')) {
-                track.applyConstraints({
-                    advanced: [{ focusMode: 'continuous' }]
-                }).catch(() => {});
-            }
-
-            // 2. Setup Torch Flashlight button
-            if (caps.torch) {
-                scannerTorchBtn.classList.remove('hidden');
-            } else {
-                scannerTorchBtn.classList.add('hidden');
-            }
-
-            // 3. Setup Zoom controls
-            if (caps.zoom) {
-                scannerZoomWrap.classList.remove('hidden');
-            }
-        }
-
-        async function openGateScanner() {
-            scannerModal.classList.remove('hidden');
-            scannerResult.classList.add('hidden');
-            scannerManualInput.value = '';
-            scanCooldown = false;
-            SFX.click();
-
-            await populateAvailableCameras();
-            const selectedId = scannerCameraSelect.value;
-            await startGateScanner(selectedId);
-        }
-
-        async function closeGateScanner() {
-            await stopGateScannerInstance();
-            scannerModal.classList.add('hidden');
-        }
-
-        // Tap-to-Focus trigger on the viewfinder
-        if (qrViewfinderContainer) {
-            qrViewfinderContainer.addEventListener('click', (e) => {
-                if (e.target.closest('button') || e.target.closest('select') || e.target.closest('input')) return;
-
-                const rect = qrViewfinderContainer.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-
-                // Visual Reticle
-                const reticle = document.createElement('div');
-                reticle.className = 'tap-focus-box';
-                reticle.style.left = `${x}px`;
-                reticle.style.top = `${y}px`;
-                qrViewfinderContainer.appendChild(reticle);
-                setTimeout(() => reticle.remove(), 600);
-
-                // Hardware focus pulse
-                const track = getActiveVideoTrack();
-                if (track && typeof track.applyConstraints === 'function') {
-                    track.applyConstraints({
-                        advanced: [{ focusMode: 'continuous' }]
-                    }).catch(() => {});
-                }
-
-                SFX.click();
-                scannerStatusText.textContent = '🎯 Focus locked & refreshed';
-                setTimeout(() => {
-                    if (isScannerRunning) scannerStatusText.textContent = 'Align QR code in center. Tap to re-focus.';
-                }, 1200);
-            });
-        }
-
-        // Camera Dropdown Switch
-        if (scannerCameraSelect) {
-            scannerCameraSelect.addEventListener('change', async () => {
-                const newId = scannerCameraSelect.value;
-                if (newId) {
-                    SFX.click();
-                    currentCameraIndex = availableCameras.findIndex(d => d.id === newId);
-                    await startGateScanner(newId);
-                }
-            });
-        }
-
-        // Flip Camera Quick Button
-        if (scannerFlipCamBtn) {
-            scannerFlipCamBtn.addEventListener('click', async () => {
-                if (availableCameras.length <= 1) return;
-                SFX.click();
-                currentCameraIndex = (currentCameraIndex + 1) % availableCameras.length;
-                const nextCam = availableCameras[currentCameraIndex];
-                if (nextCam) {
-                    scannerCameraSelect.value = nextCam.id;
-                    await startGateScanner(nextCam.id);
-                }
-            });
-        }
-
-        // Torch Toggle Button
-        if (scannerTorchBtn) {
-            scannerTorchBtn.addEventListener('click', async () => {
-                const track = getActiveVideoTrack();
-                if (!track) return;
-                try {
-                    isTorchOn = !isTorchOn;
-                    await track.applyConstraints({
-                        advanced: [{ torch: isTorchOn }]
-                    });
-                    if (isTorchOn) {
-                        scannerTorchBtn.classList.remove('bg-surface-container', 'text-outline');
-                        scannerTorchBtn.classList.add('bg-primary', 'text-on-primary', 'font-bold', 'shadow-[0_0_12px_rgba(240,193,44,0.6)]');
-                        scannerTorchLabel.textContent = 'Torch ON';
-                        SFX.boot();
-                    } else {
-                        scannerTorchBtn.classList.remove('bg-primary', 'text-on-primary', 'font-bold', 'shadow-[0_0_12px_rgba(240,193,44,0.6)]');
-                        scannerTorchBtn.classList.add('bg-surface-container', 'text-outline');
-                        scannerTorchLabel.textContent = 'Torch';
-                        SFX.click();
-                    }
-                } catch (err) {
-                    console.warn('Torch constraint error:', err);
-                }
-            });
-        }
-
-        // Zoom Preset Buttons (1x, 1.5x, 2x)
-        document.querySelectorAll('.scanner-zoom-btn').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                const zoomVal = parseFloat(btn.dataset.zoom) || 1.0;
-                currentZoomLevel = zoomVal;
-                const track = getActiveVideoTrack();
-                if (track && typeof track.applyConstraints === 'function') {
-                    try {
-                        await track.applyConstraints({
-                            advanced: [{ zoom: zoomVal }]
-                        });
-                        SFX.click();
-                    } catch (err) {
-                        console.warn('Zoom not supported:', err);
-                    }
-                }
-                document.querySelectorAll('.scanner-zoom-btn').forEach(b => {
-                    b.classList.remove('bg-primary', 'text-on-primary', 'font-bold');
-                    b.classList.add('bg-surface-container', 'text-outline');
-                });
-                btn.classList.add('bg-primary', 'text-on-primary', 'font-bold');
-                btn.classList.remove('bg-surface-container', 'text-outline');
-            });
-        });
-
-        // Scan from Image/Screenshot File
-        if (scannerFileInput) {
-            scannerFileInput.addEventListener('change', async (e) => {
-                const file = e.target.files && e.target.files[0];
-                if (!file) return;
-                SFX.click();
-                scannerStatusText.textContent = `Analyzing image file (${file.name})...`;
-                try {
-                    if (!html5QrScanner) {
-                        html5QrScanner = new Html5Qrcode("qr-reader");
-                    }
-                    const decodedText = await html5QrScanner.scanFile(file, true);
-                    onQrCodeScanned(decodedText);
-                } catch (err) {
-                    alert('Could not decode QR code from the selected image. Please try a clearer screenshot or camera scan.');
-                    scannerStatusText.textContent = 'Image scan failed. Align QR code in camera.';
-                    SFX.error();
-                }
-                scannerFileInput.value = '';
-            });
-        }
-
-        if (openScannerBtn) openScannerBtn.addEventListener('click', openGateScanner);
-        if (closeScannerBtn) closeScannerBtn.addEventListener('click', closeGateScanner);
-
-        function onQrCodeScanned(decodedText) {
-            if (scanCooldown) return;
-            scanCooldown = true;
-            setTimeout(() => { scanCooldown = false; }, 2200);
-
-            SFX.boot();
-            findAndDisplayScannedTeam(decodedText.trim());
-        }
-
-        if (scannerManualBtn) {
-            scannerManualBtn.addEventListener('click', () => {
-                const query = scannerManualInput.value.trim();
-                if (!query) return;
-                SFX.click();
-                findAndDisplayScannedTeam(query);
-            });
-            scannerManualInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') scannerManualBtn.click();
-            });
-        }
-
-        function findAndDisplayScannedTeam(token) {
-            const q = token.toLowerCase();
-            const team = registeredTeams.find(t => 
-                (t.id && t.id.toLowerCase() === q) ||
-                (t.txn_id && t.txn_id.toLowerCase().includes(q)) ||
-                (t.team_name && t.team_name.toLowerCase().includes(q)) ||
-                (t.members && t.members.some(m => m.email?.toLowerCase().includes(q) || m.mobile?.includes(q)))
-            );
-
-            if (!team) {
-                alert(`No team matching "${token}" was found.`);
-                SFX.error();
-                return;
-            }
-
-            activeScannedTeam = team;
-            scanTeamName.textContent = team.team_name || 'UNKNOWN TEAM';
-            
-            const isVerified = team.status === 'verified';
-            scanStatusBadge.innerHTML = isVerified
-                ? `<span class="px-2 py-0.5 text-[10px] font-label-sm rounded-xs bg-emerald-950 text-emerald-400 border border-emerald-500/40 uppercase">VERIFIED</span>`
-                : `<span class="px-2 py-0.5 text-[10px] font-label-sm rounded-xs bg-error/20 text-error border border-error/40 uppercase">PENDING / UNVERIFIED</span>`;
-
-            const m1 = team.members && team.members[0] ? `${team.members[0].name} (${team.members[0].mobile})` : 'N/A';
-            const otherMembers = (team.members || []).slice(1).map(m => m.name).filter(Boolean).join(', ') || 'None';
-
-            scanLeader.textContent = m1;
-            scanMembers.textContent = otherMembers;
-            scanUtr.textContent = team.txn_id || 'N/A';
-
-            const checkedIn = team.checked_in === true;
-            scanCheckinStatus.innerHTML = checkedIn 
-                ? `<span class="text-emerald-400 font-bold">ALREADY CHECKED-IN</span> (${team.check_in_timestamp ? new Date(team.check_in_timestamp).toLocaleTimeString() : 'Earlier'})`
-                : `<span class="text-outline">NOT YET CHECKED-IN</span>`;
-
-            scanCheckinBtn.disabled = false;
-            scannerResult.classList.remove('hidden');
-            SFX.success();
-
-            // TTS Voice Announcement on successful scan
-            const ttsLeader = (team.members && team.members[0] && team.members[0].name || '').split(' ')[0];
-            const ttsName = team.team_name || 'Unknown Squad';
-            if (team.checked_in) {
-                speakAnnouncement(`Alert! Squad ${ttsName} has already been checked in. Possible duplicate entry.`);
-            } else if (team.status === 'verified') {
-                speakAnnouncement(`Squad ${ttsName} verified. Welcome ${ttsLeader}! Please proceed to check-in.`);
-            } else {
-                speakAnnouncement(`Warning! Squad ${ttsName} is not verified. Please contact the organizer before entry.`);
-            }
-        }
-
-        if (scanCheckinBtn) {
-            scanCheckinBtn.addEventListener('click', async () => {
-                if (!activeScannedTeam || !db) return;
-                try {
-                    scanCheckinBtn.disabled = true;
-                    scanCheckinBtn.textContent = 'CHECKING IN...';
-                    await updateDoc(doc(db, 'registrations', activeScannedTeam.id), {
-                        checked_in: true,
-                        check_in_timestamp: new Date().toISOString()
-                    });
-                    scanCheckinStatus.innerHTML = `<span class="text-emerald-400 font-bold">✓ CHECKED-IN NOW!</span>`;
-                    SFX.success();
-                    speakAnnouncement(`Squad ${activeScannedTeam.team_name} checked in successfully. Welcome to Vision 2026!`);
-                } catch (err) {
-                    alert('Check-in failed: ' + err.message);
-                    SFX.error();
-                } finally {
-                    scanCheckinBtn.disabled = false;
-                    scanCheckinBtn.innerHTML = '<span class="material-symbols-outlined text-sm">how_to_reg</span> Issue Badges &amp; Admit';
-                }
-            });
-        }
-
-        if (scanResetCheckinBtn) {
-            scanResetCheckinBtn.addEventListener('click', async () => {
-                if (!activeScannedTeam || !db) return;
-                try {
-                    await updateDoc(doc(db, 'registrations', activeScannedTeam.id), {
-                        checked_in: false,
-                        check_in_timestamp: null
-                    });
-                    scanCheckinStatus.innerHTML = `<span class="text-outline">NOT YET CHECKED-IN</span>`;
-                    SFX.click();
-                } catch (err) {
-                    alert('Reset check-in failed: ' + err.message);
-                }
-            });
-        }
-
-        /* ---------- Scanner Panel — WhatsApp Quick-Notify ---------- */
-        const scanWhatsappBtn = document.getElementById('scan-whatsapp-btn');
-        if (scanWhatsappBtn) {
-            scanWhatsappBtn.addEventListener('click', () => {
-                if (!activeScannedTeam) {
-                    alert('No team scanned yet. Scan a QR code or search a team first.');
-                    return;
-                }
-                const t = activeScannedTeam;
-                const leaderMobile = t.members && t.members[0] ? t.members[0].mobile : '';
-                const leaderName = t.members && t.members[0] ? t.members[0].name : 'Leader';
-                sendWhatsAppPass(t.team_name || 'Team', leaderMobile, leaderName, t.txn_id || '', t.status || 'pending_verification');
-            });
-        }
-
-        /* ==========================================================
-           TTS VOICE ANNOUNCER — Web Speech API
-           ========================================================== */
-        const ttsToggleBtn = document.getElementById('tts-toggle-btn');
-        const ttsToggleLabel = document.getElementById('tts-toggle-label');
-        let ttsEnabled = localStorage.getItem('vision_tts_enabled') !== 'false';
-
-        function updateTtsUI() {
-            if (!ttsToggleBtn || !ttsToggleLabel) return;
-            if (ttsEnabled) {
-                ttsToggleBtn.classList.add('border-primary/50', 'text-primary', 'bg-primary/10');
-                ttsToggleBtn.classList.remove('border-outline-variant/60', 'text-outline', 'bg-surface-container');
-                ttsToggleLabel.textContent = 'Voice ON';
-            } else {
-                ttsToggleBtn.classList.remove('border-primary/50', 'text-primary', 'bg-primary/10');
-                ttsToggleBtn.classList.add('border-outline-variant/60', 'text-outline', 'bg-surface-container');
-                ttsToggleLabel.textContent = 'Voice OFF';
-            }
-        }
-        updateTtsUI();
-
-        if (ttsToggleBtn) {
-            ttsToggleBtn.addEventListener('click', () => {
-                ttsEnabled = !ttsEnabled;
-                localStorage.setItem('vision_tts_enabled', ttsEnabled ? 'true' : 'false');
-                updateTtsUI();
-                if (ttsEnabled) speakAnnouncement('Voice announcements enabled. Gate scanner ready.');
-                SFX.click();
-            });
-        }
-
-        function speakAnnouncement(text) {
-            if (!ttsEnabled || !window.speechSynthesis) return;
-            window.speechSynthesis.cancel();
-            const utt = new SpeechSynthesisUtterance(text);
-            utt.rate = 0.92;
-            utt.pitch = 1.0;
-            utt.volume = 1.0;
-            const assignVoice = () => {
-                const voices = window.speechSynthesis.getVoices();
-                const preferred = voices.find(v => v.lang.startsWith('en-') && v.name.toLowerCase().includes('google'))
-                    || voices.find(v => v.lang.startsWith('en-') && !v.name.toLowerCase().includes('compact'))
-                    || voices.find(v => v.lang.startsWith('en'))
-                    || voices[0];
-                if (preferred) utt.voice = preferred;
-                window.speechSynthesis.speak(utt);
-            };
-            if (window.speechSynthesis.getVoices().length > 0) assignVoice();
-            else { window.speechSynthesis.onvoiceschanged = assignVoice; }
-        }
-
-        /* ==========================================================
-           ID BADGE / LANYARD PRINT STATION
-           ========================================================== */
-        window.openBadgePrintById = function(teamId) {
-            const team = registeredTeams.find(t => t.id === teamId);
-            if (team) printBadgeWindow(team);
-            else alert('Team data not found. Refresh and try again.');
         };
 
-        const scanPrintBadgeBtn = document.getElementById('scan-print-badge-btn');
-        if (scanPrintBadgeBtn) {
-            scanPrintBadgeBtn.addEventListener('click', () => {
-                if (activeScannedTeam) { printBadgeWindow(activeScannedTeam); SFX.click(); }
-                else alert('No team scanned yet.');
-            });
-        }
+        window.deleteSquad = async function(docId, teamName) {
+            if (!confirm(`Delete registration for "${teamName}"?`)) return;
+            if (!db) return;
+            const team = registeredTeams.find(t => t.id === docId);
+            const colId = team?._colId || 'paper-presentation';
+            try {
+                await deleteDoc(doc(db, 'events', colId, 'registrations', docId));
+                SFX.click();
+            } catch (err) {
+                alert('Delete failed: ' + err.message);
+            }
+        };
 
-        function printBadgeWindow(team) {
-            const gm = (i) => team.members && team.members[i] ? team.members[i] : {};
-            const m1 = gm(0), m2 = gm(1), m3 = gm(2), m4 = gm(3);
-            const esc = (s) => (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-            const qrToken = encodeURIComponent(team.id || team.txn_id || team.team_name || 'VISION2026');
+        window.notifyWhatsApp = function(docId) {
+            const t = registeredTeams.find(x => x.id === docId);
+            if (!t || !t.members || !t.members[0]) return;
+            const mobile = (t.members[0].mobile || '').replace(/\D/g, '');
+            const cleanPhone = mobile.length === 10 ? '91' + mobile : mobile;
+            const msg = `⚡ *VISION 2K26 — IEEE AP-S KEC*\n\nGreetings Team *${t.team_name}*!\n\nYour registration for *${t.event_name}* is confirmed for *October 5, 2026* at Kongu Engineering College.\n\nPlease report to the venue on event day. See you at the symposium!`;
+            window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+        };
+
+        /* =========================================================
+           LANYARD BADGE PRINT WINDOW
+           ========================================================= */
+        window.printLanyardBadge = function(docId) {
+            const team = registeredTeams.find(x => x.id === docId);
+            if (!team) return;
+
+            const m1 = team.members && team.members[0] ? team.members[0].name : 'Leader';
+            const m2 = team.members && team.members[1] ? team.members[1].name : '';
+            const m3 = team.members && team.members[2] ? team.members[2].name : '';
+            const members = [m2, m3].filter(Boolean).join(' • ') || 'Solo Squad';
+
+            const qrToken = encodeURIComponent(team.id || team.team_name);
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${qrToken}&margin=2&bgcolor=0b0c10&color=f0c12c`;
-            const members = [m2.name, m3.name, m4.name].filter(Boolean).map(esc).join(' &bull; ') || '&mdash;';
-            const isVerified = team.status === 'verified';
-            const isFlagged = team.status === 'flagged';
-            const statusColor = isVerified ? '#10b981' : (isFlagged ? '#ef4444' : '#f59e0b');
-            const statusLabel = isFlagged ? 'NOT VERIFIED' : (team.status || 'PENDING').toUpperCase();
 
-            const html = `<!DOCTYPE html>
+            const badgeHtml = `<!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="utf-8"/>
-<title>Badge: ${esc(team.team_name)}</title>
+<title>Badge: ${team.team_name}</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Space+Grotesk:wght@500;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
   @page { size: 2.5in 3.5in; margin: 0; }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   body { width: 2.5in; height: 3.5in; overflow: hidden; background: #0b0c10; color: #fff; font-family: 'Space Grotesk', sans-serif; display: flex; flex-direction: column; }
-  .hdr { background: linear-gradient(135deg,#1a1200,rgba(240,193,44,.14)); border-bottom: 2.5px solid #f0c12c; padding: 9px 12px 7px; text-align: center; }
-  .hdr-t { font-family: 'Orbitron', sans-serif; font-size: 9.5pt; font-weight: 900; color: #f0c12c; letter-spacing: .14em; }
-  .hdr-s { font-family: 'JetBrains Mono', monospace; font-size: 6pt; color: rgba(255,227,161,.6); letter-spacing: .06em; margin-top: 1px; }
-  .body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6px 12px; gap: 4px; }
-  .status { font-size: 5.5pt; font-weight: 800; padding: 1px 7px; border-radius: 2px; border: 1px solid ${statusColor}; color: ${statusColor}; letter-spacing: .1em; font-family: 'JetBrains Mono', monospace; }
-  .team { font-family: 'Space Grotesk', sans-serif; font-size: 12.5pt; font-weight: 800; color: #f0c12c; text-align: center; text-transform: uppercase; letter-spacing: .04em; line-height: 1.15; }
-  .leader { font-size: 10pt; font-weight: 700; color: #fff; text-align: center; margin-top: 1px; }
-  .div { width: 72%; height: 1px; background: linear-gradient(90deg,transparent,rgba(240,193,44,.45),transparent); margin: 3px 0; }
-  .members { font-family: 'JetBrains Mono', monospace; font-size: 6.5pt; color: #c4b897; text-align: center; line-height: 1.6; }
-  .qr { background: #fff; padding: 4px; border-radius: 2px; border: 2px solid #f0c12c; margin-top: 3px; }
-  .qr img { display: block; width: 76px; height: 76px; }
-  .utr { font-family: 'JetBrains Mono', monospace; font-size: 5pt; color: rgba(240,193,44,.55); text-align: center; margin-top: 2px; }
-  .ftr { background: #f0c12c; color: #0b0c10; font-family: 'Orbitron', sans-serif; font-size: 6.5pt; font-weight: 900; text-align: center; padding: 5px 10px; letter-spacing: .12em; }
+  .hdr { background: linear-gradient(135deg,#1a1200,rgba(240,193,44,.15)); border-bottom: 2.5px solid #f0c12c; padding: 8px 10px; text-align: center; }
+  .hdr-t { font-family: 'Orbitron', sans-serif; font-size: 10pt; font-weight: 900; color: #f0c12c; letter-spacing: .12em; }
+  .hdr-s { font-family: 'JetBrains Mono', monospace; font-size: 6pt; color: #c4b897; margin-top: 1px; }
+  .body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6px 10px; gap: 3px; }
+  .track { font-family: 'JetBrains Mono', monospace; font-size: 6pt; font-weight: 800; padding: 2px 8px; border-radius: 2px; border: 1px solid #f0c12c; color: #f0c12c; text-transform: uppercase; }
+  .team { font-size: 12pt; font-weight: 800; color: #fff; text-align: center; text-transform: uppercase; margin-top: 2px; }
+  .leader { font-size: 9.5pt; font-weight: 700; color: #f0c12c; text-align: center; }
+  .div { width: 70%; height: 1px; background: rgba(240,193,44,.4); margin: 3px 0; }
+  .members { font-family: 'JetBrains Mono', monospace; font-size: 6.5pt; color: #c4b897; text-align: center; }
+  .qr { background: #fff; padding: 3px; border-radius: 2px; border: 2px solid #f0c12c; margin-top: 3px; }
+  .qr img { display: block; width: 72px; height: 72px; }
+  .ftr { background: #f0c12c; color: #0b0c10; font-family: 'Orbitron', sans-serif; font-size: 6.5pt; font-weight: 900; text-align: center; padding: 4px; letter-spacing: .1em; }
 </style>
 </head><body>
-  <div class="hdr"><div class="hdr-t">VISION 2026</div><div class="hdr-s">HACKATHON // SEPT 20-21 // KEC ERODE</div></div>
+  <div class="hdr"><div class="hdr-t">VISION 2K26</div><div class="hdr-s">IEEE AP-S • KONGU ENGG COLLEGE • 5 OCT 2026</div></div>
   <div class="body">
-    <div class="status">${statusLabel}</div>
-    <div class="team">${esc(team.team_name || 'SQUAD')}</div>
-    <div class="leader">${esc(m1.name || 'Leader')}</div>
+    <div class="track">${team.event_name || 'SYMPOSIUM'}</div>
+    <div class="team">${team.team_name}</div>
+    <div class="leader">${m1}</div>
     <div class="div"></div>
     <div class="members">${members}</div>
     <div class="qr"><img src="${qrUrl}" alt="QR" /></div>
-    <div class="utr">REF: ${esc(team.txn_id || team.id || 'N/A')}</div>
   </div>
-  <div class="ftr">OFFICIAL HACKATHON BADGE</div>
+  <div class="ftr">OFFICIAL ADMIT BADGE</div>
   <script>
-    var img=document.querySelector('.qr img'),done=false;
-    function tryPrint(){if(!done)return;setTimeout(function(){window.print();},350);}
-    if(img){img.onload=function(){done=true;tryPrint();};img.onerror=function(){done=true;tryPrint();};if(img.complete){done=true;tryPrint();}}
-    else{setTimeout(function(){window.print();},700);}
+    var img=document.querySelector('.qr img');
+    if(img){img.onload=function(){setTimeout(function(){window.print();},250);};}
+    else{setTimeout(function(){window.print();},500);}
   <\/script>
 </body></html>`;
 
-            const popup = window.open('', '_blank', 'width=325,height=465,menubar=no,scrollbars=no,toolbar=no,resizable=yes');
-            if (popup) { popup.document.write(html); popup.document.close(); SFX.click(); }
-            else alert('Popup blocked. Allow popups for this page to enable badge printing.');
+            const win = window.open('', '_blank', 'width=320,height=460');
+            if (win) {
+                win.document.write(badgeHtml);
+                win.document.close();
+            }
+        };
+
+        /* =========================================================
+           GATE SCANNER CHECK-IN (uses _colId for subcollection)
+           ========================================================= */
+        const scannerModal = document.getElementById('scanner-modal');
+        const openScannerBtn = document.getElementById('open-scanner-btn');
+        const closeScannerBtn = document.getElementById('close-scanner-btn');
+        const scannerManualInput = document.getElementById('scanner-manual-input');
+        const scannerManualBtn = document.getElementById('scanner-manual-btn');
+        const scannerResult = document.getElementById('scanner-result');
+        const scanTeamName = document.getElementById('scan-team-name');
+        const scanEventBadge = document.getElementById('scan-event-badge');
+        const scanLeader = document.getElementById('scan-leader');
+        const scanMembers = document.getElementById('scan-members');
+        const scanCheckinStatus = document.getElementById('scan-checkin-status');
+        const scanCheckinBtn = document.getElementById('scan-checkin-btn');
+        const scanPrintBadgeBtn = document.getElementById('scan-print-badge-btn');
+        const ttsToggleBtn = document.getElementById('tts-toggle-btn');
+        const ttsToggleLabel = document.getElementById('tts-toggle-label');
+
+        let html5Scanner = null;
+        let activeScannedTeam = null;
+        let ttsEnabled = true;
+
+        if (ttsToggleBtn) {
+            ttsToggleBtn.addEventListener('click', () => {
+                ttsEnabled = !ttsEnabled;
+                ttsToggleLabel.textContent = ttsEnabled ? 'Voice ON' : 'Voice OFF';
+                if (ttsEnabled) speak('Voice announcements enabled.');
+            });
         }
 
-        // CSV & Excel Exporters
-        exportBtn.addEventListener('click', () => {
-            if (registeredTeams.length === 0) return alert('No records to export.');
-            const headers = ['ID', 'Team Name', 'Member 1 Name', 'Member 1 Email', 'Member 1 Mobile', 'Member 2 Name', 'Member 2 Email', 'Member 2 Mobile', 'Member 3 Name', 'Member 3 Email', 'Member 3 Mobile', 'Member 4 Name', 'Member 4 Email', 'Member 4 Mobile', 'Transaction ID', 'Status', 'Checked In', 'Check In Time'];
-            const rows = registeredTeams.map(t => {
-                const m1 = t.members && t.members[0] ? t.members[0] : {};
-                const m2 = t.members && t.members[1] ? t.members[1] : {};
-                const m3 = t.members && t.members[2] ? t.members[2] : {};
-                const m4 = t.members && t.members[3] ? t.members[3] : {};
-                return [
-                    t.id || '',
-                    `"${(t.team_name || '').replace(/"/g, '""')}"`,
-                    `"${(m1.name || '').replace(/"/g, '""')}"`,
-                    m1.email || '',
-                    m1.mobile || '',
-                    `"${(m2.name || '').replace(/"/g, '""')}"`,
-                    m2.email || '',
-                    m2.mobile || '',
-                    `"${(m3.name || '').replace(/"/g, '""')}"`,
-                    m3.email || '',
-                    m3.mobile || '',
-                    `"${(m4.name || '').replace(/"/g, '""')}"`,
-                    m4.email || '',
-                    m4.mobile || '',
-                    t.txn_id || '',
-                    t.status || 'pending',
-                    t.checked_in ? 'YES' : 'NO',
-                    t.check_in_timestamp || ''
-                ];
-            });
-            const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
-            const link = document.createElement('a');
-            link.href = encodeURI(csvContent);
-            link.download = `vision_hackathon_registrations_${new Date().toISOString().slice(0, 10)}.csv`;
-            link.click();
-        });
+        function speak(text) {
+            if (!ttsEnabled || !window.speechSynthesis) return;
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            u.rate = 0.95;
+            window.speechSynthesis.speak(u);
+        }
 
-        exportExcelBtn.addEventListener('click', () => {
-            if (registeredTeams.length === 0) return alert('No records to export.');
-            const rows = registeredTeams.map((t, idx) => {
-                const m1 = t.members && t.members[0] ? t.members[0] : {};
-                const m2 = t.members && t.members[1] ? t.members[1] : {};
-                const m3 = t.members && t.members[2] ? t.members[2] : {};
-                const m4 = t.members && t.members[3] ? t.members[3] : {};
-                return {
-                    '#': idx + 1,
-                    'Team Name': t.team_name || '',
-                    'Leader Name': m1.name || '',
-                    'Leader Email': m1.email || '',
-                    'Leader Mobile': m1.mobile || '',
-                    'Member 2 Name': m2.name || '',
-                    'Member 2 Email': m2.email || '',
-                    'Member 2 Mobile': m2.mobile || '',
-                    'Member 3 Name': m3.name || '',
-                    'Member 3 Email': m3.email || '',
-                    'Member 3 Mobile': m3.mobile || '',
-                    'Member 4 Name': m4.name || '',
-                    'Member 4 Email': m4.email || '',
-                    'Member 4 Mobile': m4.mobile || '',
-                    'Transaction ID': t.txn_id || '',
-                    'Status': t.status || 'pending',
-                    'Checked In': t.checked_in ? 'YES' : 'NO',
-                    'Check In Time': t.check_in_timestamp || '',
-                    'Doc ID': t.id || ''
-                };
+        async function openScanner() {
+            scannerModal.classList.remove('hidden');
+            scannerResult.classList.add('hidden');
+            activeScannedTeam = null;
+
+            if (window.Html5Qrcode) {
+                try {
+                    html5Scanner = new Html5Qrcode("qr-reader");
+                    await html5Scanner.start(
+                        { facingMode: "environment" },
+                        { fps: 20, qrbox: 220 },
+                        onQrScanned,
+                        () => {}
+                    );
+                } catch (e) {
+                    console.warn('Camera failed:', e);
+                }
+            }
+        }
+
+        async function closeScanner() {
+            if (html5Scanner) {
+                try { await html5Scanner.stop(); } catch (_) {}
+                html5Scanner = null;
+            }
+            scannerModal.classList.add('hidden');
+        }
+
+        if (openScannerBtn) openScannerBtn.addEventListener('click', openScanner);
+        if (closeScannerBtn) closeScannerBtn.addEventListener('click', closeScanner);
+
+        function onQrScanned(token) {
+            findScannedTeam(token.trim());
+        }
+
+        if (scannerManualBtn) {
+            scannerManualBtn.addEventListener('click', () => {
+                const q = scannerManualInput.value.trim();
+                if (q) findScannedTeam(q);
             });
+        }
+
+        function findScannedTeam(queryText) {
+            const q = queryText.toLowerCase();
+            const team = registeredTeams.find(t => 
+                (t.id && t.id.toLowerCase().includes(q)) ||
+                (t.team_name && t.team_name.toLowerCase().includes(q)) ||
+                (t.members && t.members.some(m => m.name.toLowerCase().includes(q) || m.mobile?.includes(q)))
+            );
+
+            if (!team) {
+                alert(`No squad matching "${queryText}" was found.`);
+                return;
+            }
+
+            activeScannedTeam = team;
+            scanTeamName.textContent = team.team_name;
+            scanEventBadge.textContent = team.event_name || 'EVENT';
+            scanLeader.textContent = team.members && team.members[0] ? `${team.members[0].name} (${team.members[0].mobile})` : 'N/A';
+            scanMembers.textContent = (team.members || []).slice(1).map(m => m.name).join(', ') || 'Solo';
+
+            const checkedIn = team.checked_in === true;
+            scanCheckinStatus.innerHTML = checkedIn
+                ? `<span class="text-emerald-400 font-bold">ALREADY CHECKED-IN</span>`
+                : `<span class="text-amber-400 font-bold">NOT YET CHECKED-IN</span>`;
+
+            scannerResult.classList.remove('hidden');
+            SFX.success();
+
+            const leaderFirst = (team.members && team.members[0] ? team.members[0].name : 'Leader').split(' ')[0];
+            speak(`Squad ${team.team_name} verified for ${team.event_name}! Welcome ${leaderFirst}!`);
+        }
+
+        // Gate scanner check-in — uses _colId for per-event subcollection
+        if (scanCheckinBtn) {
+            scanCheckinBtn.addEventListener('click', async () => {
+                if (!activeScannedTeam || !db) return;
+                const colId = activeScannedTeam._colId || 'paper-presentation';
+                try {
+                    await updateDoc(doc(db, 'events', colId, 'registrations', activeScannedTeam.id), {
+                        checked_in: true,
+                        check_in_timestamp: new Date().toISOString()
+                    });
+                    scanCheckinStatus.innerHTML = `<span class="text-emerald-400 font-bold">✓ CHECKED-IN NOW!</span>`;
+                    SFX.success();
+                    speak(`Squad ${activeScannedTeam.team_name} checked in successfully!`);
+                } catch (e) {
+                    alert('Check-in error: ' + e.message);
+                }
+            });
+        }
+
+        if (scanPrintBadgeBtn) {
+            scanPrintBadgeBtn.addEventListener('click', () => {
+                if (activeScannedTeam) printLanyardBadge(activeScannedTeam.id);
+            });
+        }
+
+        /* =========================================================
+           EXPORTERS (EXCEL & CSV)
+           Helper: build row array from a team object
+           ========================================================= */
+        function buildRow(t, idx) {
+            const m1 = t.members && t.members[0] ? t.members[0] : {};
+            const m2 = t.members && t.members[1] ? t.members[1] : {};
+            const m3 = t.members && t.members[2] ? t.members[2] : {};
+            return {
+                '#': idx + 1,
+                'Squad Name': t.team_name || '',
+                'Event Track': t.event_name || '',
+                'Topic / Title': t.project_title || '',
+                'Leader Name': m1.name || '',
+                'Leader Email': m1.email || '',
+                'Leader Mobile': m1.mobile || '',
+                'Member 2 Name': m2.name || '',
+                'Member 2 Mobile': m2.mobile || '',
+                'Member 3 Name': m3.name || '',
+                'Member 3 Mobile': m3.mobile || '',
+                'Gate Checked In': t.checked_in ? 'YES' : 'NO',
+                'Check In Time': t.check_in_timestamp || '',
+                'Doc ID': t.id || ''
+            };
+        }
+
+        // Export a SINGLE event's registrations as Excel
+        window.exportEventExcel = function(eventColId, eventLabel) {
+            const teams = teamsByEvent[eventColId] || [];
+            if (teams.length === 0) return alert(`No registrations found for ${eventLabel}.`);
+            const rows = teams.map((t, i) => buildRow(t, i));
             const ws = XLSX.utils.json_to_sheet(rows);
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Registrations');
-            XLSX.writeFile(wb, `vision_hackathon_${new Date().toISOString().slice(0, 10)}.xlsx`);
-        });
-
-        /* ==========================================================
-           ORGANIZER REAL-TIME ALERTS SETUP & TESTING ENGINE
-           ========================================================== */
-        const waAlertsModal = document.getElementById('wa-alerts-modal');
-        const waAlertsSetupBtn = document.getElementById('whatsapp-alerts-setup-btn');
-        const closeWaAlertsBtn = document.getElementById('close-wa-alerts-btn');
-        const cancelWaAlertsBtn = document.getElementById('cancel-wa-alerts-btn');
-        const saveWaAlertsBtn = document.getElementById('save-wa-alerts-btn');
-        const testTgAlertBtn = document.getElementById('test-tg-alert-btn');
-        const testWaAlertBtn = document.getElementById('test-wa-alert-btn');
-        const tgTokenInput = document.getElementById('tg-token-input');
-        const tgChatIdInput = document.getElementById('tg-chat-id-input');
-        const callmebotKeyInput = document.getElementById('callmebot-key-input');
-        const customWebhookInput = document.getElementById('custom-webhook-input');
-
-        if (waAlertsSetupBtn) {
-            waAlertsSetupBtn.addEventListener('click', () => {
-                if (tgTokenInput) tgTokenInput.value = localStorage.getItem('vision_tg_token') || organizerConfig?.telegramBotToken || '';
-                if (tgChatIdInput) tgChatIdInput.value = localStorage.getItem('vision_tg_chat_id') || organizerConfig?.telegramChatId || '';
-                if (callmebotKeyInput) callmebotKeyInput.value = localStorage.getItem('vision_callmebot_key') || '';
-                if (customWebhookInput) customWebhookInput.value = localStorage.getItem('vision_organizer_webhook') || '';
-                if (waAlertsModal) waAlertsModal.classList.remove('hidden');
-                SFX.click();
-            });
-        }
-
-        const closeWaAlerts = () => {
-            if (waAlertsModal) waAlertsModal.classList.add('hidden');
-            SFX.click();
+            const sheetName = eventLabel.replace(/[\\/:*?[\]]/g, '').substring(0, 31);
+            XLSX.utils.book_append_sheet(wb, ws, sheetName);
+            const filename = `Vision2K26_${eventColId}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+            XLSX.writeFile(wb, filename);
         };
-        if (closeWaAlertsBtn) closeWaAlertsBtn.addEventListener('click', closeWaAlerts);
-        if (cancelWaAlertsBtn) cancelWaAlertsBtn.addEventListener('click', closeWaAlerts);
 
-        if (saveWaAlertsBtn) {
-            saveWaAlertsBtn.addEventListener('click', () => {
-                const tgToken = (tgTokenInput ? tgTokenInput.value : '').trim();
-                const tgChatId = (tgChatIdInput ? tgChatIdInput.value : '').trim();
-                const key = (callmebotKeyInput ? callmebotKeyInput.value : '').trim();
-                const webhook = (customWebhookInput ? customWebhookInput.value : '').trim();
-
-                localStorage.setItem('vision_tg_token', tgToken);
-                localStorage.setItem('vision_tg_chat_id', tgChatId);
-                localStorage.setItem('vision_callmebot_key', key);
-                localStorage.setItem('vision_organizer_webhook', webhook);
-
-                alert('✓ Real-time notification settings saved successfully!');
-                SFX.success();
-                closeWaAlerts();
+        // Export ALL events as a multi-sheet Excel workbook (one sheet per event)
+        window.exportAllExcelSheets = function() {
+            if (registeredTeams.length === 0) return alert('No registrations to export.');
+            const wb = XLSX.utils.book_new();
+            EVENTS.forEach(ev => {
+                const teams = teamsByEvent[ev.id] || [];
+                const rows = teams.map((t, i) => buildRow(t, i));
+                const ws = XLSX.utils.json_to_sheet(rows.length > 0 ? rows : [{ 'Note': 'No registrations yet' }]);
+                const sheetName = ev.label.replace(/[\\/:*?[\]]/g, '').substring(0, 31);
+                XLSX.utils.book_append_sheet(wb, ws, sheetName);
             });
+            XLSX.writeFile(wb, `Vision2K26_ALL_Events_${new Date().toISOString().slice(0, 10)}.xlsx`);
+        };
+
+        // Combined "All Events" single-sheet Excel (via the KPI card button)
+        if (exportExcelBtn) {
+            exportExcelBtn.addEventListener('click', () => exportAllExcelSheets());
         }
 
-        // Test Telegram Alert Ping
-        if (testTgAlertBtn) {
-            testTgAlertBtn.addEventListener('click', async () => {
-                const token = (tgTokenInput ? tgTokenInput.value : '').trim() || localStorage.getItem('vision_tg_token');
-                const chatId = (tgChatIdInput ? tgChatIdInput.value : '').trim() || localStorage.getItem('vision_tg_chat_id');
-                if (!token || !chatId) {
-                    alert('Please enter your Telegram Bot Token and Chat ID first.');
-                    return;
-                }
-
-                testTgAlertBtn.disabled = true;
-                testTgAlertBtn.textContent = 'Sending...';
-
-                const testMsg = 
-`⚡ *VISION 2026 — TELEGRAM BOT TEST SUCCESSFUL*
-
-Greetings Eniyan! Your real-time registration bot is ACTIVE and verified!
-
-• Bot Status: ✅ ONLINE
-• Recipient: Chat ID \`${chatId}\`
-• Timestamp: ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
-
-Whenever any squad registers on the portal, you will receive an instant notification right here with all squad details!`;
-
-                try {
-                    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            chat_id: chatId,
-                            text: testMsg,
-                            parse_mode: 'Markdown'
-                        })
-                    });
-                    const data = await res.json();
-                    if (data.ok) {
-                        alert('✓ Test message sent to your Telegram! Check your app.');
-                        SFX.success();
-                    } else {
-                        throw new Error(data.description || 'Telegram API rejected request');
-                    }
-                } catch (err) {
-                    alert('Telegram test failed: ' + err.message + '\n\nTip: Make sure you opened your bot and pressed "Start" once!');
-                    SFX.error();
-                } finally {
-                    testTgAlertBtn.disabled = false;
-                    testTgAlertBtn.innerHTML = '<span>✈️</span> Test Telegram';
-                }
-            });
-        }
-
-        // Test WhatsApp Alert Ping
-        if (testWaAlertBtn) {
-            testWaAlertBtn.addEventListener('click', async () => {
-                const key = (callmebotKeyInput.value || localStorage.getItem('vision_callmebot_key') || '').trim();
-                if (!key) {
-                    alert('Please enter your CallMeBot API key first to send a test alert.');
-                    return;
-                }
-                testWaAlertBtn.disabled = true;
-                testWaAlertBtn.textContent = 'Sending...';
-                try {
-                    const testMsg = 
-`⚡ *VISION 2026 — ORGANIZER ALERT SYSTEM TEST*
-
-Greetings Eniyan! Your real-time registration notification channel is ACTIVE and ready.
-
-• Recipient: +91 73394 36468
-• Timestamp: ${new Date().toLocaleTimeString('en-IN')}`;
-
-                    const apiUrl = `https://api.callmebot.com/whatsapp.php?phone=917339436468&text=${encodeURIComponent(testMsg)}&apikey=${key}`;
-                    await fetch(apiUrl, { mode: 'no-cors' });
-                    alert('✓ Test ping sent to +91 73394 36468! Check your WhatsApp.');
-                    SFX.success();
-                } catch (err) {
-                    alert('Test alert error: ' + err.message);
-                    SFX.error();
-                } finally {
-                    testWaAlertBtn.disabled = false;
-                    testWaAlertBtn.innerHTML = '<span>💬</span> Test WA';
-                }
+        // CSV Export (all events, combined)
+        if (exportCsvBtn) {
+            exportCsvBtn.addEventListener('click', () => {
+                if (registeredTeams.length === 0) return alert('No registrations to export.');
+                const headers = ['#', 'Squad Name', 'Event Track', 'Topic', 'Leader Name', 'Leader Email', 'Leader Mobile', 'Member 2 Name', 'Member 2 Mobile', 'Member 3 Name', 'Member 3 Mobile', 'Checked In'];
+                const rows = registeredTeams.map((t, idx) => {
+                    const m1 = t.members && t.members[0] ? t.members[0] : {};
+                    const m2 = t.members && t.members[1] ? t.members[1] : {};
+                    const m3 = t.members && t.members[2] ? t.members[2] : {};
+                    return [
+                        idx + 1,
+                        `"${(t.team_name || '').replace(/"/g, '""')}"`,
+                        `"${(t.event_name || '').replace(/"/g, '""')}"`,
+                        `"${(t.project_title || '').replace(/"/g, '""')}"`,
+                        `"${(m1.name || '').replace(/"/g, '""')}"`,
+                        m1.email || '',
+                        m1.mobile || '',
+                        `"${(m2.name || '').replace(/"/g, '""')}"`,
+                        m2.mobile || '',
+                        `"${(m3.name || '').replace(/"/g, '""')}"`,
+                        m3.mobile || '',
+                        t.checked_in ? 'YES' : 'NO'
+                    ];
+                });
+                const csv = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+                const link = document.createElement('a');
+                link.href = encodeURI(csv);
+                link.download = `vision_2k26_registrations_${new Date().toISOString().slice(0, 10)}.csv`;
+                link.click();
             });
         }
     </script>
