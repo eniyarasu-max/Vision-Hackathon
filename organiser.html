@@ -532,6 +532,9 @@
                 </div>
 
                 <div class="pt-2 flex items-center gap-2 flex-wrap">
+                    <button id="scan-view-receipt-btn" class="bg-surface-container hover:bg-surface-container-high border border-amber-500/50 text-amber-300 font-bold py-2 px-3 rounded-xs flex items-center justify-center gap-1 cursor-pointer text-xs transition-colors" title="Inspect Payment Proof Screenshot">
+                        <span class="material-symbols-outlined text-sm">receipt_long</span> Receipt
+                    </button>
                     <button id="scan-verify-pay-btn" class="bg-amber-500/20 hover:bg-amber-500 hover:text-black border border-amber-500 text-amber-300 font-bold py-2 px-3 rounded-xs flex items-center justify-center gap-1.5 cursor-pointer text-xs transition-colors">
                         <span class="material-symbols-outlined text-sm">verified</span> Verify Payment
                     </button>
@@ -544,6 +547,75 @@
                 </div>
             </div>
 
+    <!-- ============ PAYMENT RECEIPT / SCREENSHOT INSPECTION MODAL ============ -->
+    <div id="receipt-modal" style="display:none;" class="fixed inset-0 z-[99999] flex items-center justify-center bg-black/90 backdrop-blur-md p-3 sm:p-4 overflow-y-auto">
+        <div class="relative w-full max-w-lg bg-surface-container-lowest border-2 border-primary/70 rounded-xs shadow-[0_0_50px_rgba(240,193,44,0.35)] flex flex-col overflow-hidden animate-fade-in-up my-auto">
+            
+            <!-- Modal Header -->
+            <div class="p-4 bg-surface-container border-b border-primary/30 flex items-center justify-between z-10">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-xl">receipt_long</span>
+                    <div>
+                        <div class="font-orbitron text-xs font-bold tracking-wider text-primary uppercase">PAYMENT PROOF VERIFICATION</div>
+                        <div class="font-mono text-[10px] text-zinc-400" id="receipt-modal-squad">SQUAD CALLSIGN</div>
+                    </div>
+                </div>
+                <button id="close-receipt-btn" class="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-primary rounded cursor-pointer transition-colors" title="Close Receipt Modal">
+                    <span class="material-symbols-outlined text-xl">close</span>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-4 space-y-3 max-h-[75vh] overflow-y-auto">
+                <!-- Meta Info Grid -->
+                <div class="grid grid-cols-2 gap-2.5 font-mono text-xs bg-surface-container/70 p-3 rounded-xs border border-outline-variant/30">
+                    <div>
+                        <div class="text-[10px] text-zinc-400 uppercase">UPI Txn ID</div>
+                        <div class="font-bold text-amber-300 flex items-center gap-1 select-all" id="receipt-modal-txnid">--</div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-zinc-400 uppercase">Calculated Fee</div>
+                        <div class="font-bold text-emerald-400" id="receipt-modal-fee">--</div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-zinc-400 uppercase">Event Track(s)</div>
+                        <div class="text-zinc-200 truncate" id="receipt-modal-events">--</div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-zinc-400 uppercase">Payment Status</div>
+                        <div id="receipt-modal-status">--</div>
+                    </div>
+                </div>
+
+                <!-- Screenshot Preview Frame -->
+                <div class="space-y-1.5">
+                    <div class="flex items-center justify-between font-mono text-[11px] text-zinc-400">
+                        <span>Payment Screenshot / Receipt</span>
+                        <a id="receipt-modal-open-link" href="#" target="_blank" class="text-primary hover:underline flex items-center gap-1 text-[10px]">
+                            <span class="material-symbols-outlined text-xs">open_in_new</span> Open Full Resolution
+                        </a>
+                    </div>
+                    <div class="relative bg-black/90 border border-primary/40 rounded-xs min-h-[240px] max-h-[440px] flex items-center justify-center overflow-hidden">
+                        <img id="receipt-modal-img" src="" alt="Payment Screenshot" class="max-h-[420px] w-auto max-w-full object-contain rounded" />
+                        <div id="receipt-modal-noimg" class="hidden flex flex-col items-center justify-center gap-2 p-6 text-center text-zinc-500 font-mono text-xs">
+                            <span class="material-symbols-outlined text-3xl">image_not_supported</span>
+                            <span>No payment screenshot attached for this registration.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer Actions -->
+            <div class="p-3.5 bg-surface-container border-t border-outline-variant/30 flex items-center justify-between gap-2">
+                <button type="button" id="receipt-modal-copy-btn" class="font-mono text-xs font-bold text-zinc-300 hover:text-white bg-surface-container-high px-3 py-2 rounded-xs border border-outline-variant/40 hover:border-primary flex items-center gap-1 cursor-pointer transition-colors">
+                    <span class="material-symbols-outlined text-sm">content_copy</span> Copy Txn ID
+                </button>
+                <div class="flex items-center gap-2">
+                    <button type="button" id="receipt-modal-toggle-btn" class="font-mono text-xs font-bold px-4 py-2 rounded-xs border cursor-pointer transition-all flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-sm">verified</span> Verify Payment
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -970,14 +1042,22 @@
                     ? `<button onclick="togglePaymentStatus('${t.id}', true)" class="inline-flex items-center gap-1 text-[10px] px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 hover:bg-emerald-500/30 cursor-pointer font-bold whitespace-nowrap" title="Payment Verified! Click to toggle back to Pending"><span class="material-symbols-outlined text-[13px]">verified</span> VERIFIED</button>`
                     : `<button onclick="togglePaymentStatus('${t.id}', false)" class="inline-flex items-center gap-1 text-[10px] px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/60 hover:bg-amber-500/30 cursor-pointer font-bold shadow-[0_0_10px_rgba(245,158,11,0.2)] whitespace-nowrap" title="Click to manually verify UPI payment"><span class="material-symbols-outlined text-[13px]">pending</span> VERIFY PAYMENT</button>`;
 
+                const hasProof = !!(t.payment_screenshot || t.payment_screenshot_url);
+                const proofBtn = hasProof
+                    ? `<button onclick="openReceiptModal('${t.id}')" class="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 border border-amber-500/40 text-amber-300 hover:bg-amber-500/30 transition-colors cursor-pointer mt-1 font-mono font-bold" title="Inspect UPI Payment Screenshot"><span class="material-symbols-outlined text-[12px]">receipt_long</span> VIEW PROOF</button>`
+                    : `<span class="text-[9px] text-zinc-500 font-mono italic block mt-0.5">No proof attached</span>`;
+
                 const txnDisplay = t.transaction_id
-                    ? `<div class="flex items-center gap-1 font-mono text-[11px] text-amber-300">
-                         <span class="select-all font-bold tracking-wider">${escapeHtml(t.transaction_id)}</span>
-                         <button onclick="copyToClipboard('${escapeHtml(t.transaction_id)}', this)" class="p-0.5 text-zinc-400 hover:text-white cursor-pointer" title="Copy Transaction ID">
-                           <span class="material-symbols-outlined text-xs">content_copy</span>
-                         </button>
+                    ? `<div class="space-y-0.5">
+                         <div class="flex items-center gap-1 font-mono text-[11px] text-amber-300">
+                           <span class="select-all font-bold tracking-wider">${escapeHtml(t.transaction_id)}</span>
+                           <button onclick="copyToClipboard('${escapeHtml(t.transaction_id)}', this)" class="p-0.5 text-zinc-400 hover:text-white cursor-pointer" title="Copy Transaction ID">
+                             <span class="material-symbols-outlined text-xs">content_copy</span>
+                           </button>
+                         </div>
+                         ${proofBtn}
                        </div>`
-                    : `<span class="text-zinc-500 font-mono text-[10px] italic">--</span>`;
+                    : `<div class="space-y-0.5"><span class="text-zinc-500 font-mono text-[10px] italic">--</span>${proofBtn}</div>`;
 
                 const topicTitle = t.paper_title || t.project_title || '';
                 const topicDisplay = topicTitle
@@ -1392,6 +1472,104 @@
             });
         }
 
+        const scanViewReceiptBtn = document.getElementById('scan-view-receipt-btn');
+        if (scanViewReceiptBtn) {
+            scanViewReceiptBtn.addEventListener('click', () => {
+                if (activeScannedTeam) openReceiptModal(activeScannedTeam.id);
+            });
+        }
+
+        /* ---------- Payment Receipt / Proof Modal Logic ---------- */
+        let activeReceiptTeam = null;
+        const receiptModal = document.getElementById('receipt-modal');
+        const closeReceiptBtn = document.getElementById('close-receipt-btn');
+        const receiptModalSquad = document.getElementById('receipt-modal-squad');
+        const receiptModalTxnId = document.getElementById('receipt-modal-txnid');
+        const receiptModalFee = document.getElementById('receipt-modal-fee');
+        const receiptModalEvents = document.getElementById('receipt-modal-events');
+        const receiptModalStatus = document.getElementById('receipt-modal-status');
+        const receiptModalImg = document.getElementById('receipt-modal-img');
+        const receiptModalNoImg = document.getElementById('receipt-modal-noimg');
+        const receiptModalOpenLink = document.getElementById('receipt-modal-open-link');
+        const receiptModalCopyBtn = document.getElementById('receipt-modal-copy-btn');
+        const receiptModalToggleBtn = document.getElementById('receipt-modal-toggle-btn');
+
+        window.openReceiptModal = function(docId) {
+            const team = registeredTeams.find(t => t.id === docId);
+            if (!team) return;
+            activeReceiptTeam = team;
+
+            const memberCount = getSquadMemberCount(team);
+            const feeTotal = memberCount * 100;
+            const isPayVer = (team.payment_status === 'verified' || team.status === 'verified');
+            const screenshot = team.payment_screenshot_url || team.payment_screenshot;
+
+            if (receiptModalSquad) receiptModalSquad.textContent = (team.team_name || 'Squad').toUpperCase();
+            if (receiptModalTxnId) receiptModalTxnId.textContent = team.transaction_id || 'Not provided';
+            if (receiptModalFee) receiptModalFee.textContent = `₹${feeTotal} (${memberCount} member${memberCount > 1 ? 's' : ''} × ₹100)`;
+            if (receiptModalEvents) receiptModalEvents.textContent = team.event_name || 'Event';
+            if (receiptModalStatus) {
+                receiptModalStatus.innerHTML = isPayVer
+                    ? `<span class="text-emerald-400 font-bold">✓ VERIFIED</span>`
+                    : `<span class="text-amber-400 font-bold">⏳ PENDING</span>`;
+            }
+
+            if (screenshot) {
+                if (receiptModalImg) {
+                    receiptModalImg.src = screenshot;
+                    receiptModalImg.style.display = 'block';
+                }
+                if (receiptModalNoImg) receiptModalNoImg.classList.add('hidden');
+                if (receiptModalOpenLink) {
+                    receiptModalOpenLink.href = screenshot;
+                    receiptModalOpenLink.classList.remove('hidden');
+                }
+            } else {
+                if (receiptModalImg) receiptModalImg.style.display = 'none';
+                if (receiptModalNoImg) receiptModalNoImg.classList.remove('hidden');
+                if (receiptModalOpenLink) receiptModalOpenLink.classList.add('hidden');
+            }
+
+            if (receiptModalToggleBtn) {
+                receiptModalToggleBtn.innerHTML = isPayVer
+                    ? `<span class="material-symbols-outlined text-sm">history</span> Mark as Pending`
+                    : `<span class="material-symbols-outlined text-sm">verified</span> Approve &amp; Verify Payment`;
+                receiptModalToggleBtn.className = isPayVer
+                    ? 'font-mono text-xs font-bold px-4 py-2 rounded-xs border border-zinc-600 bg-surface-container-high text-zinc-300 hover:text-white cursor-pointer transition-all flex items-center gap-1.5'
+                    : 'font-mono text-xs font-bold px-4 py-2 rounded-xs border border-emerald-500 bg-emerald-500 text-black hover:bg-emerald-400 cursor-pointer transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(16,185,129,0.3)]';
+            }
+
+            if (receiptModal) {
+                receiptModal.style.display = 'flex';
+                SFX.click();
+            }
+        };
+
+        if (closeReceiptBtn) {
+            closeReceiptBtn.addEventListener('click', () => {
+                if (receiptModal) receiptModal.style.display = 'none';
+                activeReceiptTeam = null;
+                SFX.click();
+            });
+        }
+
+        if (receiptModalCopyBtn) {
+            receiptModalCopyBtn.addEventListener('click', () => {
+                if (activeReceiptTeam && activeReceiptTeam.transaction_id) {
+                    copyToClipboard(activeReceiptTeam.transaction_id, receiptModalCopyBtn);
+                }
+            });
+        }
+
+        if (receiptModalToggleBtn) {
+            receiptModalToggleBtn.addEventListener('click', async () => {
+                if (!activeReceiptTeam) return;
+                const currentVer = (activeReceiptTeam.payment_status === 'verified' || activeReceiptTeam.status === 'verified');
+                await togglePaymentStatus(activeReceiptTeam.id, currentVer);
+                if (receiptModal) receiptModal.style.display = 'none';
+            });
+        }
+
         /* =========================================================
            EXPORTERS (EXCEL & CSV)
            Helper: build row array from a team object
@@ -1402,6 +1580,7 @@
             const m3 = t.members && t.members[2] ? t.members[2] : {};
             const isPayVer = (t.payment_status === 'verified' || t.status === 'verified');
             const headCount = getSquadMemberCount(t);
+            const hasScreenshot = !!(t.payment_screenshot || t.payment_screenshot_url);
             return {
                 '#': idx + 1,
                 'Squad Name': t.team_name || '',
@@ -1412,6 +1591,7 @@
                 'Project Title': t.project_title || '',
                 'UPI Transaction ID': t.transaction_id || '',
                 'Payment Status': isPayVer ? 'VERIFIED' : 'PENDING',
+                'Payment Proof': hasScreenshot ? 'ATTACHED' : 'NONE',
                 'Leader Name': m1.name || '',
                 'Leader Email': m1.email || '',
                 'Leader Mobile': m1.mobile || '',
