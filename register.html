@@ -798,6 +798,7 @@
         function openGuidelines() {
             if (guidelinesModal) {
                 guidelinesModal.classList.remove('hidden');
+                guidelinesModal.style.display = 'flex';
                 document.body.style.overflow = 'hidden';
             }
         }
@@ -805,6 +806,7 @@
         function closeGuidelines() {
             if (guidelinesModal) {
                 guidelinesModal.classList.add('hidden');
+                guidelinesModal.style.display = 'none';
                 document.body.style.overflow = '';
                 try { SFX.click(); } catch (_) {}
             }
