@@ -260,6 +260,97 @@
 
             </div>
 
+            <!-- Financial & Headcount Analytics Hub -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                
+                <!-- Card: Total Headcount / Delegate Analytics -->
+                <div class="bg-surface-container border border-primary/40 p-5 rounded-xs relative overflow-hidden shadow-[0_0_30px_rgba(240,193,44,0.1)]">
+                    <div class="flex items-center justify-between border-b border-primary/20 pb-2.5 mb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary text-lg">groups</span>
+                            <span class="font-mono text-xs font-bold text-zinc-300 uppercase tracking-wider">HEADCOUNT &amp; PARTICIPANTS</span>
+                        </div>
+                        <span class="font-mono text-[10px] text-primary bg-primary/10 border border-primary/30 px-2 py-0.5 rounded font-bold">₹100 / HEAD</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 items-center">
+                        <div>
+                            <div class="font-mono text-[11px] text-zinc-400 uppercase">TOTAL PARTICIPANTS</div>
+                            <div class="font-orbitron text-3xl font-black text-primary gold-glow flex items-baseline gap-1.5" id="analytics-headcount">
+                                0 <span class="text-xs font-mono text-zinc-400 font-normal">delegates</span>
+                            </div>
+                            <div class="font-mono text-[10px] text-zinc-400 mt-1" id="analytics-avg-squad">
+                                Avg squad size: 0.0
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5 font-mono text-xs border-l border-outline-variant/30 pl-4">
+                            <div class="flex items-center justify-between text-zinc-300">
+                                <span class="text-zinc-400">Solo Squads (1):</span>
+                                <span class="font-bold text-white" id="analytics-solo-count">0</span>
+                            </div>
+                            <div class="flex items-center justify-between text-zinc-300">
+                                <span class="text-zinc-400">Duo Squads (2):</span>
+                                <span class="font-bold text-white" id="analytics-duo-count">0</span>
+                            </div>
+                            <div class="flex items-center justify-between text-zinc-300">
+                                <span class="text-zinc-400">Trio Squads (3):</span>
+                                <span class="font-bold text-white" id="analytics-trio-count">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-outline-variant/20 flex items-center justify-between font-mono text-xs">
+                        <span class="text-zinc-400 flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm text-emerald-400">how_to_reg</span> Present at Gate:
+                        </span>
+                        <span class="font-bold text-emerald-400" id="analytics-present-headcount">0 / 0 delegates (0%)</span>
+                    </div>
+                </div>
+
+                <!-- Card: Total Amount & Revenue Calculation -->
+                <div class="bg-surface-container border border-emerald-500/40 p-5 rounded-xs relative overflow-hidden shadow-[0_0_30px_rgba(16,185,129,0.1)]">
+                    <div class="flex items-center justify-between border-b border-emerald-500/20 pb-2.5 mb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-emerald-400 text-lg">payments</span>
+                            <span class="font-mono text-xs font-bold text-zinc-300 uppercase tracking-wider">REGISTRATION REVENUE ANALYSIS</span>
+                        </div>
+                        <span class="font-mono text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded font-bold">UPI / CASH</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 items-center">
+                        <div>
+                            <div class="font-mono text-[11px] text-zinc-400 uppercase">TOTAL EXPECTED REVENUE</div>
+                            <div class="font-orbitron text-3xl font-black text-emerald-400 flex items-baseline gap-1" id="analytics-total-amount">
+                                ₹0
+                            </div>
+                            <div class="font-mono text-[10px] text-zinc-400 mt-1" id="analytics-amount-calc">
+                                0 delegates × ₹100
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 font-mono text-xs border-l border-outline-variant/30 pl-4">
+                            <div class="bg-emerald-950/40 border border-emerald-500/30 p-2 rounded-xs">
+                                <div class="text-[10px] text-emerald-400 uppercase font-bold">✓ VERIFIED / COLLECTED</div>
+                                <div class="font-orbitron text-lg font-bold text-emerald-300" id="analytics-verified-amount">₹0</div>
+                                <div class="text-[9px] text-zinc-400" id="analytics-verified-sub">0 squads verified</div>
+                            </div>
+                            <div class="bg-amber-950/40 border border-amber-500/30 p-2 rounded-xs">
+                                <div class="text-[10px] text-amber-400 uppercase font-bold">⏳ PENDING VERIFICATION</div>
+                                <div class="font-orbitron text-lg font-bold text-amber-300" id="analytics-pending-amount">₹0</div>
+                                <div class="text-[9px] text-zinc-400" id="analytics-pending-sub">0 squads pending</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-outline-variant/20 flex items-center justify-between font-mono text-xs">
+                        <span class="text-zinc-400">Total Symposium Prize Pool:</span>
+                        <span class="font-bold text-amber-300">₹10,000 Cash Prizes</span>
+                    </div>
+                </div>
+
+            </div>
+
             <!-- Per-Event Excel Download Row -->
             <div class="bg-surface-container border border-primary/20 p-4 rounded-xs">
                 <div class="flex items-center gap-2 mb-3">
@@ -655,6 +746,22 @@
             }
         }
 
+        function getSquadMemberCount(team) {
+            if (!team) return 1;
+            if (Array.isArray(team.members) && team.members.length > 0) {
+                const valid = team.members.filter(m => m && (m.name || m.mobile || m.email));
+                return Math.max(1, valid.length);
+            }
+            if (typeof team.member_count === 'number' && team.member_count > 0) {
+                return team.member_count;
+            }
+            let count = 0;
+            if (team.leader_name || team.m1_name) count++;
+            if (team.m2_name || team.member2_name) count++;
+            if (team.m3_name || team.member3_name) count++;
+            return Math.max(1, count);
+        }
+
         function getUniqueSquadKey(t) {
             return (t.team_name_key || t.team_name || t.id || '').trim().toLowerCase().replace(/\s+/g, '');
         }
@@ -707,6 +814,73 @@
             if (adminPayVerified) adminPayVerified.textContent = payVerified;
             if (adminPayPending) adminPayPending.textContent = payPending;
 
+            // Headcount & Total Amount (Revenue) Analytics
+            let totalHeadcount = 0;
+            let admittedHeadcount = 0;
+            let verifiedHeadcount = 0;
+            let pendingHeadcount = 0;
+            let soloCount = 0;
+            let duoCount = 0;
+            let trioCount = 0;
+            let verifiedSquadCount = 0;
+            let pendingSquadCount = 0;
+
+            uniqueSquads.forEach(sq => {
+                const memCount = getSquadMemberCount(sq.entries[0]);
+                sq.memberCount = memCount;
+                totalHeadcount += memCount;
+
+                if (memCount === 1) soloCount++;
+                else if (memCount === 2) duoCount++;
+                else if (memCount >= 3) trioCount++;
+
+                if (sq.checked_in) {
+                    admittedHeadcount += memCount;
+                }
+
+                if (sq.is_verified) {
+                    verifiedHeadcount += memCount;
+                    verifiedSquadCount++;
+                } else {
+                    pendingHeadcount += memCount;
+                    pendingSquadCount++;
+                }
+            });
+
+            const totalAmount = totalHeadcount * 100;
+            const verifiedAmount = verifiedHeadcount * 100;
+            const pendingAmount = pendingHeadcount * 100;
+            const avgSquadSize = totalUnique > 0 ? (totalHeadcount / totalUnique).toFixed(1) : '0.0';
+            const presentPct = totalHeadcount > 0 ? Math.round((admittedHeadcount / totalHeadcount) * 100) : 0;
+
+            const elHeadcount = document.getElementById('analytics-headcount');
+            const elAvgSquad = document.getElementById('analytics-avg-squad');
+            const elSolo = document.getElementById('analytics-solo-count');
+            const elDuo = document.getElementById('analytics-duo-count');
+            const elTrio = document.getElementById('analytics-trio-count');
+            const elPresentHead = document.getElementById('analytics-present-headcount');
+
+            if (elHeadcount) elHeadcount.innerHTML = `${totalHeadcount} <span class="text-xs font-mono text-zinc-400 font-normal">delegates</span>`;
+            if (elAvgSquad) elAvgSquad.textContent = `Avg squad size: ${avgSquadSize} members`;
+            if (elSolo) elSolo.textContent = `${soloCount} (${soloCount} heads)`;
+            if (elDuo) elDuo.textContent = `${duoCount} (${duoCount * 2} heads)`;
+            if (elTrio) elTrio.textContent = `${trioCount} (${trioCount * 3} heads)`;
+            if (elPresentHead) elPresentHead.textContent = `${admittedHeadcount} / ${totalHeadcount} delegates (${presentPct}%)`;
+
+            const elTotalAmt = document.getElementById('analytics-total-amount');
+            const elAmtCalc = document.getElementById('analytics-amount-calc');
+            const elVerAmt = document.getElementById('analytics-verified-amount');
+            const elVerSub = document.getElementById('analytics-verified-sub');
+            const elPenAmt = document.getElementById('analytics-pending-amount');
+            const elPenSub = document.getElementById('analytics-pending-sub');
+
+            if (elTotalAmt) elTotalAmt.textContent = `₹${totalAmount.toLocaleString('en-IN')}`;
+            if (elAmtCalc) elAmtCalc.textContent = `${totalHeadcount} delegates × ₹100/head`;
+            if (elVerAmt) elVerAmt.textContent = `₹${verifiedAmount.toLocaleString('en-IN')}`;
+            if (elVerSub) elVerSub.textContent = `${verifiedSquadCount} squad(s) • ${verifiedHeadcount} heads`;
+            if (elPenAmt) elPenAmt.textContent = `₹${pendingAmount.toLocaleString('en-IN')}`;
+            if (elPenSub) elPenSub.textContent = `${pendingSquadCount} squad(s) • ${pendingHeadcount} heads`;
+
             // Count per event (from per-event buckets)
             if (chipPaper)   chipPaper.textContent   = `Paper: ${teamsByEvent['paper-presentation'].length}`;
             if (chipProject) chipProject.textContent = `Project: ${teamsByEvent['project-presentation'].length}`;
@@ -720,7 +894,10 @@
                     setDoc(doc(db, 'metadata', 'capacity'), {
                         registered_count: totalUnique,
                         current_registered: totalUnique,
-                        total_event_entries: totalEntries
+                        total_event_entries: totalEntries,
+                        total_headcount: totalHeadcount,
+                        total_amount_expected: totalAmount,
+                        total_amount_verified: verifiedAmount
                     }, { merge: true }).catch(() => {});
                 } catch (_) {}
             }
@@ -1224,10 +1401,13 @@
             const m2 = t.members && t.members[1] ? t.members[1] : {};
             const m3 = t.members && t.members[2] ? t.members[2] : {};
             const isPayVer = (t.payment_status === 'verified' || t.status === 'verified');
+            const headCount = getSquadMemberCount(t);
             return {
                 '#': idx + 1,
                 'Squad Name': t.team_name || '',
                 'Event Track': t.event_name || '',
+                'Head Count': headCount,
+                'Fee Amount (INR)': headCount * 100,
                 'Paper Title': t.paper_title || '',
                 'Project Title': t.project_title || '',
                 'UPI Transaction ID': t.transaction_id || '',
