@@ -1423,8 +1423,8 @@ Our squad *${(currentPassData.team_name || 'Squad').toUpperCase()}* has official
 👥 *Squad Roster:*
 ${membersList}
 💰 *Total Fee:* ₹${feeTotal} (₹100/delegate)
-${currentPassData.transaction_id ? `🔢 *UPI Ref ID:* \`${currentPassData.transaction_id}\`\n` : ''}
-━━━━━━━━━━━━━━━━━━━━━
+${currentPassData.transaction_id ? `🔢 *UPI Ref ID:* \`${currentPassData.transaction_id}\`\n` : ''}💳 *Payment Status:* ${currentPassData.payment_status === 'verified' ? '✅ VERIFIED' : '⏳ PENDING VERIFICATION'}
+${currentPassData.payment_status === 'verified' ? '' : '📞 *Call to verify slot:* *+91 73394 36468*\n'}━━━━━━━━━━━━━━━━━━━━━
 📍 *MISSION LOGISTICS*
 ━━━━━━━━━━━━━━━━━━━━━
 📅 *Date:* Monday, October 5, 2026

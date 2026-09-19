@@ -1212,15 +1212,17 @@
             const memberCount = getSquadMemberCount(t);
             const feeTotal = memberCount * 100;
             const isPayVer = (t.payment_status === 'verified' || t.status === 'verified');
-            const payStatusBadge = isPayVer ? '✅ VERIFIED & CONFIRMED' : '⏳ PENDING ON-SPOT VERIFICATION';
             const roster = (t.members || []).map((m, idx) => `   ${idx + 1}. *${m.name}* (${m.mobile})`).join('\n');
 
-            const msg = 
-`🚀🔥 *VISION 2K26 — SQUAD MISSION CONFIRMED!* 🔥🚀
+            let msg = '';
+
+            if (isPayVer) {
+                msg = 
+`🚀🔥 *VISION 2K26 — REGISTRATION & PAYMENT CONFIRMED!* 🔥🚀
 *IEEE Antennas & Propagation Society (AP-S) • Kongu Engineering College*
 
 Greetings Commander *${(t.team_name || 'Squad').toUpperCase()}*! ⚡
-Your squad is officially locked and loaded for the grand stage at *VISION 2K26*! 💥
+Great news! Your payment has been *VERIFIED & APPROVED* — your squad is officially cleared for entry at *VISION 2K26*! 💥
 
 ━━━━━━━━━━━━━━━━━━━━━
 📋 *MISSION DOSSIER & SQUAD BRIEFING*
@@ -1231,7 +1233,7 @@ Your squad is officially locked and loaded for the grand stage at *VISION 2K26*!
 👥 *Squad Size:* ${memberCount} Delegate${memberCount > 1 ? 's' : ''}
 ${roster}
 💰 *Total Registration:* ₹${feeTotal} (₹100/delegate)
-💳 *Payment Status:* ${payStatusBadge}
+💳 *Payment Status:* ✅ VERIFIED & CLEARED
 ${t.transaction_id ? `🔢 *UPI Txn ID:* \`${t.transaction_id}\`\n` : ''}
 ━━━━━━━━━━━━━━━━━━━━━
 📍 *REPORTING PROTOCOL*
@@ -1246,6 +1248,44 @@ Gear up to innovate, compete, and conquer! May the sharpest minds lead the futur
 See you on the battlefield! 🏁
 — *Team VISION 2K26 | IEEE AP-S KEC*
 🌐 *Helpline / Support:* +91 73394 36468`;
+            } else {
+                msg = 
+`⚡⚠️ *ACTION REQUIRED: VISION 2K26 REGISTRATION* ⚠️⚡
+*IEEE Antennas & Propagation Society (AP-S) • Kongu Engineering College*
+
+Attention Commander *${(t.team_name || 'Squad').toUpperCase()}*! 📢
+Your registration for *VISION 2K26* was received, but your *PAYMENT STATUS IS CURRENTLY PENDING*! ⏳
+
+━━━━━━━━━━━━━━━━━━━━━
+🚨 *PLEASE CALL US IMMEDIATELY TO CONFIRM YOUR SLOT!*
+━━━━━━━━━━━━━━━━━━━━━
+To finalize your registration and avoid slot cancellation, *PLEASE CALL OUR EVENT COORDINATOR RIGHT AWAY*:
+
+📞 *CALL NOW:* *+91 73394 36468*
+💬 *Or WhatsApp directly:* https://wa.me/917339436468
+🔢 *Keep Your UPI Txn ID Handy:* \`${t.transaction_id || 'Your Transaction ID'}\`
+💰 *Registration Fee:* ₹${feeTotal} (${memberCount} member${memberCount > 1 ? 's' : ''} × ₹100)
+
+━━━━━━━━━━━━━━━━━━━━━
+📋 *SQUAD DETAILS*
+━━━━━━━━━━━━━━━━━━━━━
+🎯 *Track / Event:* ${t.event_name || 'Technical Track'}
+🛡️ *Squad Callsign:* ${t.team_name}
+🆔 *Digital Pass ID:* ${t.id}
+👥 *Squad Roster:*
+${roster}
+
+━━━━━━━━━━━━━━━━━━━━━
+📍 *SYMPOSIUM LOGISTICS*
+━━━━━━━━━━━━━━━━━━━━━
+📅 *Date:* Monday, October 5, 2026 (08:30 AM IST)
+🏛️ *Venue:* Department of ECE, Kongu Engineering College, Perundurai, Erode
+
+⚠️ *Please call +91 73394 36468 immediately upon receiving this message so we can verify your payment and issue your final entry pass!* ⚡🔥
+
+— *Organising Committee | VISION 2K26*
+Kongu Engineering College (IEEE AP-S)`;
+            }
 
             window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
         };
