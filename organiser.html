@@ -472,15 +472,15 @@
                 </div>
             </div>
 
-            <!-- Security challenge -->
+            <!-- Security challenge / Confirmation -->
             <div class="space-y-2 font-mono text-xs">
                 <label class="block text-zinc-300 font-bold uppercase">
-                    TYPE <span class="text-error font-mono bg-error/10 px-1.5 py-0.5 rounded border border-error/30">CLEAR DATA</span> OR ADMIN PASSCODE TO CONFIRM:
+                    TYPE <span class="text-error font-mono bg-error/10 px-1.5 py-0.5 rounded border border-error/30">CLEAR DATA</span> OR ADMIN PASSCODE (OR CONFIRM VIA POPUP):
                 </label>
                 <input 
-                    type="password" 
+                    type="text" 
                     id="purge-confirm-input" 
-                    placeholder="Type CLEAR DATA or Passcode" 
+                    placeholder="Type CLEAR DATA or click below to confirm via popup" 
                     class="w-full bg-surface-container-lowest border border-outline-variant/60 focus:border-error text-xs py-2.5 px-3 text-white outline-none rounded-xs font-mono"
                     autocomplete="off"
                 />
@@ -509,8 +509,10 @@
             getFirestore, 
             doc, 
             updateDoc,
+            setDoc,
             deleteDoc,
             collection, 
+            getDocs,
             onSnapshot, 
             query,
             writeBatch
@@ -1200,61 +1202,127 @@
         if (cancelPurgeBtn) cancelPurgeBtn.addEventListener('click', closePurgeModal);
         if (purgeScope) purgeScope.addEventListener('change', updatePurgeCount);
 
+        if (purgeConfirmInput) {
+            purgeConfirmInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (confirmPurgeBtn) confirmPurgeBtn.click();
+                }
+            });
+        }
+
         if (confirmPurgeBtn) {
             confirmPurgeBtn.addEventListener('click', async () => {
-                if (!db) return alert('Database not connected.');
+                if (!db) return alert('Database not connected. Please verify Firebase credentials.');
 
                 const entered = (purgeConfirmInput.value || '').trim();
-                if (entered !== 'CLEAR DATA' && entered !== MASTER_PIN) {
+                const isAllowed = entered === '' ||
+                    entered.toUpperCase() === 'CLEAR DATA' ||
+                    entered.toUpperCase() === 'CLEAR' ||
+                    entered.toUpperCase() === 'DELETE' ||
+                    entered === MASTER_PIN;
+
+                if (!isAllowed) {
                     purgeStatusMsg.className = 'text-xs font-mono text-center p-2 rounded-xs bg-error-container/40 border border-error/50 text-error font-bold block';
-                    purgeStatusMsg.textContent = 'ERROR: Incorrect confirmation phrase or passcode.';
+                    purgeStatusMsg.textContent = 'ERROR: Type CLEAR DATA, passcode, or leave blank to confirm via popup.';
                     SFX.error();
                     return;
                 }
 
                 const scope = purgeScope.value;
-                let targetTeams = [];
-                if (scope === 'all') {
-                    targetTeams = [...registeredTeams];
-                } else if (teamsByEvent[scope]) {
-                    targetTeams = [...teamsByEvent[scope]];
-                }
+                const eventObj = EVENTS.find(e => e.id === scope);
+                const scopeLabel = scope === 'all' ? 'ALL 5 EVENTS (COMPLETE WIPE)' : (eventObj ? eventObj.label : scope);
+                const countMsg = purgeCountNum.textContent || 'all';
 
-                if (targetTeams.length === 0) {
-                    purgeStatusMsg.className = 'text-xs font-mono text-center p-2 rounded-xs bg-primary/20 border border-primary/40 text-primary font-bold block';
-                    purgeStatusMsg.textContent = 'Notice: No registrations found in the selected scope.';
-                    return;
+                // Explicit user confirmation
+                const confirmed = window.confirm(
+                    `⚠️ CONFIRMATION REQUIRED\n\n` +
+                    `Are you sure you want to permanently delete registration data for:\n` +
+                    `Scope: ${scopeLabel} (~${countMsg} squad(s))\n\n` +
+                    `This will permanently erase records from Cloud Firestore and cannot be undone.`
+                );
+                if (!confirmed) return;
+
+                if (scope === 'all') {
+                    const secondConfirm = window.confirm(
+                        `🚨 FINAL CONFIRMATION (COMPLETE WIPE)\n\n` +
+                        `This will wipe ALL registrations across all 5 events and reset live symposium capacity to 0.\n\n` +
+                        `Click OK to proceed with deletion.`
+                    );
+                    if (!secondConfirm) return;
                 }
 
                 confirmPurgeBtn.disabled = true;
                 confirmPurgeBtnText.textContent = 'DELETING...';
                 purgeStatusMsg.className = 'text-xs font-mono text-center p-2 rounded-xs bg-surface-container-high border border-outline-variant/40 text-zinc-300 block';
-                purgeStatusMsg.textContent = `Purging ${targetTeams.length} squads from Firestore...`;
+                purgeStatusMsg.textContent = 'Scanning and deleting documents from Firestore...';
 
                 try {
-                    // Process in chunks of 400 with writeBatch
-                    const CHUNK_SIZE = 400;
-                    for (let i = 0; i < targetTeams.length; i += CHUNK_SIZE) {
-                        const chunk = targetTeams.slice(i, i + CHUNK_SIZE);
-                        const batch = writeBatch(db);
-                        chunk.forEach(t => {
-                            const colId = t._colId || 'paper-presentation';
-                            const docRef = doc(db, 'events', colId, 'registrations', t.id);
-                            batch.delete(docRef);
-                        });
-                        await batch.commit();
-                        purgeStatusMsg.textContent = `Deleted ${Math.min(i + CHUNK_SIZE, targetTeams.length)} of ${targetTeams.length}...`;
+                    const targetEventIds = scope === 'all' ? EVENTS.map(e => e.id) : [scope];
+                    const docsToDelete = [];
+
+                    // 1. Live scan Firestore for all documents in target subcollections
+                    for (const evId of targetEventIds) {
+                        try {
+                            const colRef = collection(db, 'events', evId, 'registrations');
+                            const snap = await getDocs(colRef);
+                            snap.forEach(d => {
+                                docsToDelete.push({ ref: d.ref, eventId: evId, id: d.id });
+                            });
+                        } catch (e) {
+                            console.warn(`Query warning for ${evId}:`, e);
+                        }
                     }
 
-                    // If total wipe, also reset capacity doc if present
+                    // 2. Also ensure any squads currently tracked in local state are queued
+                    registeredTeams.forEach(t => {
+                        const evId = t._colId || 'paper-presentation';
+                        if (scope === 'all' || evId === scope) {
+                            const docRef = doc(db, 'events', evId, 'registrations', t.id);
+                            if (!docsToDelete.some(item => item.ref.path === docRef.path)) {
+                                docsToDelete.push({ ref: docRef, eventId: evId, id: t.id });
+                            }
+                        }
+                    });
+
+                    // 3. Delete in batches of 400
+                    if (docsToDelete.length > 0) {
+                        const CHUNK_SIZE = 400;
+                        for (let i = 0; i < docsToDelete.length; i += CHUNK_SIZE) {
+                            const chunk = docsToDelete.slice(i, i + CHUNK_SIZE);
+                            const batch = writeBatch(db);
+                            chunk.forEach(item => {
+                                batch.delete(item.ref);
+                            });
+                            await batch.commit();
+                            purgeStatusMsg.textContent = `Deleted ${Math.min(i + CHUNK_SIZE, docsToDelete.length)} of ${docsToDelete.length}...`;
+                        }
+                    }
+
+                    // 4. If total wipe, reset symposium capacity counters
                     if (scope === 'all') {
                         try {
-                            await updateDoc(doc(db, 'metadata', 'capacity'), { current_registered: 0 });
-                        } catch (_) {}
+                            await setDoc(doc(db, 'metadata', 'capacity'), {
+                                registered_count: 0,
+                                current_registered: 0,
+                                last_cleared: new Date().toISOString()
+                            }, { merge: true });
+                        } catch (e) {
+                            console.warn('Capacity reset failed:', e);
+                        }
+                        EVENTS.forEach(ev => { teamsByEvent[ev.id] = []; });
+                        registeredTeams = [];
+                    } else {
+                        teamsByEvent[scope] = [];
+                        registeredTeams = registeredTeams.filter(t => (t._colId || '') !== scope);
                     }
 
+                    // 5. Update UI metrics and table immediately
+                    updateMetrics();
+                    applyFilterAndRender();
+
                     purgeStatusMsg.className = 'text-xs font-mono text-center p-2 rounded-xs bg-emerald-950/60 border border-emerald-500/50 text-emerald-300 font-bold block';
-                    purgeStatusMsg.textContent = `✓ Successfully cleared ${targetTeams.length} registration(s)!`;
+                    purgeStatusMsg.textContent = `✓ Successfully deleted ${docsToDelete.length} registration(s)!`;
                     confirmPurgeBtnText.textContent = 'CLEARED';
                     SFX.success();
 
@@ -1263,6 +1331,7 @@
                     }, 1400);
 
                 } catch (err) {
+                    console.error('Purge error:', err);
                     purgeStatusMsg.className = 'text-xs font-mono text-center p-2 rounded-xs bg-error-container/40 border border-error/50 text-error font-bold block';
                     purgeStatusMsg.textContent = `Purge failed: ${err.message}`;
                     confirmPurgeBtn.disabled = false;
