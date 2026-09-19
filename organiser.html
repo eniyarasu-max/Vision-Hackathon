@@ -158,6 +158,10 @@
                 </div>
 
                 <div class="flex items-center gap-3">
+                    <button id="open-clear-db-btn" class="bg-error-container/25 hover:bg-error-container text-error hover:text-white border border-error/50 font-mono font-bold text-xs uppercase px-3 py-2 rounded-xs transition-all flex items-center gap-1.5 cursor-pointer shadow-[0_0_15px_rgba(255,180,171,0.15)]" title="Purge/Clear Event Registrations">
+                        <span class="material-symbols-outlined text-sm">delete_forever</span>
+                        <span class="hidden sm:inline">Clear Database</span>
+                    </button>
                     <button id="open-scanner-btn" class="bg-primary hover:bg-primary-container text-black font-mono font-bold text-xs uppercase px-4 py-2 rounded-xs transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(240,193,44,0.3)] cursor-pointer">
                         <span class="material-symbols-outlined text-sm">qr_code_scanner</span> On-Day Gate Scanner
                     </button>
@@ -227,8 +231,8 @@
                 <!-- Card 4: Quick Actions & Exporters -->
                 <div class="bg-surface-container border border-primary/30 p-5 rounded-xs flex flex-col justify-between">
                     <div>
-                        <div class="font-mono text-xs text-zinc-400 uppercase tracking-wider mb-1">DATA EXPORTS</div>
-                        <div class="font-orbitron text-base text-white font-bold">PER-EVENT SHEETS</div>
+                        <div class="font-mono text-xs text-zinc-400 uppercase tracking-wider mb-1">DATA ACTIONS</div>
+                        <div class="font-orbitron text-base text-white font-bold">EXPORTS &amp; PURGE</div>
                     </div>
                     <div class="mt-3 flex items-center gap-2 font-mono text-xs">
                         <button id="export-excel-btn" class="flex-1 bg-surface-container-high hover:bg-primary hover:text-black text-white border border-outline-variant/40 px-2 py-1.5 rounded-xs transition-colors flex items-center justify-center gap-1 cursor-pointer font-bold" title="Export all registrations">
@@ -238,7 +242,9 @@
                             <span class="material-symbols-outlined text-sm">download</span> CSV
                         </button>
                     </div>
-                    <div class="mt-2 font-mono text-[10px] text-zinc-400 leading-relaxed">↓ Per-event Excel below ↓</div>
+                    <button id="quick-clear-btn" class="mt-2.5 w-full bg-error-container/20 hover:bg-error-container text-error hover:text-white border border-error/40 px-2 py-1.5 rounded-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer font-bold font-mono text-xs" title="Clear all or selected event registrations">
+                        <span class="material-symbols-outlined text-sm">delete_forever</span> Clear Database
+                    </button>
                 </div>
 
             </div>
@@ -424,6 +430,74 @@
                 </div>
             </div>
 
+    <!-- ============ CLEAR DATABASE CONFIRMATION MODAL ============ -->
+    <div id="clear-db-modal" class="fixed inset-0 z-[999999] hidden flex items-center justify-center bg-black/95 backdrop-blur-md p-4 overflow-y-auto">
+        <div class="bg-surface-container-low border-2 border-error max-w-lg w-full p-6 rounded-xs relative shadow-[0_0_50px_rgba(255,180,171,0.25)] my-8 animate-fade-in-up space-y-5">
+            
+            <div class="flex items-center justify-between border-b border-error/30 pb-3">
+                <div class="flex items-center gap-2 text-error">
+                    <span class="material-symbols-outlined text-2xl">warning</span>
+                    <h3 class="font-orbitron text-sm sm:text-base font-bold uppercase tracking-wider">
+                        DANGER ZONE // PURGE DATABASE
+                    </h3>
+                </div>
+                <button id="close-clear-db-btn" class="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white rounded cursor-pointer">
+                    <span class="material-symbols-outlined text-xl">close</span>
+                </button>
+            </div>
+
+            <div class="bg-error-container/20 border border-error/40 p-3.5 rounded-xs text-xs font-mono text-zinc-300 space-y-2">
+                <div class="font-bold text-error flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm">report_problem</span>
+                    THIS ACTION CANNOT BE UNDONE
+                </div>
+                <p>
+                    Permanently deletes registrations from Cloud Firestore. Use this to reset test submissions before the live event on October 5, 2026.
+                </p>
+            </div>
+
+            <!-- Scope selector -->
+            <div class="space-y-1.5 font-mono text-xs">
+                <label class="block text-zinc-300 font-bold uppercase">SELECT PURGE SCOPE:</label>
+                <select id="purge-scope" class="w-full bg-surface-container-lowest border border-outline-variant/60 focus:border-error text-xs py-2.5 px-3 text-white outline-none rounded-xs cursor-pointer">
+                    <option value="all">⚠️ ALL 5 EVENTS (Complete Wipe)</option>
+                    <option value="paper-presentation">Paper Presentation only</option>
+                    <option value="project-presentation">Project Presentation only</option>
+                    <option value="ai-sprint">AI Sprint only</option>
+                    <option value="electrobid">ElectroBid only</option>
+                    <option value="line-following-robot">Line Following Robot only</option>
+                </select>
+                <div id="purge-count-preview" class="text-[11px] text-amber-400 mt-1">
+                    Affects: <strong id="purge-count-num">0</strong> squads
+                </div>
+            </div>
+
+            <!-- Security challenge -->
+            <div class="space-y-2 font-mono text-xs">
+                <label class="block text-zinc-300 font-bold uppercase">
+                    TYPE <span class="text-error font-mono bg-error/10 px-1.5 py-0.5 rounded border border-error/30">CLEAR DATA</span> OR ADMIN PASSCODE TO CONFIRM:
+                </label>
+                <input 
+                    type="password" 
+                    id="purge-confirm-input" 
+                    placeholder="Type CLEAR DATA or Passcode" 
+                    class="w-full bg-surface-container-lowest border border-outline-variant/60 focus:border-error text-xs py-2.5 px-3 text-white outline-none rounded-xs font-mono"
+                    autocomplete="off"
+                />
+            </div>
+
+            <div id="purge-status-msg" class="hidden text-xs font-mono text-center p-2 rounded-xs"></div>
+
+            <div class="flex items-center gap-3 pt-2">
+                <button id="cancel-purge-btn" class="flex-1 bg-surface-container hover:bg-surface-container-high text-zinc-300 border border-outline-variant/40 font-mono text-xs py-2.5 rounded-xs transition-colors cursor-pointer">
+                    Cancel
+                </button>
+                <button id="confirm-purge-btn" class="flex-1 bg-error-container hover:bg-error text-white font-mono font-bold text-xs py-2.5 rounded-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-[0_0_15px_rgba(255,180,171,0.3)] disabled:opacity-40 disabled:cursor-not-allowed">
+                    <span class="material-symbols-outlined text-sm">delete_forever</span>
+                    <span id="confirm-purge-btn-text">PURGE DATABASE</span>
+                </button>
+            </div>
+
         </div>
     </div>
 
@@ -438,7 +512,8 @@
             deleteDoc,
             collection, 
             onSnapshot, 
-            query
+            query,
+            writeBatch
         } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
         import SFX from './sounds.js';
 
@@ -974,6 +1049,226 @@
                 link.href = encodeURI(csv);
                 link.download = `vision_2k26_registrations_${new Date().toISOString().slice(0, 10)}.csv`;
                 link.click();
+            });
+        }
+
+        /* =========================================================
+           BULK ACTIONS (CHECK-IN & DELETE SELECTED)
+           ========================================================= */
+        const selectAllCheckbox = document.getElementById('select-all-checkbox');
+        const bulkToolbar = document.getElementById('bulk-toolbar');
+        const bulkCount = document.getElementById('bulk-count');
+        const bulkCheckinBtn = document.getElementById('bulk-checkin-btn');
+        const bulkDeleteBtn = document.getElementById('bulk-delete-btn');
+        const bulkCancelBtn = document.getElementById('bulk-cancel-btn');
+
+        function updateBulkToolbar() {
+            const selected = document.querySelectorAll('.team-select-checkbox:checked');
+            const count = selected.length;
+            if (count > 0) {
+                bulkToolbar.classList.remove('hidden');
+                bulkCount.textContent = `${count} Squad${count !== 1 ? 's' : ''} Selected`;
+            } else {
+                bulkToolbar.classList.add('hidden');
+            }
+        }
+
+        document.addEventListener('change', (e) => {
+            if (e.target && e.target.classList.contains('team-select-checkbox')) {
+                updateBulkToolbar();
+            }
+        });
+
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', () => {
+                const checkboxes = document.querySelectorAll('.team-select-checkbox');
+                checkboxes.forEach(cb => { cb.checked = selectAllCheckbox.checked; });
+                updateBulkToolbar();
+            });
+        }
+
+        if (bulkCancelBtn) {
+            bulkCancelBtn.addEventListener('click', () => {
+                const checkboxes = document.querySelectorAll('.team-select-checkbox');
+                checkboxes.forEach(cb => { cb.checked = false; });
+                if (selectAllCheckbox) selectAllCheckbox.checked = false;
+                updateBulkToolbar();
+            });
+        }
+
+        // Bulk Check-In
+        if (bulkCheckinBtn) {
+            bulkCheckinBtn.addEventListener('click', async () => {
+                const selected = Array.from(document.querySelectorAll('.team-select-checkbox:checked'));
+                if (selected.length === 0 || !db) return;
+                bulkCheckinBtn.disabled = true;
+                bulkCheckinBtn.textContent = 'Updating...';
+
+                for (const cb of selected) {
+                    const docId = cb.getAttribute('data-id');
+                    const team = registeredTeams.find(t => t.id === docId);
+                    const colId = team?._colId || 'paper-presentation';
+                    try {
+                        await updateDoc(doc(db, 'events', colId, 'registrations', docId), {
+                            checked_in: true,
+                            check_in_timestamp: new Date().toISOString()
+                        });
+                    } catch (_) {}
+                }
+
+                bulkCheckinBtn.disabled = false;
+                bulkCheckinBtn.textContent = 'Mark Checked-In';
+                if (selectAllCheckbox) selectAllCheckbox.checked = false;
+                updateBulkToolbar();
+                SFX.success();
+            });
+        }
+
+        // Bulk Delete
+        if (bulkDeleteBtn) {
+            bulkDeleteBtn.addEventListener('click', async () => {
+                const selected = Array.from(document.querySelectorAll('.team-select-checkbox:checked'));
+                if (selected.length === 0 || !db) return;
+                if (!confirm(`Permanently delete the ${selected.length} selected squad(s)?`)) return;
+
+                bulkDeleteBtn.disabled = true;
+                bulkDeleteBtn.textContent = 'Deleting...';
+
+                for (const cb of selected) {
+                    const docId = cb.getAttribute('data-id');
+                    const team = registeredTeams.find(t => t.id === docId);
+                    const colId = team?._colId || 'paper-presentation';
+                    try {
+                        await deleteDoc(doc(db, 'events', colId, 'registrations', docId));
+                    } catch (_) {}
+                }
+
+                bulkDeleteBtn.disabled = false;
+                bulkDeleteBtn.textContent = 'Delete Selected';
+                if (selectAllCheckbox) selectAllCheckbox.checked = false;
+                updateBulkToolbar();
+                SFX.click();
+            });
+        }
+
+        /* =========================================================
+           CLEAR DATABASE (PURGE MODAL & LOGIC)
+           ========================================================= */
+        const MASTER_PIN = "ENIYAN$DARKIE@6468";
+        const clearDbModal = document.getElementById('clear-db-modal');
+        const openClearDbBtn = document.getElementById('open-clear-db-btn');
+        const quickClearBtn = document.getElementById('quick-clear-btn');
+        const closeClearDbBtn = document.getElementById('close-clear-db-btn');
+        const cancelPurgeBtn = document.getElementById('cancel-purge-btn');
+        const purgeScope = document.getElementById('purge-scope');
+        const purgeCountNum = document.getElementById('purge-count-num');
+        const purgeConfirmInput = document.getElementById('purge-confirm-input');
+        const confirmPurgeBtn = document.getElementById('confirm-purge-btn');
+        const confirmPurgeBtnText = document.getElementById('confirm-purge-btn-text');
+        const purgeStatusMsg = document.getElementById('purge-status-msg');
+
+        function updatePurgeCount() {
+            const scope = purgeScope.value;
+            let count = 0;
+            if (scope === 'all') {
+                count = registeredTeams.length;
+            } else if (teamsByEvent[scope]) {
+                count = teamsByEvent[scope].length;
+            }
+            purgeCountNum.textContent = count;
+        }
+
+        function openPurgeModal() {
+            clearDbModal.classList.remove('hidden');
+            purgeConfirmInput.value = '';
+            purgeStatusMsg.classList.add('hidden');
+            confirmPurgeBtn.disabled = false;
+            confirmPurgeBtnText.textContent = 'PURGE DATABASE';
+            updatePurgeCount();
+            purgeConfirmInput.focus();
+        }
+
+        function closePurgeModal() {
+            clearDbModal.classList.add('hidden');
+            purgeConfirmInput.value = '';
+            purgeStatusMsg.classList.add('hidden');
+        }
+
+        if (openClearDbBtn) openClearDbBtn.addEventListener('click', openPurgeModal);
+        if (quickClearBtn) quickClearBtn.addEventListener('click', openPurgeModal);
+        if (closeClearDbBtn) closeClearDbBtn.addEventListener('click', closePurgeModal);
+        if (cancelPurgeBtn) cancelPurgeBtn.addEventListener('click', closePurgeModal);
+        if (purgeScope) purgeScope.addEventListener('change', updatePurgeCount);
+
+        if (confirmPurgeBtn) {
+            confirmPurgeBtn.addEventListener('click', async () => {
+                if (!db) return alert('Database not connected.');
+
+                const entered = (purgeConfirmInput.value || '').trim();
+                if (entered !== 'CLEAR DATA' && entered !== MASTER_PIN) {
+                    purgeStatusMsg.className = 'text-xs font-mono text-center p-2 rounded-xs bg-error-container/40 border border-error/50 text-error font-bold block';
+                    purgeStatusMsg.textContent = 'ERROR: Incorrect confirmation phrase or passcode.';
+                    SFX.error();
+                    return;
+                }
+
+                const scope = purgeScope.value;
+                let targetTeams = [];
+                if (scope === 'all') {
+                    targetTeams = [...registeredTeams];
+                } else if (teamsByEvent[scope]) {
+                    targetTeams = [...teamsByEvent[scope]];
+                }
+
+                if (targetTeams.length === 0) {
+                    purgeStatusMsg.className = 'text-xs font-mono text-center p-2 rounded-xs bg-primary/20 border border-primary/40 text-primary font-bold block';
+                    purgeStatusMsg.textContent = 'Notice: No registrations found in the selected scope.';
+                    return;
+                }
+
+                confirmPurgeBtn.disabled = true;
+                confirmPurgeBtnText.textContent = 'DELETING...';
+                purgeStatusMsg.className = 'text-xs font-mono text-center p-2 rounded-xs bg-surface-container-high border border-outline-variant/40 text-zinc-300 block';
+                purgeStatusMsg.textContent = `Purging ${targetTeams.length} squads from Firestore...`;
+
+                try {
+                    // Process in chunks of 400 with writeBatch
+                    const CHUNK_SIZE = 400;
+                    for (let i = 0; i < targetTeams.length; i += CHUNK_SIZE) {
+                        const chunk = targetTeams.slice(i, i + CHUNK_SIZE);
+                        const batch = writeBatch(db);
+                        chunk.forEach(t => {
+                            const colId = t._colId || 'paper-presentation';
+                            const docRef = doc(db, 'events', colId, 'registrations', t.id);
+                            batch.delete(docRef);
+                        });
+                        await batch.commit();
+                        purgeStatusMsg.textContent = `Deleted ${Math.min(i + CHUNK_SIZE, targetTeams.length)} of ${targetTeams.length}...`;
+                    }
+
+                    // If total wipe, also reset capacity doc if present
+                    if (scope === 'all') {
+                        try {
+                            await updateDoc(doc(db, 'metadata', 'capacity'), { current_registered: 0 });
+                        } catch (_) {}
+                    }
+
+                    purgeStatusMsg.className = 'text-xs font-mono text-center p-2 rounded-xs bg-emerald-950/60 border border-emerald-500/50 text-emerald-300 font-bold block';
+                    purgeStatusMsg.textContent = `✓ Successfully cleared ${targetTeams.length} registration(s)!`;
+                    confirmPurgeBtnText.textContent = 'CLEARED';
+                    SFX.success();
+
+                    setTimeout(() => {
+                        closePurgeModal();
+                    }, 1400);
+
+                } catch (err) {
+                    purgeStatusMsg.className = 'text-xs font-mono text-center p-2 rounded-xs bg-error-container/40 border border-error/50 text-error font-bold block';
+                    purgeStatusMsg.textContent = `Purge failed: ${err.message}`;
+                    confirmPurgeBtn.disabled = false;
+                    confirmPurgeBtnText.textContent = 'RETRY PURGE';
+                    SFX.error();
+                }
             });
         }
     </script>
