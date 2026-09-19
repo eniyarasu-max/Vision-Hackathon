@@ -160,9 +160,14 @@
                     <div class="font-orbitron text-base font-bold text-white tracking-wider">OFFICIAL SQUAD REGISTRATION</div>
                 </div>
             </div>
-            <div class="flex items-center gap-2 bg-black/60 px-3.5 py-1.5 rounded-xs border border-primary/30 font-mono text-xs">
-                <span class="text-zinc-400">TEAM LIMIT:</span>
-                <span class="text-primary font-bold">MAX 3 MEMBERS</span>
+            <div class="flex items-center gap-2.5 flex-wrap">
+                <button type="button" id="open-guidelines-btn" class="bg-primary/20 hover:bg-primary hover:text-black text-primary border border-primary/40 px-3 py-1.5 rounded-xs font-mono text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-[0_0_15px_rgba(240,193,44,0.15)]">
+                    <span class="material-symbols-outlined text-sm">info</span> View Guidelines
+                </button>
+                <div class="flex items-center gap-2 bg-black/60 px-3.5 py-1.5 rounded-xs border border-primary/30 font-mono text-xs">
+                    <span class="text-zinc-400">TEAM LIMIT:</span>
+                    <span class="text-primary font-bold">MAX 3 MEMBERS</span>
+                </div>
             </div>
         </div>
 
@@ -179,9 +184,15 @@
                     <h2 class="font-orbitron text-sm sm:text-base font-bold text-primary uppercase tracking-wider">01. CHOOSE YOUR EVENT</h2>
                 </div>
 
-                <p class="font-mono text-xs text-zinc-400">
-                    Select the symposium track your squad is competing in (Maximum 3 members per squad for all events):
-                </p>
+                <div class="space-y-1">
+                    <p class="font-mono text-xs text-zinc-400">
+                        Select the symposium track your squad is competing in (Maximum 3 members per squad for all events):
+                    </p>
+                    <div class="inline-flex items-center gap-1.5 font-mono text-xs text-amber-300 font-bold bg-amber-400/10 border border-amber-400/30 px-2.5 py-1 rounded">
+                        <span class="material-symbols-outlined text-sm">all_inclusive</span>
+                        <span>Every team can participate in any number of events</span>
+                    </div>
+                </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" id="event-selector-grid">
                     <!-- Paper Presentation -->
@@ -398,6 +409,126 @@
         <div>VISION 2K26 • IEEE ANTENNAS AND PROPAGATION SOCIETY (IEEE APS) KEC</div>
     </footer>
 
+    <!-- ============ SYMPOSIUM GUIDELINES POPUP MODAL ============ -->
+    <div id="guidelines-modal" class="fixed inset-0 z-[99999] flex items-center justify-center bg-black/90 backdrop-blur-md p-3 sm:p-4 overflow-y-auto">
+        <div class="relative w-full max-w-2xl bg-surface-container-lowest border-2 border-primary/70 rounded-xs shadow-[0_0_60px_rgba(240,193,44,0.35)] flex flex-col overflow-hidden animate-fade-in-up my-auto">
+            
+            <!-- Modal Header -->
+            <div class="p-4 bg-surface-container border-b border-primary/30 flex items-center justify-between z-10">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-primary animate-ping"></span>
+                    <span class="font-orbitron text-xs sm:text-sm font-bold tracking-widest text-primary uppercase">
+                        VISION 2K26 // SYMPOSIUM GUIDELINES
+                    </span>
+                </div>
+                <button id="close-guidelines-btn" class="w-8 h-8 flex items-center justify-center text-outline hover:text-primary rounded cursor-pointer transition-colors" title="Close Guidelines">
+                    <span class="material-symbols-outlined text-xl">close</span>
+                </button>
+            </div>
+
+            <!-- Content Area -->
+            <div class="p-4 sm:p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+                <!-- Golden Highlight Banner: Key Rule Change -->
+                <div class="bg-primary/15 border-2 border-primary p-4 rounded-xs flex items-start sm:items-center gap-3.5 shadow-[0_0_25px_rgba(240,193,44,0.2)]">
+                    <div class="w-10 h-10 rounded-full bg-primary text-black flex items-center justify-center shrink-0 font-bold">
+                        <span class="material-symbols-outlined text-2xl">all_inclusive</span>
+                    </div>
+                    <div>
+                        <div class="font-orbitron text-[10px] sm:text-xs font-black text-amber-300 uppercase tracking-widest">KEY GUIDELINE</div>
+                        <div class="font-orbitron text-sm sm:text-base font-black text-white gold-glow mt-0.5">
+                            Every team can participate in any number of events
+                        </div>
+                        <div class="font-mono text-[11px] text-zinc-300 mt-1">
+                            Teams are permitted to register and compete across multiple signature tracks with no limit!
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Guidelines Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono text-xs">
+                    <!-- Rule 1: Squad Formation -->
+                    <div class="p-3.5 rounded-xs border border-outline-variant/40 bg-surface-container/60 space-y-1">
+                        <div class="flex items-center gap-1.5 text-primary font-bold">
+                            <span class="material-symbols-outlined text-base">groups</span>
+                            <span class="font-orbitron text-xs uppercase">Squad Formation</span>
+                        </div>
+                        <p class="text-zinc-300 text-[11px] leading-relaxed">
+                            Maximum <strong>3 members per squad</strong> for all events (solo, duo, or trio teams permitted).
+                        </p>
+                    </div>
+
+                    <!-- Rule 2: Eligibility -->
+                    <div class="p-3.5 rounded-xs border border-outline-variant/40 bg-surface-container/60 space-y-1">
+                        <div class="flex items-center gap-1.5 text-primary font-bold">
+                            <span class="material-symbols-outlined text-base">school</span>
+                            <span class="font-orbitron text-xs uppercase">Eligibility</span>
+                        </div>
+                        <p class="text-zinc-300 text-[11px] leading-relaxed">
+                            Open to all engineering and technology students of <strong>Kongu Engineering College</strong>.
+                        </p>
+                    </div>
+
+                    <!-- Rule 3: Date & Venue -->
+                    <div class="p-3.5 rounded-xs border border-outline-variant/40 bg-surface-container/60 space-y-1">
+                        <div class="flex items-center gap-1.5 text-primary font-bold">
+                            <span class="material-symbols-outlined text-base">calendar_month</span>
+                            <span class="font-orbitron text-xs uppercase">Event Date</span>
+                        </div>
+                        <p class="text-zinc-300 text-[11px] leading-relaxed">
+                            Scheduled for <strong>5 October 2026</strong> at Dept of ECE, Kongu Engineering College.
+                        </p>
+                    </div>
+
+                    <!-- Rule 4: Registration Fee -->
+                    <div class="p-3.5 rounded-xs border border-outline-variant/40 bg-surface-container/60 space-y-1">
+                        <div class="flex items-center gap-1.5 text-primary font-bold">
+                            <span class="material-symbols-outlined text-base">payments</span>
+                            <span class="font-orbitron text-xs uppercase">Registration Fee</span>
+                        </div>
+                        <p class="text-zinc-300 text-[11px] leading-relaxed">
+                            <strong>₹100 per head</strong>. Total prize pool of <strong>₹10,000 cash prizes</strong> across 5 events.
+                        </p>
+                    </div>
+
+                    <!-- Rule 5: 5 Signature Tracks -->
+                    <div class="p-3.5 rounded-xs border border-outline-variant/40 bg-surface-container/60 space-y-1">
+                        <div class="flex items-center gap-1.5 text-primary font-bold">
+                            <span class="material-symbols-outlined text-base">emoji_events</span>
+                            <span class="font-orbitron text-xs uppercase">5 Signature Tracks</span>
+                        </div>
+                        <p class="text-zinc-300 text-[11px] leading-relaxed">
+                            Paper Presentation, Project Presentation, AI Sprint, ElectroBid &amp; Line Following Robot.
+                        </p>
+                    </div>
+
+                    <!-- Rule 6: Digital Gate Pass -->
+                    <div class="p-3.5 rounded-xs border border-outline-variant/40 bg-surface-container/60 space-y-1">
+                        <div class="flex items-center gap-1.5 text-primary font-bold">
+                            <span class="material-symbols-outlined text-base">qr_code_2</span>
+                            <span class="font-orbitron text-xs uppercase">Instant Gate Pass</span>
+                        </div>
+                        <p class="text-zinc-300 text-[11px] leading-relaxed">
+                            Instant digital 4K Admit Pass generated upon submission with QR code for on-day entry.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer / Action Button -->
+            <div class="p-4 bg-surface-container border-t border-primary/30 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="font-mono text-[11px] text-zinc-400 flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-emerald-400 text-sm">verified</span>
+                    Please review guidelines before registering
+                </div>
+                <button id="accept-guidelines-btn" class="w-full sm:w-auto bg-primary hover:bg-primary-container text-black font-mono font-black text-xs uppercase tracking-wider px-6 py-2.5 rounded-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-[0_0_20px_rgba(240,193,44,0.4)]">
+                    <span>PROCEED TO REGISTRATION</span>
+                    <span class="material-symbols-outlined text-base">arrow_forward</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
     <!-- ============ ADMIT PASS POPUP MODAL ============ -->
     <div id="admit-pass-modal" class="fixed inset-0 z-[99999] hidden flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-4 overflow-y-auto">
         <div class="relative w-full max-w-2xl bg-surface-container-lowest border-2 border-primary/70 rounded-xs shadow-[0_0_60px_rgba(240,193,44,0.4)] flex flex-col overflow-hidden animate-fade-in-up my-auto">
@@ -542,6 +673,41 @@
         document.addEventListener('DOMContentLoaded', () => {
             SFX.attachClickSounds();
         });
+
+        /* ---------- Guidelines Popup Logic ---------- */
+        const guidelinesModal = document.getElementById('guidelines-modal');
+        const closeGuidelinesBtn = document.getElementById('close-guidelines-btn');
+        const acceptGuidelinesBtn = document.getElementById('accept-guidelines-btn');
+        const openGuidelinesBtn = document.getElementById('open-guidelines-btn');
+
+        function openGuidelines() {
+            if (guidelinesModal) {
+                guidelinesModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeGuidelines() {
+            if (guidelinesModal) {
+                guidelinesModal.classList.add('hidden');
+                document.body.style.overflow = '';
+                try { SFX.click(); } catch (_) {}
+            }
+        }
+
+        if (closeGuidelinesBtn) closeGuidelinesBtn.addEventListener('click', closeGuidelines);
+        if (acceptGuidelinesBtn) acceptGuidelinesBtn.addEventListener('click', closeGuidelines);
+        if (openGuidelinesBtn) openGuidelinesBtn.addEventListener('click', () => {
+            openGuidelines();
+            try { SFX.click(); } catch (_) {}
+        });
+
+        // First show the guidelines as a popup on page load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', openGuidelines);
+        } else {
+            openGuidelines();
+        }
 
         /* ---------- Mobile nav toggle ---------- */
         const menuBtn = document.getElementById('mobile-menu-btn');
