@@ -1408,35 +1408,42 @@
                 const feeTotal = currentPassData.members.length * 100;
                 const passId = modalPassId ? modalPassId.textContent.trim() : 'PASS-2K26';
 
+                function sanitizeWhatsApp(text) {
+                    return text
+                        .replace(/[\uFE00-\uFE0F]/g, '')
+                        .replace(/[\u2500-\u257F]/g, '-')
+                        .replace(/₹/g, 'Rs. ');
+                }
+
                 const msg = 
 `🚀🔥 *WE ARE HEADING TO VISION 2K26!* 🔥🚀
 *National Level Technical Symposium • IEEE AP-S | Kongu Engineering College*
 
 Our squad *${(currentPassData.team_name || 'Squad').toUpperCase()}* has officially registered to compete at *VISION 2K26*! ⚡🏆
 
-━━━━━━━━━━━━━━━━━━━━━
+-------------------------------------
 🎫 *OFFICIAL SQUAD ADMIT PASS*
-━━━━━━━━━━━━━━━━━━━━━
+-------------------------------------
 🎯 *Track / Event:* ${currentPassData.event_name}
-🛡️ *Squad Callsign:* ${currentPassData.team_name}
-🎟️ *Pass ID:* ${passId}
+⭐ *Squad Callsign:* ${currentPassData.team_name}
+🎫 *Pass ID:* ${passId}
 👥 *Squad Roster:*
 ${membersList}
-💰 *Total Fee:* ₹${feeTotal} (₹100/delegate)
-${currentPassData.transaction_id ? `🔢 *UPI Ref ID:* \`${currentPassData.transaction_id}\`\n` : ''}💳 *Payment Status:* ${currentPassData.payment_status === 'verified' ? '✅ VERIFIED' : '⏳ PENDING VERIFICATION'}
-${currentPassData.payment_status === 'verified' ? '' : '📞 *Call to verify slot:* *+91 73394 36468*\n'}━━━━━━━━━━━━━━━━━━━━━
+💰 *Total Fee:* Rs. ${feeTotal} (Rs. 100/delegate)
+${currentPassData.transaction_id ? `*UPI Ref ID:* \`${currentPassData.transaction_id}\`\n` : ''}💳 *Payment Status:* ${currentPassData.payment_status === 'verified' ? '✅ VERIFIED' : '⏳ PENDING VERIFICATION'}
+${currentPassData.payment_status === 'verified' ? '' : '📞 *Call to verify slot:* *+91 73394 36468*\n'}-------------------------------------
 📍 *MISSION LOGISTICS*
-━━━━━━━━━━━━━━━━━━━━━
+-------------------------------------
 📅 *Date:* Monday, October 5, 2026
 ⏰ *Reporting Time:* 08:30 AM IST Sharp
-🏛️ *Venue:* Department of ECE, Kongu Engineering College, Perundurai, Erode
+📍 *Venue:* Department of ECE, Kongu Engineering College, Perundurai, Erode
 📌 *Mandatory:* Physical College ID Card & QR Admit Pass
 
 ⚡ Ready to innovate, engineer, and conquer the frontier! See you all on October 5th! 🚀💥
 
 #Vision2K26 #IEEEAPS #KonguEngineeringCollege #TechSymposium #Engineering`;
 
-                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(sanitizeWhatsApp(msg))}`, '_blank');
             });
         }
 
