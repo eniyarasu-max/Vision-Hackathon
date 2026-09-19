@@ -1,18 +1,16 @@
 // Firebase Configuration for Vision Hackathon
 // -------------------------------------------------------------
-// Paste your Firebase web app configuration below.
-// You can obtain these keys from the Firebase Console:
-// Project Settings > General > Your apps > Web app (</>)
+// Firebase project: vision-9a49b
 // -------------------------------------------------------------
 
 export const firebaseConfig = {
-    apiKey: "AIzaSyD-kDEL1Wp1yJyO_cPZg2x6-qFFm7t4pgU",
-    authDomain: "vision-hackathon-f153c.firebaseapp.com",
-    projectId: "vision-hackathon-f153c",
-    storageBucket: "vision-hackathon-f153c.firebasestorage.app",
-    messagingSenderId: "667872339478",
-    appId: "1:667872339478:web:d04973a9e8acfbf050b737",
-    measurementId: "G-Z1H8TGQL53"
+    apiKey: "AIzaSyDDHULArYzoqwH_NZ_skkJ5ztmakg6kfT0",
+    authDomain: "vision-9a49b.firebaseapp.com",
+    projectId: "vision-9a49b",
+    storageBucket: "vision-9a49b.firebasestorage.app",
+    messagingSenderId: "528028288699",
+    appId: "1:528028288699:web:6a2474a4db5f0a3ed2cb9e",
+    measurementId: "G-QP3DMJHPK1"
 };
 
 // Check if valid credentials are configured
