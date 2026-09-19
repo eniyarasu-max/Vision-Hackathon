@@ -546,9 +546,11 @@
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
 
     <!-- ============ PAYMENT RECEIPT / SCREENSHOT INSPECTION MODAL ============ -->
-    <div id="receipt-modal" style="display:none;" class="fixed inset-0 z-[99999] flex items-center justify-center bg-black/90 backdrop-blur-md p-3 sm:p-4 overflow-y-auto">
+    <div id="receipt-modal" style="display:none;" class="fixed inset-0 z-[999999] flex items-center justify-center bg-black/90 backdrop-blur-md p-3 sm:p-4 overflow-y-auto">
         <div class="relative w-full max-w-lg bg-surface-container-lowest border-2 border-primary/70 rounded-xs shadow-[0_0_50px_rgba(240,193,44,0.35)] flex flex-col overflow-hidden animate-fade-in-up my-auto">
             
             <!-- Modal Header -->
@@ -591,12 +593,22 @@
                 <div class="space-y-1.5">
                     <div class="flex items-center justify-between font-mono text-[11px] text-zinc-400">
                         <span>Payment Screenshot / Receipt</span>
-                        <a id="receipt-modal-open-link" href="#" target="_blank" class="text-primary hover:underline flex items-center gap-1 text-[10px]">
-                            <span class="material-symbols-outlined text-xs">open_in_new</span> Open Full Resolution
-                        </a>
+                        <div class="flex items-center gap-2">
+                            <button type="button" id="receipt-modal-zoom-btn" class="text-amber-300 hover:text-amber-200 flex items-center gap-1 text-[11px] cursor-pointer font-bold transition-colors">
+                                <span class="material-symbols-outlined text-xs">zoom_in</span> <span id="receipt-modal-zoom-text">Zoom</span>
+                            </button>
+                            <span class="text-zinc-600">•</span>
+                            <button type="button" id="receipt-modal-open-link" class="text-primary hover:underline flex items-center gap-1 text-[11px] cursor-pointer font-bold transition-colors">
+                                <span class="material-symbols-outlined text-xs">open_in_new</span> Full Window
+                            </button>
+                            <span class="text-zinc-600">•</span>
+                            <a id="receipt-modal-download-btn" href="#" download="payment_proof.jpg" class="text-emerald-400 hover:underline flex items-center gap-1 text-[11px] cursor-pointer font-bold transition-colors">
+                                <span class="material-symbols-outlined text-xs">download</span> Save
+                            </a>
+                        </div>
                     </div>
-                    <div class="relative bg-black/90 border border-primary/40 rounded-xs min-h-[240px] max-h-[440px] flex items-center justify-center overflow-hidden">
-                        <img id="receipt-modal-img" src="" alt="Payment Screenshot" class="max-h-[420px] w-auto max-w-full object-contain rounded" />
+                    <div id="receipt-modal-img-container" class="relative bg-black/95 border border-primary/40 rounded-xs min-h-[260px] max-h-[460px] flex items-center justify-center overflow-auto p-2 cursor-zoom-in group">
+                        <img id="receipt-modal-img" src="" alt="Payment Screenshot" class="max-h-[440px] w-auto max-w-full object-contain rounded transition-transform duration-200" />
                         <div id="receipt-modal-noimg" class="hidden flex flex-col items-center justify-center gap-2 p-6 text-center text-zinc-500 font-mono text-xs">
                             <span class="material-symbols-outlined text-3xl">image_not_supported</span>
                             <span>No payment screenshot attached for this registration.</span>
@@ -1044,8 +1056,8 @@
 
                 const hasProof = !!(t.payment_screenshot || t.payment_screenshot_url);
                 const proofBtn = hasProof
-                    ? `<button onclick="openReceiptModal('${t.id}')" class="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 border border-amber-500/40 text-amber-300 hover:bg-amber-500/30 transition-colors cursor-pointer mt-1 font-mono font-bold" title="Inspect UPI Payment Screenshot"><span class="material-symbols-outlined text-[12px]">receipt_long</span> VIEW PROOF</button>`
-                    : `<span class="text-[9px] text-zinc-500 font-mono italic block mt-0.5">No proof attached</span>`;
+                    ? `<button onclick="openReceiptModal('${t.id}')" class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/60 text-amber-300 hover:bg-amber-500/40 hover:text-white transition-all cursor-pointer mt-1 font-mono font-bold shadow-[0_0_10px_rgba(245,158,11,0.25)]" title="Inspect UPI Payment Screenshot"><span class="material-symbols-outlined text-[13px]">receipt_long</span> VIEW PROOF</button>`
+                    : `<button onclick="openReceiptModal('${t.id}')" class="inline-flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded bg-surface-container text-zinc-400 hover:text-zinc-200 border border-outline-variant/30 hover:border-outline-variant transition-colors cursor-pointer mt-0.5 font-mono" title="View Transaction & Fee Details"><span class="material-symbols-outlined text-[11px]">info</span> DETAILS (NO PROOF)</button>`;
 
                 const txnDisplay = t.transaction_id
                     ? `<div class="space-y-0.5">
@@ -1481,6 +1493,7 @@
 
         /* ---------- Payment Receipt / Proof Modal Logic ---------- */
         let activeReceiptTeam = null;
+        let isReceiptZoomed = false;
         const receiptModal = document.getElementById('receipt-modal');
         const closeReceiptBtn = document.getElementById('close-receipt-btn');
         const receiptModalSquad = document.getElementById('receipt-modal-squad');
@@ -1489,15 +1502,54 @@
         const receiptModalEvents = document.getElementById('receipt-modal-events');
         const receiptModalStatus = document.getElementById('receipt-modal-status');
         const receiptModalImg = document.getElementById('receipt-modal-img');
+        const receiptModalImgContainer = document.getElementById('receipt-modal-img-container');
         const receiptModalNoImg = document.getElementById('receipt-modal-noimg');
         const receiptModalOpenLink = document.getElementById('receipt-modal-open-link');
+        const receiptModalZoomBtn = document.getElementById('receipt-modal-zoom-btn');
+        const receiptModalZoomText = document.getElementById('receipt-modal-zoom-text');
+        const receiptModalDownloadBtn = document.getElementById('receipt-modal-download-btn');
         const receiptModalCopyBtn = document.getElementById('receipt-modal-copy-btn');
         const receiptModalToggleBtn = document.getElementById('receipt-modal-toggle-btn');
+
+        function resetReceiptZoom() {
+            isReceiptZoomed = false;
+            if (receiptModalImg) {
+                receiptModalImg.style.transform = 'scale(1)';
+                receiptModalImg.classList.remove('cursor-zoom-out');
+                receiptModalImg.classList.add('cursor-zoom-in');
+            }
+            if (receiptModalZoomText) receiptModalZoomText.textContent = 'Zoom';
+        }
+
+        function toggleReceiptZoom() {
+            if (!receiptModalImg || receiptModalImg.style.display === 'none') return;
+            isReceiptZoomed = !isReceiptZoomed;
+            if (isReceiptZoomed) {
+                receiptModalImg.style.transform = 'scale(2)';
+                receiptModalImg.style.transformOrigin = 'center center';
+                receiptModalImg.classList.remove('cursor-zoom-in');
+                receiptModalImg.classList.add('cursor-zoom-out');
+                if (receiptModalZoomText) receiptModalZoomText.textContent = 'Fit';
+            } else {
+                receiptModalImg.style.transform = 'scale(1)';
+                receiptModalImg.classList.remove('cursor-zoom-out');
+                receiptModalImg.classList.add('cursor-zoom-in');
+                if (receiptModalZoomText) receiptModalZoomText.textContent = 'Zoom';
+            }
+        }
+
+        if (receiptModalZoomBtn) {
+            receiptModalZoomBtn.addEventListener('click', toggleReceiptZoom);
+        }
+        if (receiptModalImg) {
+            receiptModalImg.addEventListener('click', toggleReceiptZoom);
+        }
 
         window.openReceiptModal = function(docId) {
             const team = registeredTeams.find(t => t.id === docId);
             if (!team) return;
             activeReceiptTeam = team;
+            resetReceiptZoom();
 
             const memberCount = getSquadMemberCount(team);
             const feeTotal = memberCount * 100;
@@ -1514,20 +1566,54 @@
                     : `<span class="text-amber-400 font-bold">⏳ PENDING</span>`;
             }
 
-            if (screenshot) {
+            if (screenshot && screenshot.trim().length > 0) {
                 if (receiptModalImg) {
                     receiptModalImg.src = screenshot;
                     receiptModalImg.style.display = 'block';
+                    receiptModalImg.onload = function() {
+                        if (receiptModalImg.naturalWidth <= 10) {
+                            // 1x1 dummy test image
+                            receiptModalImg.style.imageRendering = 'pixelated';
+                            receiptModalImg.style.width = '120px';
+                            receiptModalImg.style.height = '120px';
+                        } else {
+                            receiptModalImg.style.imageRendering = 'auto';
+                            receiptModalImg.style.width = 'auto';
+                            receiptModalImg.style.height = 'auto';
+                        }
+                    };
+                    receiptModalImg.onerror = function() {
+                        receiptModalImg.style.display = 'none';
+                        if (receiptModalNoImg) {
+                            receiptModalNoImg.classList.remove('hidden');
+                            receiptModalNoImg.innerHTML = `
+                                <span class="material-symbols-outlined text-3xl text-amber-400">broken_image</span>
+                                <span class="text-amber-300">Unable to preview screenshot file</span>
+                                <span class="text-[10px] text-zinc-500 font-mono">Format unsupported or corrupted</span>
+                            `;
+                        }
+                    };
                 }
                 if (receiptModalNoImg) receiptModalNoImg.classList.add('hidden');
-                if (receiptModalOpenLink) {
-                    receiptModalOpenLink.href = screenshot;
-                    receiptModalOpenLink.classList.remove('hidden');
+                if (receiptModalOpenLink) receiptModalOpenLink.classList.remove('hidden');
+                if (receiptModalZoomBtn) receiptModalZoomBtn.classList.remove('hidden');
+                if (receiptModalDownloadBtn) {
+                    receiptModalDownloadBtn.href = screenshot;
+                    receiptModalDownloadBtn.download = `${(team.team_name || 'payment_proof').replace(/\s+/g, '_')}_receipt.jpg`;
+                    receiptModalDownloadBtn.classList.remove('hidden');
                 }
             } else {
                 if (receiptModalImg) receiptModalImg.style.display = 'none';
-                if (receiptModalNoImg) receiptModalNoImg.classList.remove('hidden');
+                if (receiptModalNoImg) {
+                    receiptModalNoImg.classList.remove('hidden');
+                    receiptModalNoImg.innerHTML = `
+                        <span class="material-symbols-outlined text-3xl">image_not_supported</span>
+                        <span>No payment screenshot attached for this registration.</span>
+                    `;
+                }
                 if (receiptModalOpenLink) receiptModalOpenLink.classList.add('hidden');
+                if (receiptModalZoomBtn) receiptModalZoomBtn.classList.add('hidden');
+                if (receiptModalDownloadBtn) receiptModalDownloadBtn.classList.add('hidden');
             }
 
             if (receiptModalToggleBtn) {
@@ -1545,13 +1631,117 @@
             }
         };
 
+        // Open full screen window for image (works for both base64 and URLs without browser blocking)
+        if (receiptModalOpenLink) {
+            receiptModalOpenLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (!activeReceiptTeam) return;
+                const screenshot = activeReceiptTeam.payment_screenshot_url || activeReceiptTeam.payment_screenshot;
+                if (!screenshot) return;
+
+                const squadName = escapeHtml(activeReceiptTeam.team_name || 'Squad');
+                const txnId = escapeHtml(activeReceiptTeam.transaction_id || 'N/A');
+                const fee = (getSquadMemberCount(activeReceiptTeam) * 100);
+
+                const win = window.open('', '_blank');
+                if (win) {
+                    win.document.write(`<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Payment Proof — ${squadName} | VISION 2K26</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 24px;
+            background: #0b0c10;
+            color: #e3e2e7;
+            font-family: monospace, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .header {
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        .header h2 {
+            margin: 0 0 6px 0;
+            color: #f0c12c;
+            letter-spacing: 2px;
+            font-size: 18px;
+        }
+        .header .meta {
+            color: #a1a1aa;
+            font-size: 12px;
+        }
+        .img-card {
+            background: #000;
+            border: 2px solid #f0c12c;
+            border-radius: 8px;
+            padding: 8px;
+            box-shadow: 0 0 40px rgba(240, 193, 44, 0.25);
+            max-width: 96vw;
+            max-height: 85vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        img {
+            max-width: 90vw;
+            max-height: 80vh;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>VISION 2K26 // PAYMENT PROOF</h2>
+        <div class="meta">SQUAD: <strong>${squadName}</strong> &bull; TXN ID: <strong style="color:#fcd34d">${txnId}</strong> &bull; FEE: <strong style="color:#34d399">₹${fee}</strong></div>
+    </div>
+    <div class="img-card">
+        <img src="${screenshot}" alt="Payment Proof" />
+    </div>
+</body>
+</html>`);
+                    win.document.close();
+                }
+            });
+        }
+
         if (closeReceiptBtn) {
             closeReceiptBtn.addEventListener('click', () => {
                 if (receiptModal) receiptModal.style.display = 'none';
                 activeReceiptTeam = null;
+                resetReceiptZoom();
                 SFX.click();
             });
         }
+
+        // Backdrop click to close
+        if (receiptModal) {
+            receiptModal.addEventListener('click', (e) => {
+                if (e.target === receiptModal) {
+                    receiptModal.style.display = 'none';
+                    activeReceiptTeam = null;
+                    resetReceiptZoom();
+                    SFX.click();
+                }
+            });
+        }
+
+        // ESC key to close
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && receiptModal && receiptModal.style.display !== 'none') {
+                receiptModal.style.display = 'none';
+                activeReceiptTeam = null;
+                resetReceiptZoom();
+            }
+        });
 
         if (receiptModalCopyBtn) {
             receiptModalCopyBtn.addEventListener('click', () => {
