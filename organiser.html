@@ -508,7 +508,8 @@
 
             <div id="purge-status-msg" class="hidden text-xs font-mono text-center p-2 rounded-xs"></div>
 
-            <div class="flex items-center gap-3 pt-2">
+            <!-- Step 1: Initial action buttons -->
+            <div id="purge-step-1" class="flex items-center gap-3 pt-2">
                 <button id="cancel-purge-btn" class="flex-1 bg-surface-container hover:bg-surface-container-high text-zinc-300 border border-outline-variant/40 font-mono text-xs py-2.5 rounded-xs transition-colors cursor-pointer">
                     Cancel
                 </button>
@@ -516,6 +517,23 @@
                     <span class="material-symbols-outlined text-sm">delete_forever</span>
                     <span id="confirm-purge-btn-text">PURGE DATABASE</span>
                 </button>
+            </div>
+
+            <!-- Step 2: Final in-page confirmation (no browser popup) -->
+            <div id="final-confirm-panel" class="hidden mt-3 p-3.5 border-2 border-error rounded-xs bg-error-container/20 space-y-3 font-mono text-xs">
+                <div class="text-error font-bold text-center flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-base">warning</span>
+                    FINAL CONFIRMATION — THIS CANNOT BE UNDONE
+                </div>
+                <p id="final-confirm-msg" class="text-zinc-300 text-center"></p>
+                <div class="flex gap-3">
+                    <button id="final-cancel-btn" class="flex-1 bg-surface-container hover:bg-surface-container-high text-zinc-200 border border-outline-variant/40 py-2 rounded-xs cursor-pointer transition-colors">
+                        ✗ Go Back
+                    </button>
+                    <button id="final-ok-btn" class="flex-1 bg-error hover:brightness-110 text-white font-bold py-2 rounded-xs cursor-pointer transition-colors flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(255,50,50,0.4)]">
+                        <span class="material-symbols-outlined text-sm">delete_forever</span> YES, DELETE NOW
+                    </button>
+                </div>
             </div>
 
         </div>
@@ -1428,46 +1446,69 @@
             });
         }
 
+        // Final confirm panel wiring (replaces window.confirm — never gets blocked by browser)
+        const finalConfirmPanel = document.getElementById('final-confirm-panel');
+        const finalConfirmMsg   = document.getElementById('final-confirm-msg');
+        const finalOkBtn        = document.getElementById('final-ok-btn');
+        const finalCancelBtn    = document.getElementById('final-cancel-btn');
+        const purgeStep1        = document.getElementById('purge-step-1');
+
+        let _pendingPurgeScope = null;
+        function showFinalConfirm(scope, scopeLabel, countMsg) {
+            _pendingPurgeScope = scope;
+            finalConfirmMsg.textContent = `Delete ${countMsg} squad(s) from: ${scopeLabel}. All data will be permanently erased.`;
+            purgeStep1.classList.add('hidden');
+            finalConfirmPanel.classList.remove('hidden');
+            purgeStatusMsg.classList.add('hidden');
+        }
+        function hideFinalConfirm() {
+            finalConfirmPanel.classList.add('hidden');
+            purgeStep1.classList.remove('hidden');
+            _pendingPurgeScope = null;
+        }
+        if (finalCancelBtn) finalCancelBtn.addEventListener('click', hideFinalConfirm);
+
         if (confirmPurgeBtn) {
             confirmPurgeBtn.addEventListener('click', async () => {
-                if (!db) return alert('Database not connected. Please verify Firebase credentials.');
+                if (!db) {
+                    purgeStatusMsg.className = 'text-xs font-mono text-center p-2 rounded-xs bg-error-container/40 border border-error/50 text-error font-bold block';
+                    purgeStatusMsg.textContent = 'ERROR: Database not connected. Please verify Firebase credentials.';
+                    return;
+                }
 
                 const entered = (purgeConfirmInput.value || '').trim();
-                const isAllowed = entered === '' ||
-                    entered.toUpperCase() === 'CLEAR DATA' ||
+                const isAllowed = entered.toUpperCase() === 'CLEAR DATA' ||
                     entered.toUpperCase() === 'CLEAR' ||
                     entered.toUpperCase() === 'DELETE' ||
-                    entered === MASTER_PIN;
+                    entered === MASTER_PIN ||
+                    entered === '';
 
                 if (!isAllowed) {
                     purgeStatusMsg.className = 'text-xs font-mono text-center p-2 rounded-xs bg-error-container/40 border border-error/50 text-error font-bold block';
-                    purgeStatusMsg.textContent = 'ERROR: Type CLEAR DATA, passcode, or leave blank to confirm via popup.';
+                    purgeStatusMsg.textContent = 'ERROR: Type CLEAR DATA or leave the field blank to proceed.';
                     SFX.error();
                     return;
                 }
 
                 const scope = purgeScope.value;
                 const eventObj = EVENTS.find(e => e.id === scope);
-                const scopeLabel = scope === 'all' ? 'ALL 5 EVENTS (COMPLETE WIPE)' : (eventObj ? eventObj.label : scope);
-                const countMsg = purgeCountNum.textContent || 'all';
+                const scopeLabel = scope === 'all' ? 'ALL 5 EVENTS (Complete Wipe)' : (eventObj ? eventObj.label : scope);
+                const countMsg = purgeCountNum.textContent || '?';
 
-                // Explicit user confirmation
-                const confirmed = window.confirm(
-                    `⚠️ CONFIRMATION REQUIRED\n\n` +
-                    `Are you sure you want to permanently delete registration data for:\n` +
-                    `Scope: ${scopeLabel} (~${countMsg} squad(s))\n\n` +
-                    `This will permanently erase records from Cloud Firestore and cannot be undone.`
-                );
-                if (!confirmed) return;
+                // Show in-page confirmation panel instead of browser popup
+                showFinalConfirm(scope, scopeLabel, countMsg);
+            });
+        }
 
-                if (scope === 'all') {
-                    const secondConfirm = window.confirm(
-                        `🚨 FINAL CONFIRMATION (COMPLETE WIPE)\n\n` +
-                        `This will wipe ALL registrations across all 5 events and reset live symposium capacity to 0.\n\n` +
-                        `Click OK to proceed with deletion.`
-                    );
-                    if (!secondConfirm) return;
-                }
+        if (finalOkBtn) {
+            finalOkBtn.addEventListener('click', async () => {
+                const scope = _pendingPurgeScope;
+                if (!scope || !db) return;
+
+                hideFinalConfirm();
+                const eventObj = EVENTS.find(e => e.id === scope);
+                const scopeLabel = scope === 'all' ? 'ALL 5 EVENTS (Complete Wipe)' : (eventObj ? eventObj.label : scope);
+                const countMsg = purgeCountNum.textContent || '?';
 
                 confirmPurgeBtn.disabled = true;
                 confirmPurgeBtnText.textContent = 'DELETING...';
