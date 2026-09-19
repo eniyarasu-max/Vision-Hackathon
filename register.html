@@ -637,7 +637,7 @@
     </div>
 
     <!-- ============ ADMIT PASS POPUP MODAL ============ -->
-    <div id="admit-pass-modal" class="fixed inset-0 z-[99999] hidden flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-4 overflow-y-auto">
+    <div id="admit-pass-modal" style="display:none;" class="fixed inset-0 z-[99999] flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-4 overflow-y-auto">
         <div class="relative w-full max-w-2xl bg-surface-container-lowest border-2 border-primary/70 rounded-xs shadow-[0_0_60px_rgba(240,193,44,0.4)] flex flex-col overflow-hidden animate-fade-in-up my-auto">
             
             <!-- Modal Header -->
@@ -1177,13 +1177,13 @@
                 }
             }
 
-            passModal.classList.remove('hidden');
+            passModal.style.display = 'flex';
             SFX.success();
         }
 
         if (closeModalBtn) {
             closeModalBtn.addEventListener('click', () => {
-                passModal.classList.add('hidden');
+                passModal.style.display = 'none';
                 SFX.click();
             });
         }

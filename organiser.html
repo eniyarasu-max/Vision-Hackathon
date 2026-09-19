@@ -385,7 +385,7 @@
     </div>
 
     <!-- ============ ON-DAY GATE QR CAMERA SCANNER MODAL ============ -->
-    <div id="scanner-modal" class="fixed inset-0 z-[999999] hidden flex items-center justify-center bg-black/90 backdrop-blur-md p-3 sm:p-4 overflow-y-auto">
+    <div id="scanner-modal" style="display:none;" class="fixed inset-0 z-[999999] flex items-center justify-center bg-black/90 backdrop-blur-md p-3 sm:p-4 overflow-y-auto">
         <div class="bg-surface-container-low border-2 border-primary max-w-lg w-full p-5 sm:p-6 rounded-xs relative shadow-[0_0_50px_rgba(240,193,44,0.35)] my-8 animate-fade-in-up">
             
             <div class="flex items-center justify-between border-b border-outline-variant/30 pb-3 mb-3">
@@ -451,7 +451,7 @@
             </div>
 
     <!-- ============ CLEAR DATABASE CONFIRMATION MODAL ============ -->
-    <div id="clear-db-modal" class="fixed inset-0 z-[999999] hidden flex items-center justify-center bg-black/95 backdrop-blur-md p-4 overflow-y-auto">
+    <div id="clear-db-modal" style="display:none;" class="fixed inset-0 z-[999999] flex items-center justify-center bg-black/95 backdrop-blur-md p-4 overflow-y-auto">
         <div class="bg-surface-container-low border-2 border-error max-w-lg w-full p-6 rounded-xs relative shadow-[0_0_50px_rgba(255,180,171,0.25)] my-8 animate-fade-in-up space-y-5">
             
             <div class="flex items-center justify-between border-b border-error/30 pb-3">
@@ -998,7 +998,7 @@
         }
 
         async function openScanner() {
-            scannerModal.classList.remove('hidden');
+            scannerModal.style.display = 'flex';
             scannerResult.classList.add('hidden');
             activeScannedTeam = null;
 
@@ -1022,7 +1022,7 @@
                 try { await html5Scanner.stop(); } catch (_) {}
                 html5Scanner = null;
             }
-            scannerModal.classList.add('hidden');
+            scannerModal.style.display = 'none';
         }
 
         if (openScannerBtn) openScannerBtn.addEventListener('click', openScanner);
@@ -1416,19 +1416,21 @@
         }
 
         function openPurgeModal() {
-            clearDbModal.classList.remove('hidden');
+            clearDbModal.style.display = 'flex';
             purgeConfirmInput.value = '';
             purgeStatusMsg.classList.add('hidden');
             confirmPurgeBtn.disabled = false;
             confirmPurgeBtnText.textContent = 'PURGE DATABASE';
+            hideFinalConfirm();
             updatePurgeCount();
-            purgeConfirmInput.focus();
+            setTimeout(() => purgeConfirmInput.focus(), 100);
         }
 
         function closePurgeModal() {
-            clearDbModal.classList.add('hidden');
+            clearDbModal.style.display = 'none';
             purgeConfirmInput.value = '';
             purgeStatusMsg.classList.add('hidden');
+            hideFinalConfirm();
         }
 
         if (openClearDbBtn) openClearDbBtn.addEventListener('click', openPurgeModal);
