@@ -628,6 +628,16 @@
             if (chipAi)      chipAi.textContent      = `AI Sprint: ${teamsByEvent['ai-sprint'].length}`;
             if (chipBid)     chipBid.textContent     = `ElectroBid: ${teamsByEvent['electrobid'].length}`;
             if (chipRobot)   chipRobot.textContent   = `Robot: ${teamsByEvent['line-following-robot'].length}`;
+
+            // Auto-reconcile live capacity counter in Firestore with ground-truth database count
+            if (db) {
+                try {
+                    setDoc(doc(db, 'metadata', 'capacity'), {
+                        registered_count: total,
+                        current_registered: total
+                    }, { merge: true }).catch(() => {});
+                } catch (_) {}
+            }
         }
 
         /* ---------- Filtering & Table Rendering ---------- */
@@ -750,6 +760,13 @@
             const colId = team?._colId || 'paper-presentation';
             try {
                 await deleteDoc(doc(db, 'events', colId, 'registrations', docId));
+                const remaining = Math.max(0, registeredTeams.length - 1);
+                try {
+                    await setDoc(doc(db, 'metadata', 'capacity'), {
+                        registered_count: remaining,
+                        current_registered: remaining
+                    }, { merge: true });
+                } catch (_) {}
                 SFX.click();
             } catch (err) {
                 alert('Delete failed: ' + err.message);
@@ -1144,6 +1161,14 @@
                         await deleteDoc(doc(db, 'events', colId, 'registrations', docId));
                     } catch (_) {}
                 }
+
+                const remaining = Math.max(0, registeredTeams.length - selected.length);
+                try {
+                    await setDoc(doc(db, 'metadata', 'capacity'), {
+                        registered_count: remaining,
+                        current_registered: remaining
+                    }, { merge: true });
+                } catch (_) {}
 
                 bulkDeleteBtn.disabled = false;
                 bulkDeleteBtn.textContent = 'Delete Selected';
