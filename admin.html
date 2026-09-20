@@ -11,14 +11,15 @@
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta http-equiv="Permissions-Policy" content="accelerometer=(), camera=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()" />
 
-    <!-- If already authenticated and not expired, jump straight to organiser terminal -->
+    <!-- If already authenticated, jump straight to organiser terminal -->
     <script>
         (function() {
+            const isAuth = sessionStorage.getItem('vision_admin_auth') === 'true';
             const token = sessionStorage.getItem('vision_admin_auth_token');
             const authTime = parseInt(sessionStorage.getItem('vision_admin_auth_time') || '0', 10);
             const SIX_HOURS = 6 * 60 * 60 * 1000;
             const EXPECTED_HASH = "270a6d5f35ac6731b2e3381e4c46a12aa5fba7b443e47b126ae774ee2a7c79c9";
-            if (token === EXPECTED_HASH && (Date.now() - authTime) < SIX_HOURS) {
+            if (isAuth || (token === EXPECTED_HASH && (Date.now() - authTime) < SIX_HOURS)) {
                 window.location.replace('organiser.html');
             }
         })();
@@ -265,11 +266,19 @@
     </footer>
 
     <!-- Scripts -->
-    <script type="module">
-        import SFX from './sounds.js';
-        window._SFX = SFX;
+    <script>
+        // Load SFX non-critically — auth works even if sounds.js fails
+        (async () => {
+            try {
+                const mod = await import('./sounds.js');
+                window.SFX = mod.default;
+            } catch (_) {
+                window.SFX = { boot(){}, click(){}, success(){}, error(){}, startPermanentBGM(){}, injectMarvelHUD(){}, attachClickSounds(){} };
+            }
+        })();
 
-        // Irreversible cryptographic hash of authorized master passcode
+        // Master passcode & hash support (works reliably across both file:// and https://)
+        const MASTER_PIN = "ENIYAN$DARKIE@6468";
         const AUTH_HASH = "270a6d5f35ac6731b2e3381e4c46a12aa5fba7b443e47b126ae774ee2a7c79c9";
         const authForm = document.getElementById('auth-form');
         const adminPasscode = document.getElementById('admin-passcode');
@@ -285,10 +294,15 @@
         let lockoutUntil = 0;
 
         async function computeSHA256(message) {
-            const msgBuffer = new TextEncoder().encode(message);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            if (!window.crypto || !window.crypto.subtle) return null;
+            try {
+                const msgBuffer = new TextEncoder().encode(message);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            } catch (_) {
+                return null;
+            }
         }
 
         // Toggle password visibility
@@ -315,7 +329,7 @@
                     const remainingSec = Math.ceil((lockoutUntil - now) / 1000);
                     authErrorMsg.classList.remove('hidden');
                     authErrorText.textContent = `// RATE LIMIT: ACCESS BLOCKED. WAIT ${remainingSec}s`;
-                    try { SFX.error(); } catch (_) {}
+                    try { if(window.SFX) window.SFX.error(); } catch (_) {}
                     return;
                 }
 
@@ -324,10 +338,21 @@
                 submitBtn.innerHTML = `<span class="material-symbols-outlined text-base animate-spin">progress_activity</span><span>VERIFYING...</span>`;
 
                 try {
-                    const hashedInput = await computeSHA256(entered);
+                    let isMatch = false;
 
-                    if (hashedInput === AUTH_HASH) {
-                        // Success path: Store hash token and timestamp with 6-hour validity
+                    // 1. Direct comparison (guaranteed to work in file:// and all browsers)
+                    if (entered === MASTER_PIN) {
+                        isMatch = true;
+                    } else {
+                        // 2. Cryptographic SHA-256 comparison fallback
+                        const hashedInput = await computeSHA256(entered);
+                        if (hashedInput && hashedInput === AUTH_HASH) {
+                            isMatch = true;
+                        }
+                    }
+
+                    if (isMatch) {
+                        // Success path: Store credentials with 6-hour validity
                         sessionStorage.setItem('vision_admin_auth', 'true');
                         sessionStorage.setItem('vision_admin_auth_token', AUTH_HASH);
                         sessionStorage.setItem('vision_admin_auth_time', Date.now().toString());
@@ -339,11 +364,11 @@
                         submitBtn.classList.add('bg-emerald-500', 'text-black');
                         submitBtn.innerHTML = `<span>ACCESS GRANTED</span><span class="material-symbols-outlined text-base">verified</span>`;
 
-                        try { SFX.success(); } catch (_) {}
+                        try { if(window.SFX) window.SFX.success(); } catch (_) {}
 
                         setTimeout(() => {
                             window.location.href = 'organiser.html';
-                        }, 350);
+                        }, 300);
 
                     } else {
                         // Error path
@@ -370,7 +395,7 @@
                         submitBtn.className = 'w-full bg-primary hover:bg-primary-container text-black font-orbitron font-bold text-xs uppercase py-3.5 rounded-xs tracking-widest transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(240,193,44,0.35)] hover:shadow-[0_0_30px_rgba(240,193,44,0.6)] cursor-pointer active:scale-[0.99]';
                         submitBtn.innerHTML = `<span>AUTHENTICATE &amp; ENTER</span><span class="material-symbols-outlined text-base">login</span>`;
 
-                        try { SFX.error(); } catch (_) {}
+                        try { if(window.SFX) window.SFX.error(); } catch (_) {}
                     }
                 } catch (err) {
                     console.error('Auth verification error:', err);
