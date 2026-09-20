@@ -282,7 +282,7 @@
                             <span class="material-symbols-outlined text-primary text-lg">groups</span>
                             <span class="font-mono text-xs font-bold text-zinc-300 uppercase tracking-wider">HEADCOUNT &amp; PARTICIPANTS</span>
                         </div>
-                        <span class="font-mono text-[10px] text-primary bg-primary/10 border border-primary/30 px-2 py-0.5 rounded font-bold">₹100 / HEAD</span>
+                        <span class="font-mono text-[10px] text-primary bg-primary/10 border border-primary/30 px-2 py-0.5 rounded font-bold">₹99 / HEAD</span>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4 items-center">
@@ -337,7 +337,7 @@
                                 ₹0
                             </div>
                             <div class="font-mono text-[10px] text-zinc-400 mt-1" id="analytics-amount-calc">
-                                0 delegates × ₹100
+                                0 delegates × ₹99
                             </div>
                         </div>
 
@@ -961,9 +961,9 @@
                 }
             });
 
-            const totalAmount = totalHeadcount * 100;
-            const verifiedAmount = verifiedHeadcount * 100;
-            const pendingAmount = pendingHeadcount * 100;
+            const totalAmount = totalHeadcount * 99;
+            const verifiedAmount = verifiedHeadcount * 99;
+            const pendingAmount = pendingHeadcount * 99;
             const avgSquadSize = totalUnique > 0 ? (totalHeadcount / totalUnique).toFixed(1) : '0.0';
             const presentPct = totalHeadcount > 0 ? Math.round((admittedHeadcount / totalHeadcount) * 100) : 0;
 
@@ -989,7 +989,7 @@
             const elPenSub = document.getElementById('analytics-pending-sub');
 
             if (elTotalAmt) elTotalAmt.textContent = `₹${totalAmount.toLocaleString('en-IN')}`;
-            if (elAmtCalc) elAmtCalc.textContent = `${totalHeadcount} delegates × ₹100/head`;
+            if (elAmtCalc) elAmtCalc.textContent = `${totalHeadcount} delegates × ₹99/head`;
             if (elVerAmt) elVerAmt.textContent = `₹${verifiedAmount.toLocaleString('en-IN')}`;
             if (elVerSub) elVerSub.textContent = `${verifiedSquadCount} squad(s) • ${verifiedHeadcount} heads`;
             if (elPenAmt) elPenAmt.textContent = `₹${pendingAmount.toLocaleString('en-IN')}`;
@@ -1240,7 +1240,7 @@
             const mobile = (t.members[0].mobile || '').replace(/\D/g, '');
             const cleanPhone = mobile.length === 10 ? '91' + mobile : mobile;
             const memberCount = getSquadMemberCount(t);
-            const feeTotal = memberCount * 100;
+            const feeTotal = memberCount * 99;
             const isPayVer = (t.payment_status === 'verified' || t.status === 'verified');
             const roster = (t.members || []).map((m, idx) => `   ${idx + 1}. *${m.name}* (${m.mobile})`).join('\n');
 
@@ -1264,7 +1264,7 @@ Great news! Your payment has been *VERIFIED & APPROVED* - your squad is official
 * Digital Pass ID : ${t.id}
 * Squad Size      : ${memberCount} Delegate${memberCount > 1 ? 's' : ''}
 ${roster}
-* Registration Fee: Rs. ${feeTotal} (Rs. 100/delegate)
+* Registration Fee: Rs. ${feeTotal} (Rs. 99/delegate)
 * Payment Status  : [VERIFIED & CLEARED]
 ${t.transaction_id ? `* UPI Txn ID      : \`${t.transaction_id}\`\n` : ''}------------------------------------------
 [REPORTING PROTOCOL]
@@ -1297,7 +1297,7 @@ To finalize your registration and avoid slot cancellation, *PLEASE CALL OUR EVEN
 *CALL NOW: +91 73394 36468*
 WhatsApp: https://wa.me/917339436468
 *Keep Your UPI Txn ID Handy:* \`${t.transaction_id || 'Your Transaction ID'}\`
-*Registration Fee:* Rs. ${feeTotal} (${memberCount} member${memberCount > 1 ? 's' : ''} x Rs. 100)
+*Registration Fee:* Rs. ${feeTotal} (${memberCount} member${memberCount > 1 ? 's' : ''} x Rs. 99)
 
 ------------------------------------------
 [SQUAD DETAILS]
@@ -1681,13 +1681,13 @@ Kongu Engineering College (IEEE AP-S)`;
             resetReceiptZoom();
 
             const memberCount = getSquadMemberCount(team);
-            const feeTotal = memberCount * 100;
+            const feeTotal = memberCount * 99;
             const isPayVer = (team.payment_status === 'verified' || team.status === 'verified');
             const screenshot = team.payment_screenshot_url || team.payment_screenshot;
 
             if (receiptModalSquad) receiptModalSquad.textContent = (team.team_name || 'Squad').toUpperCase();
             if (receiptModalTxnId) receiptModalTxnId.textContent = team.transaction_id || 'Not provided';
-            if (receiptModalFee) receiptModalFee.textContent = `₹${feeTotal} (${memberCount} member${memberCount > 1 ? 's' : ''} × ₹100)`;
+            if (receiptModalFee) receiptModalFee.textContent = `₹${feeTotal} (${memberCount} member${memberCount > 1 ? 's' : ''} × ₹99)`;
             if (receiptModalEvents) receiptModalEvents.textContent = team.event_name || 'Event';
             if (receiptModalStatus) {
                 receiptModalStatus.innerHTML = isPayVer
@@ -1770,7 +1770,7 @@ Kongu Engineering College (IEEE AP-S)`;
 
                 const squadName = escapeHtml(activeReceiptTeam.team_name || 'Squad');
                 const txnId = escapeHtml(activeReceiptTeam.transaction_id || 'N/A');
-                const fee = (getSquadMemberCount(activeReceiptTeam) * 100);
+                const fee = (getSquadMemberCount(activeReceiptTeam) * 99);
 
                 const win = window.open('', '_blank');
                 if (win) {
