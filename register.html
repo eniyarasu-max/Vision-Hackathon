@@ -438,15 +438,13 @@
                         <div>
                             <div class="font-mono text-[9px] text-zinc-400 uppercase tracking-widest">Official Symposium UPI ID</div>
                             <div class="font-mono text-sm sm:text-base font-black text-amber-300 tracking-wider select-all" id="official-upi-id">7339436468@upi</div>
+                            <div class="font-mono text-[9px] text-zinc-500 mt-0.5">Use <span class="text-amber-300">Scan QR</span> below — manual UPI app entry may vary by app</div>
                         </div>
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto">
                         <button type="button" id="copy-upi-btn" class="flex-1 sm:flex-initial bg-primary hover:bg-primary-container text-black font-mono font-bold text-xs px-3.5 py-2 rounded-xs flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-[0_0_12px_rgba(240,193,44,0.3)]">
                             <span class="material-symbols-outlined text-sm">content_copy</span> <span id="copy-upi-btn-text">Copy UPI ID</span>
                         </button>
-                        <a id="pay-upi-intent-link" href="upi://pay?pa=7339436468@upi&pn=Vision%202K26&cu=INR&am=100" class="flex-1 sm:flex-initial bg-surface-container hover:bg-surface-container-high border border-outline-variant/60 hover:border-primary text-white font-mono font-bold text-xs px-3.5 py-2 rounded-xs flex items-center justify-center gap-1.5 cursor-pointer transition-all">
-                            <span class="material-symbols-outlined text-sm text-primary">open_in_new</span> Open UPI App
-                        </a>
                     </div>
                 </div>
 
@@ -1097,8 +1095,7 @@
             if (payEC) payEC.textContent = eventCount;
             if (payTotal) payTotal.textContent = '₹' + total;
 
-            const payLink = document.getElementById('pay-upi-intent-link');
-            if (payLink) payLink.href = `upi://pay?pa=7339436468@upi&pn=Vision%202K26&cu=INR&am=${total}`;
+            // UPI deep link removed — @upi VPA causes 'receiver bank invalid' on most apps
         }
 
         // Copy UPI ID button
