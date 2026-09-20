@@ -1,1194 +1,487 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vision 2K26 — Print Poster | IEEE AP-S KEC</title>
-    <!-- Security Headers & Policies -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://fonts.googleapis.com; object-src 'none'; base-uri 'self'; form-action 'self';" />
-    <meta name="referrer" content="strict-origin-when-cross-origin" />
-    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-    <meta http-equiv="Permissions-Policy" content="accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()" />
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Barlow+Condensed:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vision 2K26 Official Poster | IEEE AP-S KEC</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800;9..144,900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            gold: '#f4c93a',
+            'gold-dim': '#ad8520',
+            paper: '#eeece4',
+            ink: '#07090d',
+          },
+          fontFamily: {
+            sans: ['"DM Sans"', 'sans-serif'],
+            display: ['"Fraunces"', 'serif'],
+            mono: ['"Space Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
 
-        :root {
-            --gold:    #f0c12c;
-            --gold-lt: #fff4b8;
-            --gold-dk: #9a7a00;
-            --ink:     #07080d;
-            --ink2:    #0f1119;
-            --white:   #ffffff;
-            --dim:     #a8aabc;
-        }
+  <!-- Lucide Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
 
-        /* ─── Screen wrapper ─── */
-        body {
-            background: #030408;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px 12px 30px;
-            font-family: 'Barlow Condensed', sans-serif;
-        }
+  <style>
+    :root {
+      --ink: #07090d;
+      --paper: #eeece4;
+      --gold: #f4c93a;
+      --gold-dim: #ad8520;
+      --line: rgba(244, 201, 58, .32);
+      --muted: #9ea29e;
+    }
 
-        /* ─── Controls bar ─── */
-        .controls {
-            width: 100%;
-            max-width: 1180px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 14px;
-        }
-        .btn {
-            display: inline-flex; align-items: center; gap: 6px;
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 700; font-size: 13px; letter-spacing: .1em;
-            padding: 8px 18px; border-radius: 3px; cursor: pointer;
-            text-decoration: none; border: none; transition: opacity .18s;
-        }
-        .btn-back  { background:#13151f; border:1px solid rgba(240,193,44,.3); color:#f0c12c; }
-        .btn-print { background:var(--gold); color:#000; }
-        .btn:hover { opacity: .82; }
+    * { box-sizing: border-box; }
 
-        /* ─── Poster scale wrapper ─── */
-        /* A4 landscape = 297 × 210 mm = 1122 × 794 px @ 96dpi */
-        .poster-scale-wrap {
-            width: 100%;
-            max-width: 1122px;
-        }
-        .poster-scale-wrap::before {
-            content: '';
-            display: block;
-            padding-top: calc(210 / 297 * 100%);
-        }
-        .poster-scale-wrap {
-            position: relative;
-        }
-        .poster-scale-wrap::before {
-            content: '';
-            display: block;
-            padding-top: 70.707%;   /* 210/297 */
-        }
+    body {
+      margin: 0;
+      width: 100%;
+      min-height: 100vh;
+      background: #040508;
+      color: var(--paper);
+      font-family: "DM Sans", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
 
-        /* ─── The actual poster (absolutely fills scale-wrap) ─── */
-        #poster {
-            position: absolute;
-            inset: 0;
-            overflow: hidden;
-            background: var(--ink);
-        }
+    .poster-shell {
+      width: 100%;
+      min-height: 100vh;
+      overflow: hidden;
+      position: relative;
+      isolation: isolate;
+      background:
+        radial-gradient(circle at 50% 34%, rgba(114, 87, 15, .32), transparent 32%),
+        radial-gradient(circle at 5% 92%, rgba(248, 196, 37, .18), transparent 28%),
+        linear-gradient(145deg, #05070a 0%, #0a0d12 52%, #05060a 100%);
+    }
 
-        /* ──────────────── BACKGROUND LAYERS ──────────────── */
-        .bg-avengers {
-            position: absolute; inset: 0;
-            background: url('assets/avengers-art.png') center 30% / cover no-repeat;
-            opacity: .28;
-            filter: contrast(1.3) brightness(.7) saturate(.85);
-        }
-        /* Strong left-to-right dark gradient so left & right panels are dark */
-        .bg-fade {
-            position: absolute; inset: 0;
-            background:
-                linear-gradient(90deg,
-                    rgba(7,8,13,.97)  0%,
-                    rgba(7,8,13,.82) 22%,
-                    rgba(7,8,13,.35) 40%,
-                    rgba(7,8,13,.35) 60%,
-                    rgba(7,8,13,.82) 78%,
-                    rgba(7,8,13,.97) 100%),
-                linear-gradient(180deg,
-                    rgba(7,8,13,.88) 0%,
-                    rgba(7,8,13,.25) 20%,
-                    rgba(7,8,13,.25) 80%,
-                    rgba(7,8,13,.88) 100%);
-        }
-        /* Gold bloom center */
-        .bg-bloom {
-            position: absolute; inset: 0;
-            background: radial-gradient(ellipse 55% 70% at 50% 48%,
-                rgba(240,193,44,.09) 0%, transparent 65%);
-        }
-        /* Fine grid */
-        .bg-grid {
-            position: absolute; inset: 0;
-            background-image:
-                linear-gradient(rgba(240,193,44,.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(240,193,44,.04) 1px, transparent 1px);
-            background-size: 28px 28px;
-        }
-        /* Border */
-        .bg-border {
-            position: absolute; inset: 0;
-            border: 2px solid rgba(240,193,44,.55);
-            pointer-events: none;
-        }
-        /* Inner border */
-        .bg-border-inner {
-            position: absolute; inset: 7px;
-            border: 1px solid rgba(240,193,44,.18);
-            pointer-events: none;
-        }
+    .poster-shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      opacity: .35;
+      background-image:
+        linear-gradient(rgba(244, 201, 58, .04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(244, 201, 58, .04) 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: linear-gradient(to bottom, black 0%, black 75%, transparent 100%);
+    }
 
-        /* Corner ornaments */
-        .corner {
-            position: absolute;
-            width: 20px; height: 20px;
-            pointer-events: none;
-        }
-        .corner--tl { top:12px; left:12px; border-top:2px solid var(--gold); border-left:2px solid var(--gold); }
-        .corner--tr { top:12px; right:12px; border-top:2px solid var(--gold); border-right:2px solid var(--gold); }
-        .corner--bl { bottom:12px; left:12px; border-bottom:2px solid var(--gold); border-left:2px solid var(--gold); }
-        .corner--br { bottom:12px; right:12px; border-bottom:2px solid var(--gold); border-right:2px solid var(--gold); }
+    .poster-shell::after {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      width: 65vw;
+      height: 65vw;
+      min-width: 540px;
+      min-height: 540px;
+      border: 1px solid rgba(244, 201, 58, .16);
+      border-radius: 50%;
+      left: 50%;
+      top: 38%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 0 42px rgba(244, 201, 58, .025), 0 0 95px rgba(244, 201, 58, .12);
+      pointer-events: none;
+    }
 
-        /* ──────────────── CONTENT ──────────────── */
-        .poster-inner {
-            position: absolute; inset: 0;
-            display: grid;
-            grid-template-rows: auto 1fr auto auto;
-            padding: 18px 22px 12px;
-            gap: 0;
-            z-index: 10;
-        }
+    .poster-content {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 34px 44px 28px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
 
-        /* ━━━ HEADER ━━━ */
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding-bottom: 9px;
-            border-bottom: 1px solid rgba(240,193,44,.35);
-            gap: 10px;
-        }
-        .logo-group { display: flex; align-items: center; gap: 8px; }
-        .logo-box {
-            background: #fff; border-radius: 3px;
-            padding: 3px 5px;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .logo-box img { height: 32px; width: auto; display: block; }
-        .inst-name {
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 700;
-            font-size: 10px;
-            letter-spacing: .12em;
-            color: var(--gold);
-            line-height: 1.35;
-        }
-        .inst-sub {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 400;
-            font-size: 8.5px;
-            letter-spacing: .12em;
-            color: rgba(240,193,44,.6);
-            margin-top: 1px;
-        }
-        .header-center {
-            flex: 1;
-            text-align: center;
-        }
-        .hc-org {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 600;
-            font-size: 8.5px;
-            letter-spacing: .28em;
-            color: rgba(240,193,44,.7);
-            text-transform: uppercase;
-        }
-        .hc-presents {
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 500;
-            font-size: 10px;
-            letter-spacing: .55em;
-            color: rgba(255,255,255,.88);
-            margin-top: 3px;
-        }
+    .corner {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      border-color: var(--gold);
+      opacity: .85;
+      pointer-events: none;
+    }
+    .corner-a { top: 16px; left: 16px; border-top: 2px solid; border-left: 2px solid; }
+    .corner-b { top: 16px; right: 16px; border-top: 2px solid; border-right: 2px solid; }
+    .corner-c { bottom: 16px; left: 16px; border-bottom: 2px solid; border-left: 2px solid; }
+    .corner-d { bottom: 16px; right: 16px; border-bottom: 2px solid; border-right: 2px solid; }
 
-        /* ━━━ BODY ━━━ */
-        .body {
-            display: grid;
-            grid-template-columns: 1fr 38% 1fr;
-            gap: 0;
-            padding: 10px 0 8px;
-            align-items: stretch;
-        }
+    .mono { font-family: "Space Mono", monospace; }
+    .display { font-family: "Fraunces", serif; }
+    .gold-rule { height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
 
-        /* ── LEFT: Events ── */
-        .col-left {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding-right: 16px;
-            border-right: 1px solid rgba(240,193,44,.2);
-            gap: 8px;
-        }
+    .eyebrow {
+      letter-spacing: .22em;
+      text-transform: uppercase;
+    }
 
-        .sec-head {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 700;
-            font-size: 8px;
-            letter-spacing: .38em;
-            color: var(--gold);
-            text-transform: uppercase;
-            display: flex; align-items: center; gap: 6px;
-            margin-bottom: 7px;
-        }
-        .sec-head::after { content:''; flex:1; height:1px; background:rgba(240,193,44,.28); }
+    .event-card {
+      border: 1px solid rgba(244, 201, 58, .38);
+      background: rgba(12, 15, 20, .82);
+      position: relative;
+      overflow: hidden;
+      transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+      backdrop-filter: blur(8px);
+    }
 
-        .events-list { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+    .event-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--gold);
+      box-shadow: 0 4px 20px rgba(244, 201, 58, .15);
+    }
 
-        .ev {
-            display: flex; align-items: stretch;
-            border: 1px solid rgba(240,193,44,.18);
-            border-left: 3px solid rgba(240,193,44,.42);
-            border-radius: 2px;
-            background: rgba(15,17,25,.6);
-            overflow: hidden;
-            flex: 1;
-        }
-        .ev.featured {
-            border-color: rgba(240,193,44,.55);
-            border-left-color: var(--gold);
-            background: rgba(240,193,44,.07);
-        }
-        .ev-num {
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 700;
-            font-size: 9px;
-            color: rgba(240,193,44,.5);
-            padding: 0 8px;
-            display: flex; align-items: center; justify-content: center;
-            background: rgba(0,0,0,.2);
-            border-right: 1px solid rgba(240,193,44,.1);
-            min-width: 30px;
-        }
-        .ev-body {
-            display: flex; align-items: center;
-            justify-content: space-between;
-            flex: 1;
-            padding: 9px 10px;
-            gap: 6px;
-        }
-        .ev-name {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 800;
-            font-size: 13px;
-            letter-spacing: .07em;
-            text-transform: uppercase;
-            color: #fff;
-            line-height: 1;
-        }
-        .ev.featured .ev-name { color: var(--gold); }
-        .ev-tag {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 600; font-size: 7.5px;
-            letter-spacing: .2em; text-transform: uppercase;
-            color: rgba(240,193,44,.7);
-            background: rgba(240,193,44,.1);
-            border: 1px solid rgba(240,193,44,.25);
-            border-radius: 2px; padding: 2px 7px;
-            white-space: nowrap;
-        }
-        .ev.featured .ev-tag {
-            background: rgba(240,193,44,.2);
-            border-color: rgba(240,193,44,.5);
-            color: var(--gold);
-        }
+    .event-card::before {
+      content: "";
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      right: -1px;
+      top: -1px;
+      border-top: 2px solid var(--gold);
+      border-right: 2px solid var(--gold);
+      opacity: .75;
+    }
 
-        /* Eligibility block below events */
-        .elig-block {
-            border: 1px solid rgba(240,193,44,.18);
-            border-radius: 3px;
-            background: rgba(15,17,25,.6);
-            padding: 8px 10px;
-        }
-        .elig-head {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 700; font-size: 7.5px;
-            letter-spacing: .3em; color: var(--gold);
-            text-transform: uppercase; margin-bottom: 5px;
-        }
-        .elig-row {
-            display: flex; align-items: center; gap: 6px;
-            margin-bottom: 3px;
-        }
-        .elig-dot {
-            width: 4px; height: 4px; border-radius: 50%;
-            background: var(--gold); flex-shrink: 0;
-        }
-        .elig-text {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 500; font-size: 9.5px;
-            color: rgba(200,202,212,.8);
-            letter-spacing: .05em;
-        }
+    .hero-frame {
+      position: relative;
+      border: 1px solid rgba(244, 201, 58, .75);
+      background: #0f1217;
+      box-shadow: 0 0 44px rgba(244, 201, 58, .2);
+      overflow: hidden;
+    }
 
-        /* ── CENTER ── */
-        .col-center {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 14px;
-            gap: 6px;
-        }
+    .hero-frame::before,
+    .hero-frame::after {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      z-index: 2;
+    }
 
-        /* Vision Emblem */
-        .emblem-wrap {
-            position: relative;
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
-        }
-        .ring-out {
-            position: absolute;
-            border: 1.5px dashed rgba(240,193,44,.4);
-            border-radius: 50%;
-            animation: spin 45s linear infinite;
-        }
-        .ring-mid {
-            position: absolute;
-            border: 1px solid rgba(240,193,44,.22);
-            border-radius: 50%;
-            animation: spin 30s linear infinite reverse;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
+    .hero-frame::before {
+      top: 10px; left: 10px;
+      border-top: 2px solid var(--gold);
+      border-left: 2px solid var(--gold);
+    }
 
-        .emblem-circle {
-            border-radius: 50%;
-            overflow: hidden;
-            border: 2.5px solid rgba(240,193,44,.7);
-            box-shadow:
-                0 0 0 1px rgba(240,193,44,.15),
-                0 0 30px rgba(240,193,44,.3),
-                0 0 60px rgba(240,193,44,.12),
-                inset 0 0 20px rgba(0,0,0,.6);
-            position: relative;
-            flex-shrink: 0;
-        }
-        .emblem-circle img {
-            display: block;
-            width: 100%; height: 100%;
-            object-fit: cover;
-            object-position: top center;
-            filter: contrast(1.1) brightness(.9) saturate(1.1);
-        }
-        .emblem-circle::after {
-            content: '';
-            position: absolute; inset: 0;
-            background: linear-gradient(180deg, transparent 50%, rgba(7,8,13,.7) 100%);
-            border-radius: 50%;
-        }
+    .hero-frame::after {
+      right: 10px; bottom: 10px;
+      border-bottom: 2px solid var(--gold);
+      border-right: 2px solid var(--gold);
+    }
 
-        /* Title area */
-        .title-wrap { text-align: center; }
-        .title-main {
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 900;
-            line-height: .95;
-            text-transform: uppercase;
-            letter-spacing: .1em;
-            background: linear-gradient(180deg, #fffce0 0%, #f0c12c 48%, #8a6400 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            filter: drop-shadow(0 0 20px rgba(240,193,44,.45));
-        }
-        .title-sub {
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 500;
-            letter-spacing: .55em;
-            color: rgba(240,193,44,.75);
-        }
-        .title-desc {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 400;
-            letter-spacing: .28em;
-            text-transform: uppercase;
-            color: rgba(200,202,212,.6);
-            margin-top: 4px;
-        }
+    .hero-frame img {
+      width: 100%;
+      height: 100%;
+      min-height: 280px;
+      max-height: 380px;
+      object-fit: cover;
+      filter: contrast(1.15) brightness(.85);
+      transition: transform .5s ease;
+    }
 
-        /* Slogan */
-        .slogan {
-            width: 100%;
-            text-align: center;
-            background: linear-gradient(90deg, transparent, rgba(240,193,44,.12), transparent);
-            border-top: 1px solid rgba(240,193,44,.28);
-            border-bottom: 1px solid rgba(240,193,44,.28);
-            padding: 6px 10px;
-        }
-        .slogan-text {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 800;
-            letter-spacing: .3em;
-            text-transform: uppercase;
-            color: var(--gold);
-        }
-        .slogan-sub {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 400;
-            font-size: 8px;
-            letter-spacing: .25em;
-            color: rgba(200,202,212,.5);
-            margin-top: 2px;
-            text-transform: uppercase;
-        }
+    .hero-frame:hover img {
+      transform: scale(1.02);
+    }
 
-        /* Date/Venue badges */
-        .dv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; width: 100%; }
-        .dv-card {
-            background: rgba(15,17,25,.7);
-            border: 1px solid rgba(240,193,44,.22);
-            border-radius: 3px;
-            padding: 7px 8px;
-            text-align: center;
-        }
-        .dv-label {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 600; font-size: 7px;
-            letter-spacing: .3em; text-transform: uppercase;
-            color: rgba(240,193,44,.6);
-        }
-        .dv-value {
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 700;
-            color: #fff;
-            margin-top: 2px;
-            letter-spacing: .06em;
-        }
-        .dv-sub {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 7.5px;
-            color: rgba(200,202,212,.45);
-            letter-spacing: .08em;
-            margin-top: 1px;
-        }
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(5,7,10,.15) 0%, rgba(5,7,10,.05) 45%, rgba(5,7,10,.9) 100%);
+      pointer-events: none;
+    }
 
-        /* ── RIGHT ── */
-        .col-right {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding-left: 16px;
-            border-left: 1px solid rgba(240,193,44,.2);
-            gap: 8px;
-        }
+    .hero-stamp {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(244, 201, 58, .65);
+      padding-top: 8px;
+    }
 
-        /* Prize / Fee cards */
-        .pf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-        .pf-card {
-            border-radius: 3px;
-            padding: 10px 10px;
-            text-align: center;
-            border: 1px solid rgba(240,193,44,.2);
-            background: rgba(15,17,25,.65);
-            display: flex; flex-direction: column;
-            justify-content: center; gap: 2px;
-        }
-        .pf-card.gold { border-color: rgba(240,193,44,.55); background: rgba(240,193,44,.07); }
-        .pf-lbl {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 700; font-size: 7.5px;
-            letter-spacing: .28em; text-transform: uppercase;
-            color: rgba(240,193,44,.7);
-        }
-        .pf-val {
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 900;
-            letter-spacing: .04em; line-height: 1;
-        }
-        .pf-card.gold .pf-val {
-            background: linear-gradient(180deg, #fff8d0, #f0c12c);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-            filter: drop-shadow(0 1px 8px rgba(240,193,44,.4));
-        }
-        .pf-card:not(.gold) .pf-val { color: #fff; }
-        .pf-sub {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 7.5px;
-            color: rgba(200,202,212,.45);
-            letter-spacing: .08em;
-        }
+    .deadline {
+      box-shadow: 0 0 25px rgba(244, 201, 58, .22);
+      border-left: 4px solid var(--gold);
+    }
 
-        /* Social proof badges row */
-        .badges-row {
-            display: flex; gap: 5px; flex-wrap: wrap;
-        }
-        .badge {
-            flex: 1;
-            background: rgba(15,17,25,.7);
-            border: 1px solid rgba(240,193,44,.2);
-            border-radius: 3px;
-            padding: 6px 8px;
-            text-align: center;
-        }
-        .badge-val {
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 900;
-            color: var(--gold);
-            letter-spacing: .06em;
-            line-height: 1;
-        }
-        .badge-lbl {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 500; font-size: 7.5px;
-            letter-spacing: .18em; text-transform: uppercase;
-            color: rgba(200,202,212,.5);
-            margin-top: 2px;
-        }
+    /* Print styling */
+    @media print {
+      .no-print { display: none !important; }
+      body { background: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .poster-shell { min-height: auto; page-break-inside: avoid; }
+      .poster-content { padding: 18px 24px; max-width: 100%; }
+      .corner { display: none; }
+    }
 
-        /* Coordinators */
-        .coord-card {
-            background: rgba(15,17,25,.65);
-            border: 1px solid rgba(240,193,44,.18);
-            border-radius: 3px;
-            padding: 8px 10px;
-            flex: 1;
-        }
-        .coord-head {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 700; font-size: 7.5px;
-            letter-spacing: .3em; text-transform: uppercase;
-            color: var(--gold);
-            border-bottom: 1px solid rgba(240,193,44,.15);
-            padding-bottom: 5px; margin-bottom: 6px;
-        }
-        .coord-row { display: flex; align-items: baseline; gap: 4px; margin-bottom: 4px; }
-        .coord-role {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 400; font-size: 8px;
-            color: rgba(200,202,212,.45);
-            min-width: 52px; flex-shrink: 0;
-        }
-        .coord-name {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 700; font-size: 9.5px;
-            color: #fff; letter-spacing: .03em;
-        }
-        .coord-students {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 400; font-size: 8px;
-            color: rgba(200,202,212,.5);
-            border-top: 1px solid rgba(240,193,44,.1);
-            padding-top: 5px; margin-top: 2px;
-            line-height: 1.6;
-        }
-
-        /* QR */
-        .qr-card {
-            background: rgba(15,17,25,.65);
-            border: 1px solid rgba(240,193,44,.22);
-            border-radius: 3px;
-            padding: 8px 10px;
-            display: flex; align-items: center; gap: 10px;
-        }
-        .qr-box { background:#fff; border-radius:3px; padding:4px; flex-shrink:0; }
-        .qr-box img { display:block; }
-        .qr-info {}
-        .qr-scan {
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 700;
-            color: var(--gold);
-            letter-spacing: .1em;
-            text-transform: uppercase;
-        }
-        .qr-note {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 400; font-size: 8.5px;
-            color: rgba(200,202,212,.5);
-            margin-top: 3px; line-height: 1.45;
-            letter-spacing: .04em;
-        }
-
-        /* ━━━ DIVIDER BAR between body & footer ━━━ */
-        .divider {
-            height: 1px;
-            background: linear-gradient(90deg,
-                transparent 0%, rgba(240,193,44,.35) 20%,
-                rgba(240,193,44,.35) 80%, transparent 100%);
-            margin: 0;
-        }
-
-        /* ━━━ FOOTER ━━━ */
-        .footer {
-            display: flex; align-items: center; justify-content: space-between;
-            padding-top: 7px;
-            gap: 10px;
-        }
-        .footer-copy {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 400; font-size: 7.5px;
-            letter-spacing: .16em; text-transform: uppercase;
-            color: rgba(200,202,212,.35);
-        }
-        .footer-social {
-            display: flex; align-items: center; gap: 8px;
-        }
-        .footer-ig {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 600; font-size: 8px;
-            letter-spacing: .14em;
-            color: rgba(240,193,44,.55);
-            text-transform: uppercase;
-        }
-        .footer-kec {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 700; font-size: 8px;
-            letter-spacing: .15em;
-            color: rgba(200,202,212,.45);
-            text-transform: uppercase;
-        }
-        .footer-sep { color: rgba(240,193,44,.25); font-size: 8px; }
-
-        /* ══════════════ ANIMATED AVENGERS ELEMENTS ══════════════ */
-
-        /* Floating hero panel – left edge */
-        .hero-panel-left {
-            position: absolute;
-            top: 0; left: 0;
-            width: 13%;
-            height: 100%;
-            z-index: 5;
-            pointer-events: none;
-            overflow: hidden;
-        }
-        .hero-panel-left img {
-            width: 260%;
-            height: 100%;
-            object-fit: cover;
-            object-position: 0% center;
-            opacity: .55;
-            filter: contrast(1.25) brightness(.75) saturate(1.2) hue-rotate(-5deg);
-            animation: heroFloat 8s ease-in-out infinite;
-            mask-image: linear-gradient(90deg, rgba(0,0,0,.9) 0%, rgba(0,0,0,.6) 55%, transparent 100%);
-            -webkit-mask-image: linear-gradient(90deg, rgba(0,0,0,.9) 0%, rgba(0,0,0,.6) 55%, transparent 100%);
-        }
-
-        /* Floating hero panel – right edge */
-        .hero-panel-right {
-            position: absolute;
-            top: 0; right: 0;
-            width: 13%;
-            height: 100%;
-            z-index: 5;
-            pointer-events: none;
-            overflow: hidden;
-        }
-        .hero-panel-right img {
-            width: 260%;
-            height: 100%;
-            object-fit: cover;
-            object-position: 100% center;
-            margin-left: -160%;
-            opacity: .55;
-            filter: contrast(1.25) brightness(.75) saturate(1.2) hue-rotate(10deg);
-            animation: heroFloat 9s ease-in-out infinite reverse;
-            mask-image: linear-gradient(270deg, rgba(0,0,0,.9) 0%, rgba(0,0,0,.6) 55%, transparent 100%);
-            -webkit-mask-image: linear-gradient(270deg, rgba(0,0,0,.9) 0%, rgba(0,0,0,.6) 55%, transparent 100%);
-        }
-
-        /* Gold glow edge lines on the panels */
-        .hero-panel-left::after {
-            content: '';
-            position: absolute;
-            top: 0; right: 0; bottom: 0;
-            width: 2px;
-            background: linear-gradient(180deg,
-                transparent 0%,
-                rgba(240,193,44,.6) 25%,
-                rgba(240,193,44,.9) 50%,
-                rgba(240,193,44,.6) 75%,
-                transparent 100%);
-            animation: edgeGlow 3s ease-in-out infinite;
-        }
-        .hero-panel-right::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; bottom: 0;
-            width: 2px;
-            background: linear-gradient(180deg,
-                transparent 0%,
-                rgba(240,193,44,.6) 25%,
-                rgba(240,193,44,.9) 50%,
-                rgba(240,193,44,.6) 75%,
-                transparent 100%);
-            animation: edgeGlow 3s ease-in-out infinite 1.5s;
-        }
-
-        /* Horizontal scan line effect */
-        .scan-line {
-            position: absolute;
-            left: 0; right: 0;
-            height: 2px;
-            background: linear-gradient(90deg,
-                transparent 0%,
-                rgba(240,193,44,.0) 10%,
-                rgba(240,193,44,.5) 30%,
-                rgba(240,193,44,.8) 50%,
-                rgba(240,193,44,.5) 70%,
-                rgba(240,193,44,.0) 90%,
-                transparent 100%);
-            filter: blur(1px);
-            z-index: 6;
-            pointer-events: none;
-            animation: scanDown 6s linear infinite;
-        }
-        .scan-line-2 {
-            position: absolute;
-            left: 0; right: 0;
-            height: 1.5px;
-            background: linear-gradient(90deg,
-                transparent 0%,
-                rgba(100,200,255,.0) 10%,
-                rgba(100,200,255,.4) 30%,
-                rgba(100,200,255,.7) 50%,
-                rgba(100,200,255,.4) 70%,
-                rgba(100,200,255,.0) 90%,
-                transparent 100%);
-            filter: blur(.5px);
-            z-index: 6;
-            pointer-events: none;
-            animation: scanDown 9s linear infinite 4s;
-        }
-
-        /* Arc reactor / energy orb top-center */
-        .arc-reactor {
-            position: absolute;
-            top: 44px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 28px; height: 28px;
-            z-index: 6;
-            pointer-events: none;
-        }
-        .arc-reactor::before {
-            content: '';
-            position: absolute; inset: 6px;
-            border-radius: 50%;
-            background: radial-gradient(circle, #c8f0ff 0%, #60d0ff 50%, #0060a0 100%);
-            animation: reactorPulse 2s ease-in-out infinite;
-        }
-        .arc-reactor::after {
-            content: '';
-            position: absolute; inset: 0;
-            border-radius: 50%;
-            border: 1.5px solid rgba(100,200,255,.7);
-            animation: reactorRing 2s ease-in-out infinite;
-            box-shadow: 0 0 12px rgba(100,200,255,.6), inset 0 0 8px rgba(100,200,255,.3);
-        }
-
-        /* Floating energy particles */
-        .particles {
-            position: absolute; inset: 0;
-            z-index: 5;
-            pointer-events: none;
-            overflow: hidden;
-        }
-        .particle {
-            position: absolute;
-            border-radius: 50%;
-            background: var(--gold);
-            opacity: 0;
-            animation: particleDrift linear infinite;
-        }
-
-        /* Bottom banner strip */
-        .avengers-strip {
-            position: absolute;
-            bottom: 26px;
-            left: 14%;
-            right: 14%;
-            height: 38px;
-            z-index: 5;
-            pointer-events: none;
-            overflow: hidden;
-            border-radius: 2px;
-            opacity: .4;
-        }
-        .avengers-strip img {
-            width: 100%;
-            height: 300%;
-            object-fit: cover;
-            object-position: center 65%;
-            filter: contrast(1.3) brightness(.6) saturate(1.3);
-            mask-image: linear-gradient(180deg, transparent 0%, rgba(0,0,0,.8) 40%, rgba(0,0,0,.8) 60%, transparent 100%);
-            -webkit-mask-image: linear-gradient(180deg, transparent 0%, rgba(0,0,0,.8) 40%, rgba(0,0,0,.8) 60%, transparent 100%);
-        }
-
-        /* ── Keyframes ── */
-        @keyframes heroFloat {
-            0%, 100% { transform: translateY(0px) scale(1.00); }
-            33%       { transform: translateY(-8px) scale(1.01); }
-            66%       { transform: translateY(5px) scale(.99); }
-        }
-        @keyframes edgeGlow {
-            0%, 100% { opacity: .5; }
-            50%       { opacity: 1; }
-        }
-        @keyframes scanDown {
-            0%   { top: -2px; opacity: 0; }
-            5%   { opacity: 1; }
-            90%  { opacity: .7; }
-            100% { top: 100%; opacity: 0; }
-        }
-        @keyframes reactorPulse {
-            0%, 100% { opacity: .7; transform: scale(.9); }
-            50%       { opacity: 1; transform: scale(1.15); box-shadow: 0 0 16px rgba(100,200,255,.9); }
-        }
-        @keyframes reactorRing {
-            0%, 100% { transform: scale(1); opacity: .7; }
-            50%       { transform: scale(1.3); opacity: 0; }
-        }
-        @keyframes particleDrift {
-            0%   { transform: translateY(0) translateX(0); opacity: 0; }
-            10%  { opacity: .8; }
-            90%  { opacity: .5; }
-            100% { transform: translateY(-80px) translateX(var(--dx, 20px)); opacity: 0; }
-        }
-
-        /* ─── Print ─── */
-        @media print {
-            @page { size: A4 landscape; margin: 0; }
-            body { background: #07080d !important; padding: 0 !important; }
-            .controls { display: none !important; }
-            .poster-scale-wrap {
-                width: 297mm !important;
-                max-width: 297mm !important;
-                position: relative !important;
-            }
-            .poster-scale-wrap::before { padding-top: 0 !important; display: none; }
-            #poster {
-                position: relative !important;
-                inset: unset !important;
-                width: 297mm !important;
-                height: 210mm !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-            .bg-avengers { opacity: .38 !important; }
-            .hero-panel-left img,
-            .hero-panel-right img { animation: none !important; opacity: .55 !important; }
-            .scan-line, .scan-line-2, .arc-reactor, .particles { display: none !important; }
-            .avengers-strip { opacity: .5 !important; }
-        }
-    </style>
+    @media (max-width: 768px) {
+      .poster-content { padding: 24px 18px 20px; }
+      .corner { width: 36px; height: 36px; }
+      .hero-frame img { min-height: 220px; }
+    }
+  </style>
 </head>
-<body>
 
-<!-- Controls -->
-<div class="controls">
-    <a href="index.html" class="btn btn-back">← Back to Vision Portal</a>
-    <div style="display:flex;align-items:center;gap:10px;">
-        <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.15em;color:rgba(200,202,212,.35);text-transform:uppercase;">A4 Landscape Poster</span>
-        <button class="btn btn-print" onclick="window.print()">⬇ Print / Save as PDF</button>
+<body style="background: linear-gradient(145deg, rgb(5, 7, 10), rgb(10, 13, 18));">
+
+  <!-- Top Action / Controls Bar (Screen Only) -->
+  <aside aria-label="Poster toolbar" class="no-print w-full bg-[#0c0f14]/95 border-b border-yellow-400/30 sticky top-0 z-50 backdrop-blur-md px-4 py-2.5">
+    <div class="max-w-[1100px] mx-auto flex items-center justify-between gap-3 flex-wrap text-xs">
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-stone-800/80 hover:bg-stone-700 text-stone-200 border border-stone-700 hover:text-yellow-300 font-mono transition-colors">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span>Home</span>
+        </a>
+        <span class="text-stone-400 font-mono hidden sm:inline">| Vision 2K26 Official Symposium Poster</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="window.print()" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded bg-yellow-400 hover:bg-yellow-300 text-black font-bold font-mono transition-colors shadow-sm cursor-pointer">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+          <span>Print / Save PDF</span>
+        </button>
+        <a href="register.html" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded bg-stone-900 hover:bg-stone-800 text-yellow-300 border border-yellow-400/60 font-bold font-mono transition-colors">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+          <span>Register Squad</span>
+        </a>
+      </div>
     </div>
-</div>
+  </aside>
 
-<!-- Scale Wrapper maintains A4 aspect ratio -->
-<div class="poster-scale-wrap">
-    <div id="poster">
+  <!-- Main Poster Frame -->
+  <main class="poster-shell">
+    <span class="corner corner-a" aria-hidden="true"></span>
+    <span class="corner corner-b" aria-hidden="true"></span>
+    <span class="corner corner-c" aria-hidden="true"></span>
+    <span class="corner corner-d" aria-hidden="true"></span>
 
-        <!-- ── Background Layers ── -->
-        <div class="bg-avengers"></div>
-        <div class="bg-fade"></div>
-        <div class="bg-bloom"></div>
-        <div class="bg-grid"></div>
-        <div class="bg-border"></div>
-        <div class="bg-border-inner"></div>
-
-        <!-- ── Animated Avengers Character Panels ── -->
-        <!-- Left edge hero panel -->
-        <div class="hero-panel-left">
-            <img src="assets/avengers-art.png" alt="">
-        </div>
-        <!-- Right edge hero panel -->
-        <div class="hero-panel-right">
-            <img src="assets/avengers-art.png" alt="">
+    <div class="poster-content">
+      <!-- Header -->
+      <header class="flex items-center justify-between gap-4 pb-4 border-b border-yellow-400/30">
+        <div class="flex items-center gap-3">
+          <div class="bg-white px-2 py-1 rounded shadow-sm flex items-center justify-center">
+            <img src="assets/kec-logo.png" alt="Kongu Engineering College" class="h-8 sm:h-9 w-auto object-contain">
+          </div>
+          <div>
+            <p data-template-id="institution-name" class="mono eyebrow font-bold text-yellow-300 text-[11px] sm:text-xs tracking-[0.15em]">KONGU ENGINEERING COLLEGE</p>
+            <p data-template-id="organizer-name" class="text-stone-300 text-[11px] sm:text-xs font-semibold tracking-wide mt-0.5">Department of ECE · IEEE Student Branch · Antennas &amp; Propagation Society</p>
+          </div>
         </div>
 
-        <!-- Horizontal scan lines (HUD effect) -->
-        <div class="scan-line"></div>
-        <div class="scan-line-2"></div>
-
-        <!-- Arc Reactor pulse orb (top center below header) -->
-        <div class="arc-reactor"></div>
-
-        <!-- Floating energy particles -->
-        <div class="particles" id="particles"></div>
-
-        <!-- Bottom Avengers panorama strip -->
-        <div class="avengers-strip">
-            <img src="assets/avengers-art.png" alt="">
-        </div>
-
-        <!-- Corner ornaments -->
-        <div class="corner corner--tl"></div>
-        <div class="corner corner--tr"></div>
-        <div class="corner corner--bl"></div>
-        <div class="corner corner--br"></div>
-
-        <!-- ── Content Layer ── -->
-        <div class="poster-inner">
-
-            <!-- ════ HEADER ════ -->
-            <header class="header">
-                <div class="logo-group">
-                    <div class="logo-box"><img src="assets/kec-logo.png" alt="KEC"></div>
-                    <div>
-                        <div class="inst-name">KONGU ENGINEERING COLLEGE</div>
-                        <div class="inst-sub">(Autonomous) · Perundurai, Erode — 638 060</div>
-                    </div>
-                </div>
-
-                <div class="header-center">
-                    <div class="hc-org">IEEE Student Branch KEC &nbsp;·&nbsp; IEEE Antennas and Propagation Society</div>
-                    <div class="hc-presents">P &thinsp; R &thinsp; E &thinsp; S &thinsp; E &thinsp; N &thinsp; T &thinsp; S</div>
-                </div>
-
-                <div class="logo-group" style="flex-direction:row-reverse;">
-                    <div class="logo-box"><img src="assets/ieee-aps-logo.png" alt="IEEE AP-S"></div>
-                    <div style="text-align:right;">
-                        <div class="inst-name">IEEE AP-S</div>
-                        <div class="inst-sub">Student Chapter · QS I-GAUGE Diamond</div>
-                    </div>
-                </div>
-            </header>
-
-            <!-- ════ BODY ════ -->
-            <div class="body">
-
-                <!-- LEFT: Events + Eligibility -->
-                <div class="col-left">
-                    <div>
-                        <div class="sec-head">Events</div>
-                        <div class="events-list">
-                            <div class="ev">
-                                <div class="ev-num">01</div>
-                                <div class="ev-body">
-                                    <span class="ev-name">Paper Presentation</span>
-                                    <span class="ev-tag">TECHNICAL</span>
-                                </div>
-                            </div>
-                            <div class="ev">
-                                <div class="ev-num">02</div>
-                                <div class="ev-body">
-                                    <span class="ev-name">Project Presentation</span>
-                                    <span class="ev-tag">DEMO</span>
-                                </div>
-                            </div>
-                            <div class="ev featured">
-                                <div class="ev-num">03</div>
-                                <div class="ev-body">
-                                    <span class="ev-name">AI Sprint</span>
-                                    <span class="ev-tag">ON-SPOT</span>
-                                </div>
-                            </div>
-                            <div class="ev">
-                                <div class="ev-num">04</div>
-                                <div class="ev-body">
-                                    <span class="ev-name">ElectroBid</span>
-                                    <span class="ev-tag">AUCTION</span>
-                                </div>
-                            </div>
-                            <div class="ev">
-                                <div class="ev-num">05</div>
-                                <div class="ev-body">
-                                    <span class="ev-name">Line Following Robot</span>
-                                    <span class="ev-tag">ARENA</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="elig-block">
-                        <div class="elig-head">Eligibility &amp; Rules</div>
-                        <div class="elig-row">
-                            <div class="elig-dot"></div>
-                            <span class="elig-text">Open to all KEC students (any department)</span>
-                        </div>
-                        <div class="elig-row">
-                            <div class="elig-dot"></div>
-                            <span class="elig-text">Maximum 3 members per team</span>
-                        </div>
-                        <div class="elig-row">
-                            <div class="elig-dot"></div>
-                            <span class="elig-text">Valid college ID card mandatory on event day</span>
-                        </div>
-                        <div class="elig-row">
-                            <div class="elig-dot"></div>
-                            <span class="elig-text">Certificates &amp; pass provided to all participants</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- CENTER: Emblem + Title + Slogan + Date/Venue -->
-                <div class="col-center">
-
-                    <!-- Emblem -->
-                    <div class="emblem-wrap" style="width:clamp(130px,17vw,190px);height:clamp(130px,17vw,190px);">
-                        <div class="ring-out" style="inset:-12px;"></div>
-                        <div class="ring-mid" style="inset:-4px;"></div>
-                        <div class="emblem-circle" style="width:100%;height:100%;">
-                            <img src="assets/vision-hero.jpg" alt="Vision 2K26">
-                        </div>
-                    </div>
-
-                    <!-- Title -->
-                    <div class="title-wrap">
-                        <div class="title-main" style="font-size:clamp(30px,4.2vw,56px);">VISION</div>
-                        <div class="title-sub" style="font-size:clamp(11px,1.5vw,20px);">2 K 2 6</div>
-                        <div class="title-desc" style="font-size:clamp(8px,.85vw,11px);">Intra-College Technical Symposium</div>
-                    </div>
-
-                    <!-- Slogan -->
-                    <div class="slogan">
-                        <div class="slogan-text" style="font-size:clamp(9px,1vw,13px);">Unleash &nbsp;&middot;&nbsp; Innovate &nbsp;&middot;&nbsp; Ignite</div>
-                        <div class="slogan-sub">Be the Visionary of Tomorrow</div>
-                    </div>
-
-                    <!-- Date & Venue -->
-                    <div class="dv-grid">
-                        <div class="dv-card">
-                            <div class="dv-label">📅 Date</div>
-                            <div class="dv-value" style="font-size:clamp(9px,1vw,13px);">5 OCT 2026</div>
-                            <div class="dv-sub">Monday · Full Day</div>
-                        </div>
-                        <div class="dv-card">
-                            <div class="dv-label">📍 Venue</div>
-                            <div class="dv-value" style="font-size:clamp(9px,1vw,13px);">DEPT OF ECE</div>
-                            <div class="dv-sub">Kongu Engg College</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- RIGHT: Prize, Fee, Badges, Coords, QR -->
-                <div class="col-right">
-
-                    <div>
-                        <div class="sec-head">Prizes &amp; Registration</div>
-
-                        <!-- Prize / Fee -->
-                        <div class="pf-grid" style="margin-bottom:7px;">
-                            <div class="pf-card gold">
-                                <div class="pf-lbl">Cash Prize Pool</div>
-                                <div class="pf-val" style="font-size:clamp(20px,2.5vw,32px);">₹10K</div>
-                                <div class="pf-sub">+ Trophies &amp; Medals</div>
-                            </div>
-                            <div class="pf-card">
-                                <div class="pf-lbl">Entry Fee</div>
-                                <div class="pf-val" style="font-size:clamp(20px,2.5vw,32px);">₹100</div>
-                                <div class="pf-sub">Per Head · Pass + Cert</div>
-                            </div>
-                        </div>
-
-                        <!-- Stats badges -->
-                        <div class="badges-row">
-                            <div class="badge">
-                                <div class="badge-val" style="font-size:clamp(11px,1.3vw,17px);">5</div>
-                                <div class="badge-lbl">Events</div>
-                            </div>
-                            <div class="badge">
-                                <div class="badge-val" style="font-size:clamp(11px,1.3vw,17px);">3</div>
-                                <div class="badge-lbl">Max / Team</div>
-                            </div>
-                            <div class="badge">
-                                <div class="badge-val" style="font-size:clamp(11px,1.3vw,17px);">1</div>
-                                <div class="badge-lbl">Full Day</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Coordinators -->
-                    <div class="coord-card">
-                        <div class="coord-head">Coordination Team — ECE Department</div>
-                        <div class="coord-row">
-                            <span class="coord-role">Counselor</span>
-                            <span class="coord-name">Dr. J. Vijayalakshmi</span>
-                        </div>
-                        <div class="coord-row">
-                            <span class="coord-role">Chairman</span>
-                            <span class="coord-name">Vigneshwaran A (80721 17488)</span>
-                        </div>
-                        <div class="coord-row">
-                            <span class="coord-role">Coordinators</span>
-                            <span class="coord-name">Sarathi G &nbsp;·&nbsp; Sridhar R</span>
-                        </div>
-                        <div class="coord-students" style="margin-top:4px;">
-                            For Queries: Eniyarasu V (73394 36468)
-                        </div>
-                    </div>
-
-                    <!-- QR -->
-                    <div class="qr-card">
-                        <div class="qr-box">
-                            <img src="assets/payment-qr.png" alt="Registration QR" style="width:clamp(50px,6.5vw,78px);height:auto;">
-                        </div>
-                        <div class="qr-info">
-                            <div class="qr-scan" style="font-size:clamp(8px,.9vw,11px);">Scan to Register</div>
-                            <div class="qr-note">
-                                Open to all KEC students<br>
-                                Limited spots — register early!<br>
-                                <span style="color:rgba(240,193,44,.6);font-weight:700;">vision2k26.in</span>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
+        <div class="flex items-center gap-3 text-right">
+          <div>
+            <p data-template-id="edition-label" class="mono eyebrow font-bold text-yellow-300 text-[10px] tracking-[0.14em]">2K26 / SYMPOSIUM</p>
+            <div class="flex justify-end items-center gap-1.5 mt-0.5 text-yellow-300">
+              <i data-lucide="radio-tower" class="w-4 h-4" aria-hidden="true"></i>
+              <span class="mono text-[10px] font-bold tracking-[.18em]">IEEE AP-S</span>
             </div>
+          </div>
+          <div class="bg-white px-2 py-1 rounded shadow-sm flex items-center justify-center">
+            <img src="assets/ieee-aps-logo.png" alt="IEEE APS" class="h-8 sm:h-9 w-auto object-contain">
+          </div>
+        </div>
+      </header>
 
-            <!-- ════ DIVIDER ════ -->
-            <div class="divider"></div>
+      <!-- Hero Header Section -->
+      <section class="pt-6 sm:pt-7 text-center">
+        <p data-template-id="event-kicker" class="mono eyebrow text-yellow-300 font-bold text-xs sm:text-sm tracking-[0.22em]">IEEE AP-S PRESENTS</p>
+        <h1 data-template-id="event-title" class="display mt-1 text-stone-100 font-extrabold leading-none tracking-tight text-5xl sm:text-7xl md:text-8xl drop-shadow-[0_4px_24px_rgba(244,201,58,0.25)]">VISION 2K26</h1>
+        <p data-template-id="event-subtitle" class="mt-2 text-stone-200 uppercase tracking-[.15em] text-xs sm:text-sm md:text-base font-semibold">Intra-College Technical Symposium</p>
+        <div class="gold-rule max-w-md mx-auto mt-4"></div>
+      </section>
 
-            <!-- ════ FOOTER ════ -->
-            <footer class="footer">
-                <div class="footer-copy">© 2026 Vision 2K26 · IEEE Antennas &amp; Propagation Society KEC · All rights reserved</div>
-                <div class="footer-social">
-                    <span class="footer-ig">Instagram: @ieee_apskec</span>
-                    <span class="footer-sep">◆</span>
-                    <span class="footer-kec">Kongu Engineering College (Autonomous)</span>
-                    <span class="footer-sep">◆</span>
-                    <span class="footer-ig">Dept of ECE</span>
-                </div>
-            </footer>
+      <!-- Main 3-Column Grid -->
+      <section class="grid grid-cols-1 md:grid-cols-[1fr_1.15fr_1fr] gap-4 md:gap-5 items-stretch py-6">
+        
+        <!-- Left Column: Side Image + Events 01 & 02 -->
+        <div class="space-y-4 order-2 md:order-1 flex flex-col">
+          <div class="border border-yellow-400/40 overflow-hidden rounded-xs h-32 relative bg-black/40">
+            <img data-template-id="poster-side-image-left" class="w-full h-full object-cover object-center filter contrast-125 brightness-90 hover:scale-105 transition-transform duration-500" loading="lazy" src="assets/avengers-art.png" alt="Avengers Emblem and Assemble Art">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none"></div>
+            <span class="absolute bottom-2 left-2 mono text-[9px] text-yellow-300 font-bold tracking-widest bg-black/75 px-1.5 py-0.5 rounded border border-yellow-400/30">TRACK // 01-02</span>
+          </div>
 
-        </div><!-- /poster-inner -->
-    </div><!-- /poster -->
-</div><!-- /poster-scale-wrap -->
+          <!-- Card 01: Paper Presentation -->
+          <article data-template-id="paper-card" class="event-card p-4 rounded-xs flex-1">
+            <div class="flex gap-3">
+              <i data-lucide="file-text" class="w-5 h-5 text-yellow-300 shrink-0 mt-0.5" aria-hidden="true"></i>
+              <div>
+                <p data-template-id="paper-label" class="mono text-yellow-300 text-[10px] font-bold tracking-widest">01 / PRESENTATION</p>
+                <h2 data-template-id="paper-title" class="text-stone-100 font-bold text-base mt-1">Paper Presentation</h2>
+                <p data-template-id="paper-description" class="text-stone-400 text-xs leading-relaxed mt-1.5">Present a bold idea, breakthrough research, or engineering insight with slide pitch.</p>
+              </div>
+            </div>
+          </article>
 
-<script>
-    /* ── Spawn floating gold/blue energy particles ── */
-    (function() {
-        var container = document.getElementById('particles');
-        if (!container) return;
-        var colors = ['#f0c12c','#f0c12c','#f0c12c','#60d0ff','#a0e8ff','#ffd060'];
-        for (var i = 0; i < 22; i++) {
-            var p = document.createElement('div');
-            p.className = 'particle';
-            var size = (Math.random() * 3 + 1.5).toFixed(1);
-            var x    = (Math.random() * 90 + 5).toFixed(1);
-            var y    = (Math.random() * 80 + 10).toFixed(1);
-            var dur  = (Math.random() * 6 + 5).toFixed(1);
-            var del  = (Math.random() * 8).toFixed(1);
-            var dx   = ((Math.random() - 0.5) * 40).toFixed(0);
-            var col  = colors[Math.floor(Math.random() * colors.length)];
-            p.style.cssText = [
-                'width:' + size + 'px',
-                'height:' + size + 'px',
-                'left:' + x + '%',
-                'top:' + y + '%',
-                'background:' + col,
-                'box-shadow:0 0 ' + (parseFloat(size)*3) + 'px ' + col,
-                'animation-duration:' + dur + 's',
-                'animation-delay:' + del + 's',
-                '--dx:' + dx + 'px'
-            ].join(';');
-            container.appendChild(p);
-        }
-    })();
-</script>
+          <!-- Card 02: Project Presentation -->
+          <article data-template-id="project-card" class="event-card p-4 rounded-xs flex-1">
+            <div class="flex gap-3">
+              <i data-lucide="lightbulb" class="w-5 h-5 text-yellow-300 shrink-0 mt-0.5" aria-hidden="true"></i>
+              <div>
+                <p data-template-id="project-label" class="mono text-yellow-300 text-[10px] font-bold tracking-widest">02 / BUILD</p>
+                <h2 data-template-id="project-title" class="text-stone-100 font-bold text-base mt-1">Project Presentation</h2>
+                <p data-template-id="project-description" class="text-stone-400 text-xs leading-relaxed mt-1.5">Showcase hardware &amp; software prototypes that transform ideas into practical solutions.</p>
+              </div>
+            </div>
+          </article>
+        </div>
 
+        <!-- Center Column: Hero Character Frame -->
+        <figure class="hero-frame order-1 md:order-2 rounded-xs flex flex-col">
+          <img data-template-id="poster-hero-image" class="w-full h-full object-cover flex-1" loading="lazy" src="assets/vision-hero.jpg" alt="Vision Android Hero">
+          <div class="hero-overlay"></div>
+          <figcaption class="hero-stamp">
+            <span data-template-id="hero-stamp-left" class="mono text-yellow-300 text-[9px] font-bold tracking-widest flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-ping"></span> SIGNAL / ACTIVE
+            </span>
+            <span data-template-id="hero-stamp-right" class="mono text-stone-200 text-[9px] font-bold tracking-widest">VISION.2K26</span>
+          </figcaption>
+        </figure>
+
+        <!-- Right Column: Side Image + Events 03 & 04 -->
+        <div class="space-y-4 order-3 flex flex-col">
+          <div class="border border-yellow-400/40 overflow-hidden rounded-xs h-32 relative bg-black/40">
+            <img data-template-id="poster-side-image-right" class="w-full h-full object-cover object-center filter contrast-125 brightness-90 hover:scale-105 transition-transform duration-500" loading="lazy" src="assets/vision-profile.jpg" alt="Vision Mind Stone Character Art">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none"></div>
+            <span class="absolute bottom-2 right-2 mono text-[9px] text-yellow-300 font-bold tracking-widest bg-black/75 px-1.5 py-0.5 rounded border border-yellow-400/30">TRACK // 03-04</span>
+          </div>
+
+          <!-- Card 03: AI Sprint -->
+          <article data-template-id="sprint-card" class="event-card p-4 rounded-xs flex-1">
+            <div class="flex gap-3">
+              <i data-lucide="brain-circuit" class="w-5 h-5 text-yellow-300 shrink-0 mt-0.5" aria-hidden="true"></i>
+              <div>
+                <p data-template-id="sprint-label" class="mono text-yellow-300 text-[10px] font-bold tracking-widest">03 / HACKATHON</p>
+                <h2 data-template-id="sprint-title" class="text-stone-100 font-bold text-base mt-1">AI Sprint</h2>
+                <p data-template-id="sprint-description" class="text-stone-400 text-xs leading-relaxed mt-1.5">Build intelligent solutions under pressure on live spot prompts and make code count.</p>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 04: ElectroBID -->
+          <article data-template-id="electrobid-card" class="event-card p-4 rounded-xs flex-1">
+            <div class="flex gap-3">
+              <i data-lucide="bot" class="w-5 h-5 text-yellow-300 shrink-0 mt-0.5" aria-hidden="true"></i>
+              <div>
+                <p data-template-id="electrobid-label" class="mono text-yellow-300 text-[10px] font-bold tracking-widest">04 / CHALLENGE</p>
+                <h2 data-template-id="electrobid-title" class="text-stone-100 font-bold text-base mt-1">ElectroBID</h2>
+                <p data-template-id="electrobid-description" class="text-stone-400 text-xs leading-relaxed mt-1.5">Bid credits for hardware components, wire, and conquer the electronics circuit challenge.</p>
+              </div>
+            </div>
+          </article>
+        </div>
+
+      </section>
+
+      <!-- Event 05: Line Follower Banner Strip -->
+      <section data-template-id="robotics-strip" class="border border-yellow-400/50 bg-[#1f1a0d]/80 rounded-xs px-5 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-[0_0_20px_rgba(244,201,58,0.12)]">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full bg-yellow-400/20 border border-yellow-400/40 flex items-center justify-center shrink-0">
+            <i data-lucide="git-branch" class="w-5 h-5 text-yellow-300" aria-hidden="true"></i>
+          </div>
+          <div>
+            <p data-template-id="robotics-label" class="mono text-yellow-300 text-[10px] font-bold tracking-widest">05 / ROBOTICS</p>
+            <h2 data-template-id="robotics-title" class="text-stone-100 font-bold text-base sm:text-lg">Line Follower Robot</h2>
+          </div>
+        </div>
+        <p data-template-id="robotics-description" class="text-stone-300 text-xs text-center sm:text-right max-w-sm font-medium">
+          Precision, speed, and autonomous smart sensor control meet on the competitive arena track.
+        </p>
+      </section>
+
+      <!-- Venue & Registration Deadline Row -->
+      <section class="grid grid-cols-1 sm:grid-cols-[1.4fr_1fr] gap-4 mt-5 items-stretch">
+        <div data-template-id="venue-panel" class="border border-stone-700/60 bg-black/40 rounded-xs px-5 py-4 flex flex-col justify-between">
+          <div>
+            <p data-template-id="venue-label" class="mono eyebrow text-yellow-300 font-bold text-[10px] tracking-[0.14em]">VENUE / CONTACT</p>
+            <p data-template-id="venue-value" class="text-stone-100 font-bold text-sm sm:text-base mt-1.5">ECE Block, Kongu Engineering College, Perundurai</p>
+            <p data-template-id="contact-value" class="mono text-stone-300 text-xs mt-1">Queries: Eniyarasu V · +91 73394 36468</p>
+          </div>
+          <div class="mt-2 text-[11px] mono text-yellow-300/80">
+            Registration Fee: ₹100 / Head • Max 3 Members / Squad
+          </div>
+        </div>
+
+        <div data-template-id="deadline-panel" class="deadline bg-yellow-400 rounded-xs px-6 py-4 flex items-center gap-4 text-black">
+          <i data-lucide="calendar-days" class="w-9 h-9 text-black shrink-0" aria-hidden="true"></i>
+          <div>
+            <p data-template-id="deadline-label" class="mono text-black text-[10px] font-black tracking-widest">REGISTRATION DEADLINE</p>
+            <p data-template-id="deadline-date" class="display text-black font-extrabold text-2xl leading-tight">05 OCTOBER</p>
+            <p class="mono text-[10px] font-bold text-black/80">Saturday · 1:30 PM to 4:00 PM</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Poster Footer: Organizers, Coordinators & Links -->
+      <footer class="mt-6 pt-5 grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-yellow-400/30 text-center sm:text-left text-xs">
+        <!-- Col 1: Date & Time -->
+        <div class="pt-2">
+          <p class="mono text-yellow-300 text-[10px] font-bold tracking-widest">SCHEDULE</p>
+          <p data-template-id="event-day" class="display text-stone-100 font-bold text-base mt-1">05 October 2026 (Saturday)</p>
+          <p data-template-id="event-time" class="mono text-yellow-300 text-[11px] font-bold tracking-wide mt-0.5">1:30 PM to 4:00 PM</p>
+          <p class="text-stone-400 text-[10px] mt-1">Venue: ECE Department Block</p>
+        </div>
+
+        <!-- Col 2: Faculty Coordinator -->
+        <div class="pt-2 text-center">
+          <p data-template-id="faculty-coordinator-label" class="mono text-yellow-300 text-[10px] font-bold tracking-widest">FACULTY COORDINATOR</p>
+          <p data-template-id="faculty-coordinator-name" class="text-stone-100 font-bold text-sm mt-1">Dr. V. Vijayalakshmi</p>
+          <p data-template-id="faculty-coordinator-role" class="text-stone-400 text-[10px] leading-relaxed">Associate Professor · ECE<br>IEEE Student Branch Counsellor</p>
+        </div>
+
+        <!-- Col 3: Society Leadership & Student Coordinators -->
+        <div class="pt-2 sm:text-right">
+          <p class="mono text-yellow-300 text-[10px] font-bold tracking-widest">IEEE AP-S SOCIETY CHAIRMAN</p>
+          <p class="text-stone-100 font-bold text-xs mt-0.5">VIGNESHWARAN A · <span class="mono text-yellow-300">80721 17488</span></p>
+
+          <p data-template-id="student-coordinator-label" class="mono text-yellow-300 text-[10px] font-bold tracking-widest mt-2">STUDENT COORDINATORS</p>
+          <p data-template-id="student-coordinator-name" class="text-stone-100 font-bold text-xs mt-0.5">SARATHI G · SRIDHAR R</p>
+        </div>
+
+        <!-- Bottom bar: Queries Contact, Email & Socials -->
+        <div class="sm:col-span-3 flex flex-col sm:flex-row items-center justify-between gap-2 border-t border-stone-700/60 pt-3 text-[10px] mono">
+          <div class="text-stone-300">
+            For Queries Contact: <span class="text-yellow-300 font-bold">Eniyarasu V (73394 36468)</span>
+          </div>
+          <div class="text-stone-400">
+            Email: <a href="mailto:ieeeaps.kec@gmail.com" class="text-stone-200 hover:text-yellow-300 underline">ieeeaps.kec@gmail.com</a>
+          </div>
+          <div class="text-yellow-300 flex items-center gap-3">
+            <span>Instagram: @ieeeaps_kec</span>
+            <span>•</span>
+            <span>Facebook: @ieeeaps_kec</span>
+          </div>
+        </div>
+      </footer>
+
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+    });
+  </script>
 </body>
 </html>
