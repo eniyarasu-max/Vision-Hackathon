@@ -121,8 +121,8 @@
     <div class="fixed bottom-0 right-0 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[120px] pointer-events-none -z-10"></div>
 
     <!-- Top Navigation / Branding Bar -->
-    <header class="w-full border-b border-primary/20 bg-surface-container-lowest/80 backdrop-blur-md px-6 py-4">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <header class="w-full border-b border-primary/20 bg-surface-container-lowest/80 backdrop-blur-md px-6 py-3">
+        <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
             <a href="index.html" class="flex items-center gap-3 group">
                 <div class="w-8 h-8 rounded bg-primary/15 border border-primary/40 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-black transition-all">
                     <span class="material-symbols-outlined text-base">arrow_back</span>
@@ -133,9 +133,17 @@
                 </div>
             </a>
 
-            <div class="flex items-center gap-2 font-mono text-[11px] text-zinc-400">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span class="hidden sm:inline">AUTH SERVER:</span> <span class="text-white font-bold">ONLINE</span>
+            <div class="flex items-center gap-3">
+                <div class="bg-white px-2.5 py-1 rounded-sm border-2 border-primary/60 flex items-center justify-center h-10 md:h-11 shadow-[0_0_12px_rgba(240,193,44,0.25)]">
+                    <img src="assets/kec-logo.png" alt="Kongu Engineering College" class="h-7 md:h-8 w-auto object-contain" />
+                </div>
+                <div class="bg-white px-2.5 py-1 rounded-sm border-2 border-primary/60 flex items-center justify-center h-10 md:h-11 shadow-[0_0_12px_rgba(240,193,44,0.25)]">
+                    <img src="assets/ieee-aps-logo.png" alt="IEEE AP-S" class="h-7 md:h-8 w-auto object-contain" />
+                </div>
+                <div class="hidden sm:flex items-center gap-2 font-mono text-[11px] text-zinc-400 ml-2 pl-3 border-l border-white/10">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>AUTH SERVER:</span> <span class="text-white font-bold">ONLINE</span>
+                </div>
             </div>
         </div>
     </header>
