@@ -10,6 +10,7 @@
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta http-equiv="Permissions-Policy" content="accelerometer=(), camera=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()" />
+    <link rel="icon" type="image/png" href="assets/ieee-aps-logo.png" />
 
     <!-- If already authenticated, jump straight to organiser terminal -->
     <script>
@@ -18,7 +19,7 @@
             const token = sessionStorage.getItem('vision_admin_auth_token');
             const authTime = parseInt(sessionStorage.getItem('vision_admin_auth_time') || '0', 10);
             const SIX_HOURS = 6 * 60 * 60 * 1000;
-            const EXPECTED_HASH = "270a6d5f35ac6731b2e3381e4c46a12aa5fba7b443e47b126ae774ee2a7c79c9";
+            const EXPECTED_HASH = "e5527ac917dee52b33d850b871cc01bf8f95bde6c1e569f37eafa42e0e2ee74c";
             if (isAuth || (token === EXPECTED_HASH && (Date.now() - authTime) < SIX_HOURS)) {
                 window.location.replace('organiser.html');
             }
@@ -277,9 +278,8 @@
             }
         })();
 
-        // Master passcode & hash support (works reliably across both file:// and https://)
-        const MASTER_PIN = "ENIYAN$DARKIE@6468";
-        const AUTH_HASH = "270a6d5f35ac6731b2e3381e4c46a12aa5fba7b443e47b126ae774ee2a7c79c9";
+        // Cryptographic SHA-256 authentication (zero plaintext secrets in client source)
+        const AUTH_HASH = "e5527ac917dee52b33d850b871cc01bf8f95bde6c1e569f37eafa42e0e2ee74c";
         const authForm = document.getElementById('auth-form');
         const adminPasscode = document.getElementById('admin-passcode');
         const authErrorMsg = document.getElementById('auth-error-msg');
@@ -338,18 +338,8 @@
                 submitBtn.innerHTML = `<span class="material-symbols-outlined text-base animate-spin">progress_activity</span><span>VERIFYING...</span>`;
 
                 try {
-                    let isMatch = false;
-
-                    // 1. Direct comparison (guaranteed to work in file:// and all browsers)
-                    if (entered === MASTER_PIN) {
-                        isMatch = true;
-                    } else {
-                        // 2. Cryptographic SHA-256 comparison fallback
-                        const hashedInput = await computeSHA256(entered);
-                        if (hashedInput && hashedInput === AUTH_HASH) {
-                            isMatch = true;
-                        }
-                    }
+                    const hashedInput = await computeSHA256(entered);
+                    const isMatch = (hashedInput && hashedInput === AUTH_HASH);
 
                     if (isMatch) {
                         // Success path: Store credentials with 6-hour validity
