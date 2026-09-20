@@ -11,11 +11,20 @@
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta http-equiv="Permissions-Policy" content="accelerometer=(), camera=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()" />
 
-    <!-- Instant Auth Guard: redirect to admin.html if not authenticated -->
+    <!-- Instant Auth Guard: redirect to admin.html if not authenticated or session expired -->
     <script>
-        if (sessionStorage.getItem('vision_admin_auth') !== 'true') {
-            window.location.replace('admin.html');
-        }
+        (function() {
+            const token = sessionStorage.getItem('vision_admin_auth_token');
+            const authTime = parseInt(sessionStorage.getItem('vision_admin_auth_time') || '0', 10);
+            const SIX_HOURS = 6 * 60 * 60 * 1000;
+            const EXPECTED_HASH = "270a6d5f35ac6731b2e3381e4c46a12aa5fba7b443e47b126ae774ee2a7c79c9";
+            if (token !== EXPECTED_HASH || (Date.now() - authTime) >= SIX_HOURS) {
+                sessionStorage.removeItem('vision_admin_auth');
+                sessionStorage.removeItem('vision_admin_auth_token');
+                sessionStorage.removeItem('vision_admin_auth_time');
+                window.location.replace('admin.html');
+            }
+        })();
     </script>
 
     <style>
@@ -251,6 +260,9 @@
                         </button>
                         <button id="export-csv-btn" class="flex-1 bg-surface-container-high hover:bg-primary hover:text-black text-white border border-outline-variant/40 px-2 py-1.5 rounded-xs transition-colors flex items-center justify-center gap-1 cursor-pointer font-bold" title="Export CSV">
                             <span class="material-symbols-outlined text-sm">download</span> CSV
+                        </button>
+                        <button id="export-admitted-btn" class="flex-1 bg-emerald-950/60 hover:bg-emerald-600 hover:text-black text-emerald-300 border border-emerald-500/50 px-2 py-1.5 rounded-xs transition-colors flex items-center justify-center gap-1 cursor-pointer font-bold text-[11px]" title="Export Checked-in Delegations (for Certificates & Food)">
+                            <span class="material-symbols-outlined text-sm">verified_user</span> Admitted
                         </button>
                     </div>
                     <button id="quick-clear-btn" class="mt-2.5 w-full bg-error-container/20 hover:bg-error-container text-error hover:text-white border border-error/40 px-2 py-1.5 rounded-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer font-bold font-mono text-xs" title="Clear all or selected event registrations">
@@ -675,15 +687,16 @@
 
             <!-- Security challenge / Confirmation -->
             <div class="space-y-2 font-mono text-xs">
-                <label class="block text-zinc-300 font-bold uppercase">
-                    TYPE <span class="text-error font-mono bg-error/10 px-1.5 py-0.5 rounded border border-error/30">CLEAR DATA</span> OR ADMIN PASSCODE (OR CONFIRM VIA POPUP):
+                <label class="block text-zinc-300 font-bold uppercase flex items-center justify-between">
+                    <span>ENTER MASTER PASSCODE TO AUTHORIZE PURGE:</span>
+                    <span class="text-error font-bold text-[10px] uppercase">SECURITY CHALLENGE</span>
                 </label>
                 <input 
-                    type="text" 
+                    type="password" 
                     id="purge-confirm-input" 
-                    placeholder="Type CLEAR DATA or click below to confirm via popup" 
+                    placeholder="Enter Security Master PIN" 
                     class="w-full bg-surface-container-lowest border border-outline-variant/60 focus:border-error text-xs py-2.5 px-3 text-white outline-none rounded-xs font-mono"
-                    autocomplete="off"
+                    autocomplete="current-password"
                 />
             </div>
 
@@ -743,7 +756,22 @@
         /* =========================================================
            AUTH VERIFICATION & LOCK LOGIC
            ========================================================= */
-        if (sessionStorage.getItem('vision_admin_auth') !== 'true') {
+        const AUTH_HASH = "270a6d5f35ac6731b2e3381e4c46a12aa5fba7b443e47b126ae774ee2a7c79c9";
+
+        async function computeSHA256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        const sessionToken = sessionStorage.getItem('vision_admin_auth_token');
+        const sessionAuthTime = parseInt(sessionStorage.getItem('vision_admin_auth_time') || '0', 10);
+        const SIX_HOURS = 6 * 60 * 60 * 1000;
+        if (sessionToken !== AUTH_HASH || (Date.now() - sessionAuthTime) >= SIX_HOURS) {
+            sessionStorage.removeItem('vision_admin_auth');
+            sessionStorage.removeItem('vision_admin_auth_token');
+            sessionStorage.removeItem('vision_admin_auth_time');
             window.location.replace('admin.html');
         }
 
@@ -751,6 +779,8 @@
         if (lockBtn) {
             lockBtn.addEventListener('click', () => {
                 sessionStorage.removeItem('vision_admin_auth');
+                sessionStorage.removeItem('vision_admin_auth_token');
+                sessionStorage.removeItem('vision_admin_auth_time');
                 SFX.click();
                 window.location.replace('admin.html');
             });
@@ -1464,9 +1494,29 @@ Kongu Engineering College (IEEE AP-S)`;
             scanMembers.textContent = (team.members || []).slice(1).map(m => m.name).join(', ') || 'Solo';
 
             const checkedIn = team.checked_in === true;
-            scanCheckinStatus.innerHTML = checkedIn
-                ? `<span class="text-emerald-400 font-bold">ALREADY CHECKED-IN</span>`
-                : `<span class="text-amber-400 font-bold">NOT YET CHECKED-IN</span>`;
+            if (checkedIn) {
+                const ts = team.check_in_timestamp ? new Date(team.check_in_timestamp).toLocaleTimeString() : 'Earlier';
+                scanCheckinStatus.innerHTML = `<span class="text-error font-bold flex items-center gap-1.5 animate-pulse"><span class="material-symbols-outlined text-sm">warning</span> DUPLICATE SCAN ALERT: ALREADY ADMITTED at ${ts}!</span>`;
+                if (scanCheckinBtn) {
+                    scanCheckinBtn.disabled = true;
+                    scanCheckinBtn.className = 'flex-1 bg-surface-container border border-outline-variant/40 text-zinc-500 font-bold py-2 rounded-xs flex items-center justify-center gap-1.5 cursor-not-allowed opacity-60';
+                    scanCheckinBtn.innerHTML = `<span class="material-symbols-outlined text-base">block</span> Already Admitted (${ts})`;
+                }
+                scannerResult.classList.remove('hidden');
+                try { SFX.error(); } catch (_) {}
+                speak(`Warning! Duplicate scan detected! Squad ${team.team_name} was already admitted at ${ts}!`);
+            } else {
+                scanCheckinStatus.innerHTML = `<span class="text-amber-400 font-bold">READY FOR ADMISSION (NOT YET CHECKED-IN)</span>`;
+                if (scanCheckinBtn) {
+                    scanCheckinBtn.disabled = false;
+                    scanCheckinBtn.className = 'flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.3)]';
+                    scanCheckinBtn.innerHTML = `<span class="material-symbols-outlined text-base">how_to_reg</span> Admit Entry &amp; Check-In`;
+                }
+                scannerResult.classList.remove('hidden');
+                try { SFX.success(); } catch (_) {}
+                const leaderFirst = (team.members && team.members[0] ? team.members[0].name : 'Leader').split(' ')[0];
+                speak(`Squad ${team.team_name} verified for ${team.event_name}! Welcome ${leaderFirst}!`);
+            }
 
             if (scanTxnId) scanTxnId.textContent = team.transaction_id || 'Not provided';
             const isPayVer = (team.payment_status === 'verified' || team.status === 'verified');
@@ -1483,12 +1533,6 @@ Kongu Engineering College (IEEE AP-S)`;
                     ? 'bg-emerald-900/40 text-emerald-300 border border-emerald-500/50 font-bold py-2 px-3 rounded-xs flex items-center justify-center gap-1.5 cursor-pointer text-xs'
                     : 'bg-amber-500/20 hover:bg-amber-500 hover:text-black border border-amber-500 text-amber-300 font-bold py-2 px-3 rounded-xs flex items-center justify-center gap-1.5 cursor-pointer text-xs transition-colors';
             }
-
-            scannerResult.classList.remove('hidden');
-            SFX.success();
-
-            const leaderFirst = (team.members && team.members[0] ? team.members[0].name : 'Leader').split(' ')[0];
-            speak(`Squad ${team.team_name} verified for ${team.event_name}! Welcome ${leaderFirst}!`);
         }
 
         // Gate scanner verify payment button
@@ -1948,6 +1992,43 @@ Kongu Engineering College (IEEE AP-S)`;
             });
         }
 
+        // Admitted Delegations Export (Only checked-in squads, for Certificates & Food Count)
+        const exportAdmittedBtn = document.getElementById('export-admitted-btn');
+        if (exportAdmittedBtn) {
+            exportAdmittedBtn.addEventListener('click', () => {
+                const admittedTeams = registeredTeams.filter(t => t.checked_in === true);
+                if (admittedTeams.length === 0) return alert('No admitted squads yet. Check in squads via the Gate Scanner first.');
+                const headers = ['#', 'Squad Name', 'Event Track', 'Check-In Time', 'Leader Name', 'Leader Email', 'Leader Mobile', 'Member 2 Name', 'Member 2 Mobile', 'Member 3 Name', 'Member 3 Mobile', 'Fee Status'];
+                const rows = admittedTeams.map((t, idx) => {
+                    const m1 = t.members && t.members[0] ? t.members[0] : {};
+                    const m2 = t.members && t.members[1] ? t.members[1] : {};
+                    const m3 = t.members && t.members[2] ? t.members[2] : {};
+                    const isPayVer = (t.payment_status === 'verified' || t.status === 'verified');
+                    const timeStr = t.check_in_timestamp ? new Date(t.check_in_timestamp).toLocaleTimeString() : 'Admitted';
+                    return [
+                        idx + 1,
+                        `"${(t.team_name || '').replace(/"/g, '""')}"`,
+                        `"${(t.event_name || '').replace(/"/g, '""')}"`,
+                        `"${timeStr}"`,
+                        `"${(m1.name || '').replace(/"/g, '""')}"`,
+                        m1.email || '',
+                        m1.mobile || '',
+                        `"${(m2.name || '').replace(/"/g, '""')}"`,
+                        m2.mobile || '',
+                        `"${(m3.name || '').replace(/"/g, '""')}"`,
+                        m3.mobile || '',
+                        isPayVer ? 'VERIFIED' : 'PENDING'
+                    ];
+                });
+                const csv = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+                const link = document.createElement('a');
+                link.href = encodeURI(csv);
+                link.download = `vision_2k26_ADMITTED_DELEGATIONS_${new Date().toISOString().slice(0, 10)}.csv`;
+                link.click();
+                SFX.success();
+            });
+        }
+
         /* =========================================================
            BULK ACTIONS (CHECK-IN & DELETE SELECTED)
            ========================================================= */
@@ -2096,7 +2177,6 @@ Kongu Engineering College (IEEE AP-S)`;
         /* =========================================================
            CLEAR DATABASE (PURGE MODAL & LOGIC)
            ========================================================= */
-        const MASTER_PIN = "ENIYAN$DARKIE@6468";
         const clearDbModal = document.getElementById('clear-db-modal');
         const openClearDbBtn = document.getElementById('open-clear-db-btn');
         const quickClearBtn = document.getElementById('quick-clear-btn');
@@ -2184,15 +2264,17 @@ Kongu Engineering College (IEEE AP-S)`;
                 }
 
                 const entered = (purgeConfirmInput.value || '').trim();
-                const isAllowed = entered.toUpperCase() === 'CLEAR DATA' ||
-                    entered.toUpperCase() === 'CLEAR' ||
-                    entered.toUpperCase() === 'DELETE' ||
-                    entered === MASTER_PIN ||
-                    entered === '';
-
-                if (!isAllowed) {
+                if (!entered) {
                     purgeStatusMsg.className = 'text-xs font-mono text-center p-2 rounded-xs bg-error-container/40 border border-error/50 text-error font-bold block';
-                    purgeStatusMsg.textContent = 'ERROR: Type CLEAR DATA or leave the field blank to proceed.';
+                    purgeStatusMsg.textContent = 'ERROR: Master passcode is required to authorize database deletion.';
+                    SFX.error();
+                    return;
+                }
+
+                const hashedEntered = await computeSHA256(entered);
+                if (hashedEntered !== AUTH_HASH) {
+                    purgeStatusMsg.className = 'text-xs font-mono text-center p-2 rounded-xs bg-error-container/40 border border-error/50 text-error font-bold block';
+                    purgeStatusMsg.textContent = 'ERROR: Invalid master passcode. Purge authorization denied.';
                     SFX.error();
                     return;
                 }

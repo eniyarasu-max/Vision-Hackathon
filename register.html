@@ -1437,11 +1437,16 @@ Ready to innovate, engineer, and conquer the frontier! See you all on October 5t
 
 #Vision2K26 #IEEEAPS #KonguEngineeringCollege #TechSymposium #Engineering`;
 
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(msg).catch(() => {});
+                if (navigator.share) {
+                    navigator.share({
+                        title: `Vision 2K26 Admit Pass — ${currentPassData.team_name}`,
+                        text: msg
+                    }).catch(() => {
+                        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+                    });
+                } else {
+                    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
                 }
-
-                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
             });
         }
 
@@ -1546,41 +1551,9 @@ Ready to innovate, engineer, and conquer the frontier! See you all on October 5t
             if (db) {
                 try {
                     submitBtnLabel.textContent = 'CHECKING UNIQUENESS & VALIDATING...';
-
-                    const allEventTrackIds = [
-                        'paper-presentation',
-                        'project-presentation',
-                        'ai-sprint',
-                        'electrobid',
-                        'line-following-robot'
-                    ];
                     const txnKey = transactionId.toUpperCase();
 
-                    // 1. Strict duplicate squad name check across ALL 5 event collections
-                    for (const evId of allEventTrackIds) {
-                        const regColRef = collection(db, 'events', evId, 'registrations');
-                        const qName = query(regColRef, where('team_name_key', '==', payload.team_name_key));
-                        const snapName = await getDocs(qName);
-                        if (!snapName.empty) {
-                            showFieldError('team_name', true, '// SQUAD CALLSIGN ALREADY TAKEN - CHOOSE A UNIQUE SQUAD NAME');
-                            throw new Error('DUPLICATE_TEAM_NAME');
-                        }
-                    }
-
-                    // 2. Strict duplicate transaction ID check across ALL 5 event collections
-                    for (const evId of allEventTrackIds) {
-                        const regColRef = collection(db, 'events', evId, 'registrations');
-                        const qTxn = query(regColRef, where('transaction_id', '==', transactionId));
-                        const snapTxn = await getDocs(qTxn);
-                        if (!snapTxn.empty) {
-                            showFieldError('transaction_id', true, '// THIS UPI TRANSACTION ID HAS ALREADY BEEN SUBMITTED');
-                            throw new Error('DUPLICATE_TXN_ID');
-                        }
-                    }
-
-                    submitBtnLabel.textContent = 'CONFIRMING REGISTRATION...';
-
-                    // 3. Write registration to each selected event collection + atomic locks
+                    // Direct atomic check & registration via dedicated lock documents
                     let createdDocId = null;
                     await runTransaction(db, async (txn) => {
                         // Atomic check on dedicated lock documents

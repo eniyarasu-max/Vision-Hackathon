@@ -11,11 +11,17 @@
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta http-equiv="Permissions-Policy" content="accelerometer=(), camera=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()" />
 
-    <!-- If already authenticated, jump straight to organiser terminal -->
+    <!-- If already authenticated and not expired, jump straight to organiser terminal -->
     <script>
-        if (sessionStorage.getItem('vision_admin_auth') === 'true') {
-            window.location.replace('organiser.html');
-        }
+        (function() {
+            const token = sessionStorage.getItem('vision_admin_auth_token');
+            const authTime = parseInt(sessionStorage.getItem('vision_admin_auth_time') || '0', 10);
+            const SIX_HOURS = 6 * 60 * 60 * 1000;
+            const EXPECTED_HASH = "270a6d5f35ac6731b2e3381e4c46a12aa5fba7b443e47b126ae774ee2a7c79c9";
+            if (token === EXPECTED_HASH && (Date.now() - authTime) < SIX_HOURS) {
+                window.location.replace('organiser.html');
+            }
+        })();
     </script>
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -263,7 +269,8 @@
         import SFX from './sounds.js';
         window._SFX = SFX;
 
-        const MASTER_PIN = "ENIYAN$DARKIE@6468";
+        // Irreversible cryptographic hash of authorized master passcode
+        const AUTH_HASH = "270a6d5f35ac6731b2e3381e4c46a12aa5fba7b443e47b126ae774ee2a7c79c9";
         const authForm = document.getElementById('auth-form');
         const adminPasscode = document.getElementById('admin-passcode');
         const authErrorMsg = document.getElementById('auth-error-msg');
@@ -273,6 +280,16 @@
         const loginCard = document.getElementById('login-card');
         const togglePwdBtn = document.getElementById('toggle-pwd-btn');
         const pwdIcon = document.getElementById('pwd-icon');
+
+        let failedAttempts = 0;
+        let lockoutUntil = 0;
+
+        async function computeSHA256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
 
         // Toggle password visibility
         if (togglePwdBtn && adminPasscode) {
@@ -289,41 +306,76 @@
 
         // Form submission & authentication
         if (authForm) {
-            authForm.addEventListener('submit', (e) => {
+            authForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const entered = adminPasscode.value.trim();
 
-                if (entered === MASTER_PIN) {
-                    // Success path
-                    sessionStorage.setItem('vision_admin_auth', 'true');
-                    authErrorMsg.classList.add('hidden');
-                    authSuccessMsg.classList.remove('hidden');
-
-                    submitBtn.disabled = true;
-                    submitBtn.classList.remove('bg-primary', 'hover:bg-primary-container');
-                    submitBtn.classList.add('bg-emerald-500', 'text-black');
-                    submitBtn.innerHTML = `<span>ACCESS GRANTED</span><span class="material-symbols-outlined text-base">verified</span>`;
-
-                    try { SFX.success(); } catch (_) {}
-
-                    setTimeout(() => {
-                        window.location.href = 'organiser.html';
-                    }, 400);
-
-                } else {
-                    // Error path
-                    authSuccessMsg.classList.add('hidden');
+                // Rate limiting / lockout check
+                const now = Date.now();
+                if (now < lockoutUntil) {
+                    const remainingSec = Math.ceil((lockoutUntil - now) / 1000);
                     authErrorMsg.classList.remove('hidden');
-                    authErrorText.textContent = '// ACCESS DENIED: INVALID PASSCODE';
-
-                    loginCard.classList.remove('animate-shake');
-                    void loginCard.offsetWidth; // trigger reflow
-                    loginCard.classList.add('animate-shake');
-
-                    adminPasscode.value = '';
-                    adminPasscode.focus();
-
+                    authErrorText.textContent = `// RATE LIMIT: ACCESS BLOCKED. WAIT ${remainingSec}s`;
                     try { SFX.error(); } catch (_) {}
+                    return;
+                }
+
+                const entered = adminPasscode.value.trim();
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `<span class="material-symbols-outlined text-base animate-spin">progress_activity</span><span>VERIFYING...</span>`;
+
+                try {
+                    const hashedInput = await computeSHA256(entered);
+
+                    if (hashedInput === AUTH_HASH) {
+                        // Success path: Store hash token and timestamp with 6-hour validity
+                        sessionStorage.setItem('vision_admin_auth', 'true');
+                        sessionStorage.setItem('vision_admin_auth_token', AUTH_HASH);
+                        sessionStorage.setItem('vision_admin_auth_time', Date.now().toString());
+
+                        authErrorMsg.classList.add('hidden');
+                        authSuccessMsg.classList.remove('hidden');
+
+                        submitBtn.classList.remove('bg-primary', 'hover:bg-primary-container');
+                        submitBtn.classList.add('bg-emerald-500', 'text-black');
+                        submitBtn.innerHTML = `<span>ACCESS GRANTED</span><span class="material-symbols-outlined text-base">verified</span>`;
+
+                        try { SFX.success(); } catch (_) {}
+
+                        setTimeout(() => {
+                            window.location.href = 'organiser.html';
+                        }, 350);
+
+                    } else {
+                        // Error path
+                        failedAttempts++;
+                        if (failedAttempts >= 5) {
+                            lockoutUntil = Date.now() + (30 * 1000); // 30s lockout
+                            failedAttempts = 0;
+                        }
+
+                        authSuccessMsg.classList.add('hidden');
+                        authErrorMsg.classList.remove('hidden');
+                        authErrorText.textContent = lockoutUntil > Date.now()
+                            ? '// SECURITY LOCKOUT TRIGGERED: WAIT 30 SECONDS'
+                            : '// ACCESS DENIED: INVALID PASSCODE';
+
+                        loginCard.classList.remove('animate-shake');
+                        void loginCard.offsetWidth; // trigger reflow
+                        loginCard.classList.add('animate-shake');
+
+                        adminPasscode.value = '';
+                        adminPasscode.focus();
+
+                        submitBtn.disabled = false;
+                        submitBtn.className = 'w-full bg-primary hover:bg-primary-container text-black font-orbitron font-bold text-xs uppercase py-3.5 rounded-xs tracking-widest transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(240,193,44,0.35)] hover:shadow-[0_0_30px_rgba(240,193,44,0.6)] cursor-pointer active:scale-[0.99]';
+                        submitBtn.innerHTML = `<span>AUTHENTICATE &amp; ENTER</span><span class="material-symbols-outlined text-base">login</span>`;
+
+                        try { SFX.error(); } catch (_) {}
+                    }
+                } catch (err) {
+                    console.error('Auth verification error:', err);
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = `<span>AUTHENTICATE &amp; ENTER</span><span class="material-symbols-outlined text-base">login</span>`;
                 }
             });
         }

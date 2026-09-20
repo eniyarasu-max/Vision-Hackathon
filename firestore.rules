@@ -45,13 +45,19 @@ service cloud.firestore {
                        request.resource.data.members.size() <= 3 &&
                        isValidMember(request.resource.data.members[0]);
 
-      // Organizer terminal check-in status updates & clear/delete operations
-      allow update, delete: if true;
+      // Organizer terminal check-in status updates & verification:
+      // Protect core identity: team_name and transaction_id cannot be tampered with or modified on update!
+      allow update: if request.resource.data.team_name == resource.data.team_name &&
+                       request.resource.data.transaction_id == resource.data.transaction_id;
+
+      // Organizer terminal deletion / purge operations
+      allow delete: if true;
     }
 
     // Event container documents (e.g. metadata/settings per track)
     match /events/{eventId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if true;
     }
 
     // =================================================================
@@ -59,21 +65,29 @@ service cloud.firestore {
     // Stored under metadata/capacity for real-time seat tracking
     // =================================================================
     match /metadata/{metaDoc} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if true;
     }
 
     // =================================================================
     // 3. Uniqueness Lock Collections for Team Names and Transaction IDs
-    // Ensures strictly unique squad callsigns and UPI transaction IDs
+    // Ensures strictly unique squad callsigns and UPI transaction IDs.
+    // Locks CANNOT be overwritten (create only if doc doesn't exist).
     // =================================================================
     match /locks_teams/{teamKey} {
       allow read: if true;
-      allow create, update, delete: if true;
+      // Prevent overwrite: can only create if lock document doesn't already exist
+      allow create: if !exists(/databases/$(database)/documents/locks_teams/$(teamKey));
+      allow update: if false;
+      allow delete: if true;
     }
 
     match /locks_transactions/{txnKey} {
       allow read: if true;
-      allow create, update, delete: if true;
+      // Prevent duplicate reuse: can only create if transaction lock doesn't exist
+      allow create: if !exists(/databases/$(database)/documents/locks_transactions/$(txnKey));
+      allow update: if false;
+      allow delete: if true;
     }
 
     // =================================================================
