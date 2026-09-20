@@ -255,6 +255,10 @@
         <span class="text-stone-400 font-mono hidden sm:inline">| Vision 2K26 Official Symposium Poster</span>
       </div>
       <div class="flex items-center gap-2">
+        <a href="assets/website-qr.png" download="vision-2k26-qr.png" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-stone-800/80 hover:bg-stone-700 text-yellow-300 border border-yellow-400/40 font-mono transition-colors">
+          <i data-lucide="qr-code" class="w-3.5 h-3.5"></i>
+          <span>Download QR</span>
+        </a>
         <button onclick="window.print()" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded bg-yellow-400 hover:bg-yellow-300 text-black font-bold font-mono transition-colors shadow-sm cursor-pointer">
           <i data-lucide="printer" class="w-3.5 h-3.5"></i>
           <span>Print / Save PDF</span>
@@ -408,8 +412,8 @@
         </p>
       </section>
 
-      <!-- Venue & Registration Deadline Row -->
-      <section class="grid grid-cols-1 sm:grid-cols-[1.4fr_1fr] gap-4 mt-5 items-stretch">
+      <!-- Venue, QR Code & Registration Deadline Row -->
+      <section class="grid grid-cols-1 sm:grid-cols-[1.2fr_auto_1.1fr] gap-4 mt-5 items-stretch">
         <div data-template-id="venue-panel" class="border border-stone-700/60 bg-black/40 rounded-xs px-5 py-4 flex flex-col justify-between">
           <div>
             <p data-template-id="venue-label" class="mono eyebrow text-yellow-300 font-bold text-[10px] tracking-[0.14em]">VENUE / CONTACT</p>
@@ -421,8 +425,17 @@
           </div>
         </div>
 
-        <div data-template-id="deadline-panel" class="deadline bg-yellow-400 rounded-xs px-6 py-4 flex items-center gap-4 text-black">
-          <i data-lucide="calendar-days" class="w-9 h-9 text-black shrink-0" aria-hidden="true"></i>
+        <!-- Scan to Register QR Code Card -->
+        <div class="border border-yellow-400/50 bg-[#0d1016] rounded-xs p-3.5 flex flex-col items-center justify-center gap-1.5 text-center shadow-[0_0_20px_rgba(244,201,58,0.12)]">
+          <div class="bg-white p-1.5 rounded shadow-md border-2 border-yellow-400">
+            <img src="assets/website-qr.png" alt="Scan to Visit Vision 2K26" class="w-20 h-20 sm:w-24 sm:h-24 object-contain">
+          </div>
+          <p class="mono text-yellow-300 font-bold text-[9px] tracking-widest mt-0.5">SCAN TO REGISTER</p>
+          <p class="text-stone-400 text-[8px] mono">vision-symposium.vercel.app</p>
+        </div>
+
+        <div data-template-id="deadline-panel" class="deadline bg-yellow-400 rounded-xs px-5 py-4 flex items-center gap-3.5 text-black">
+          <i data-lucide="calendar-days" class="w-8 h-8 text-black shrink-0" aria-hidden="true"></i>
           <div>
             <p data-template-id="deadline-label" class="mono text-black text-[10px] font-black tracking-widest">REGISTRATION DEADLINE</p>
             <p data-template-id="deadline-date" class="display text-black font-extrabold text-2xl leading-tight">05 OCTOBER</p>
