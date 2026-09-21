@@ -128,12 +128,12 @@
                     <a class="text-on-surface-variant hover:text-primary transition-all relative group py-2" href="admin.html">ORGANIZER</a>
                 </nav>
             </div>
-            <div class="flex items-center gap-3">
-                <div class="bg-white px-3 py-1.5 rounded-sm border-2 border-primary/60 flex items-center justify-center h-12 md:h-13 shadow-[0_0_12px_rgba(240,193,44,0.25)] hover:shadow-[0_0_18px_rgba(240,193,44,0.45)] transition-shadow">
-                    <img src="assets/kec-logo.png" alt="Kongu Engineering College" class="h-9 md:h-10 w-auto object-contain" />
+            <div class="flex items-center gap-2 sm:gap-3">
+                <div class="bg-white px-3 sm:px-5 py-2 rounded-sm border-2 border-primary flex items-center justify-center h-16 sm:h-18 md:h-20 shadow-[0_0_20px_rgba(240,193,44,0.45)] hover:shadow-[0_0_32px_rgba(240,193,44,0.75)] transition-all">
+                    <img src="assets/kec-logo.png" alt="Kongu Engineering College" class="h-12 sm:h-14 md:h-16 w-auto max-w-[150px] sm:max-w-[180px] md:max-w-[220px] object-contain block" />
                 </div>
-                <div class="bg-white px-3 py-1.5 rounded-sm border-2 border-primary/60 flex items-center justify-center h-12 md:h-13 shadow-[0_0_12px_rgba(240,193,44,0.25)] hover:shadow-[0_0_18px_rgba(240,193,44,0.45)] transition-shadow">
-                    <img src="assets/ieee-aps-logo.png" alt="IEEE AP-S" class="h-9 md:h-10 w-auto object-contain" />
+                <div class="bg-white px-3 sm:px-5 py-2 rounded-sm border-2 border-primary flex items-center justify-center h-16 sm:h-18 md:h-20 shadow-[0_0_20px_rgba(240,193,44,0.45)] hover:shadow-[0_0_32px_rgba(240,193,44,0.75)] transition-all">
+                    <img src="assets/ieee-aps-logo.png" alt="IEEE AP-S" class="h-12 sm:h-14 md:h-16 w-auto max-w-[150px] sm:max-w-[180px] md:max-w-[220px] object-contain block" />
                 </div>
                 <button class="lg:hidden text-primary p-2 cursor-pointer" id="mobile-menu-btn" aria-label="Toggle menu">
                     <span class="material-symbols-outlined">menu</span>
@@ -153,7 +153,7 @@
     <main class="w-full pt-28 pb-16 flex-1 max-w-4xl mx-auto px-4 sm:px-6 animate-fade-in-up">
         
         <!-- Live Open Registration Banner -->
-        <div class="hud-card p-4 rounded-xs mb-8 flex flex-col sm:flex-row items-center justify-between gap-3 border-primary/40 bg-surface-container/60">
+        <div id="live-open-banner" class="hud-card p-4 rounded-xs mb-8 flex flex-col sm:flex-row items-center justify-between gap-3 border-primary/40 bg-surface-container/60">
             <div class="flex items-center gap-3 text-left">
                 <span class="w-3 h-3 rounded-full bg-emerald-400 animate-ping shrink-0"></span>
                 <div>
@@ -169,6 +169,26 @@
                     <span class="text-zinc-400">TEAM LIMIT:</span>
                     <span class="text-primary font-bold">MAX 3 MEMBERS</span>
                 </div>
+            </div>
+        </div>
+
+        <!-- Registration Stopped / Closed Alert Banner (controlled live via Organiser Terminal) -->
+        <div id="registration-stopped-banner" class="hidden bg-error-container/30 border-2 border-error p-5 rounded-xs mb-8 text-center space-y-3 shadow-[0_0_30px_rgba(255,180,171,0.25)] backdrop-blur-md animate-fade-in-up">
+            <div class="flex items-center justify-center gap-2 text-error font-orbitron font-black text-sm sm:text-base uppercase tracking-wider">
+                <span class="material-symbols-outlined text-xl animate-pulse">lock</span>
+                <span>REGISTRATIONS CURRENTLY CLOSED // ADMISSIONS HALTED</span>
+            </div>
+            <p id="registration-stopped-reason" class="font-mono text-xs text-zinc-300 max-w-xl mx-auto leading-relaxed">
+                Registrations for VISION 2K26 have been paused or closed by the symposium coordinators. Thank you for your overwhelming interest!
+            </p>
+            <div class="pt-2 flex flex-wrap items-center justify-center gap-3 font-mono text-xs">
+                <a href="https://chat.whatsapp.com/KXWc0KJlV4SCz8a1uqJlIJ?s=cl&p=a&mlu=4&ilr=4" target="_blank" rel="noopener noreferrer" class="bg-[#25D366] hover:bg-[#20ba59] text-black font-bold px-4 py-2 rounded-xs flex items-center gap-1.5 transition-all shadow-[0_0_15px_rgba(37,211,102,0.4)]">
+                    <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+                    <span>Join Official WhatsApp Group</span>
+                </a>
+                <a href="index.html#events" class="bg-surface-container-high hover:bg-primary hover:text-black text-white px-4 py-2 rounded-xs border border-outline-variant/40 transition-all font-bold">
+                    View 5 Events
+                </a>
             </div>
         </div>
 
@@ -698,6 +718,32 @@
                 </button>
             </div>
 
+            <!-- WhatsApp Community Alert / Join Banner -->
+            <div class="mx-3 sm:mx-4 mt-3 sm:mt-4 p-3.5 sm:p-4 rounded-xs border-2 border-[#25D366] bg-[#25D366]/15 backdrop-blur-md relative overflow-hidden shadow-[0_0_25px_rgba(37,211,102,0.3)]">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div class="flex items-center gap-3 text-left w-full sm:w-auto">
+                        <div class="w-10 h-10 rounded-full bg-[#25D366] flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(37,211,102,0.6)]">
+                            <svg class="w-6 h-6 text-black fill-current" viewBox="0 0 24 24">
+                                <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.969.587 1.771.889 2.796.89h.005c3.18 0 5.767-2.587 5.768-5.766.001-3.182-2.585-5.777-5.773-5.777zm3.364 8.163c-.144.405-.837.774-1.17.825-.311.05-.705.074-2.288-.584-1.898-.788-3.116-2.73-3.211-2.857-.094-.127-.768-1.022-.768-1.95 0-.927.486-1.383.659-1.572.173-.189.378-.236.504-.236.126 0 .252.001.362.007.116.006.27-.044.423.323.159.38.543 1.325.59 1.422.048.096.08.209.016.335-.063.127-.095.206-.189.317-.095.11-.199.247-.284.331-.095.095-.195.198-.084.389.111.19.493.813 1.057 1.316.726.647 1.339.847 1.53.942.19.095.302.079.414-.047.111-.127.476-.554.603-.744.127-.19.254-.158.428-.095.175.063 1.111.524 1.301.62.19.095.317.143.365.222.048.079.048.46-.096.865z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="font-orbitron text-xs sm:text-sm font-black text-[#25D366] tracking-wider uppercase">
+                                NEXT STEP: JOIN OFFICIAL PARTICIPANTS GROUP
+                            </div>
+                            <div class="font-mono text-[11px] text-zinc-200 mt-0.5">
+                                Mandatory for all squad members. Real-time event schedules, slot calls &amp; coordinator alerts.
+                            </div>
+                        </div>
+                    </div>
+                    <a href="https://chat.whatsapp.com/KXWc0KJlV4SCz8a1uqJlIJ?s=cl&p=a&mlu=4&ilr=4" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto bg-[#25D366] hover:bg-[#20ba59] text-black font-mono font-black text-xs uppercase tracking-wider px-4 py-2.5 rounded-xs transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(37,211,102,0.4)] shrink-0 active:scale-95">
+                        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+                        <span>JOIN WHATSAPP GROUP</span>
+                        <span class="material-symbols-outlined text-sm font-bold">arrow_forward</span>
+                    </a>
+                </div>
+            </div>
+
             <!-- Pass Card to capture / print -->
             <div class="p-4 sm:p-6 bg-[#08090d]" id="printable-pass">
                 <div class="border-2 border-primary/60 rounded-xs p-5 bg-[#0d0f17] relative overflow-hidden space-y-4">
@@ -707,15 +753,23 @@
                     <div class="absolute bottom-1.5 left-1.5 w-3 h-3 border-b-2 border-l-2 border-primary"></div>
                     <div class="absolute bottom-1.5 right-1.5 w-3 h-3 border-b-2 border-r-2 border-primary"></div>
 
-                    <!-- Top institution header -->
-                    <div class="flex items-center justify-between border-b border-primary/30 pb-3">
-                        <div>
-                            <div class="font-orbitron text-xs font-bold text-primary">KONGU ENGINEERING COLLEGE</div>
-                            <div class="font-mono text-[9px] text-zinc-400">IEEE AP-S • VISION 2K26 SYMPOSIUM</div>
+                    <!-- Top institution header with logos -->
+                    <div class="flex items-center justify-between border-b border-primary/30 pb-3 gap-2">
+                        <div class="flex items-center gap-2.5">
+                            <div class="bg-white px-2 py-1 rounded-xs border border-primary/60 flex items-center justify-center h-10 shadow-sm">
+                                <img src="assets/kec-logo.png" alt="Kongu Engineering College" class="h-7 md:h-8 w-auto object-contain" />
+                            </div>
+                            <div class="bg-white px-2 py-1 rounded-xs border border-primary/60 flex items-center justify-center h-10 shadow-sm">
+                                <img src="assets/ieee-aps-logo.png" alt="IEEE AP-S" class="h-7 md:h-8 w-auto object-contain" />
+                            </div>
+                            <div>
+                                <div class="font-orbitron text-[11px] sm:text-xs font-bold text-primary leading-tight">KONGU ENGINEERING COLLEGE</div>
+                                <div class="font-mono text-[9px] text-zinc-400">IEEE AP-S • VISION 2K26 SYMPOSIUM</div>
+                            </div>
                         </div>
-                        <div class="text-right font-mono">
+                        <div class="text-right font-mono shrink-0">
                             <div class="text-[9px] text-zinc-400">DATE: 5 OCT 2026</div>
-                            <div class="font-orbitron text-xs font-black text-amber-300" id="modal-pass-id">VIS-2026-XXXX</div>
+                            <div class="font-orbitron text-xs sm:text-sm font-black text-amber-300" id="modal-pass-id">VIS-2026-XXXX</div>
                         </div>
                     </div>
 
@@ -765,12 +819,16 @@
 
             <!-- Actions -->
             <div class="p-3 sm:p-4 bg-surface-container border-t border-outline-variant/30 flex flex-wrap items-center justify-between gap-2 z-10 font-mono text-xs">
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <a href="https://chat.whatsapp.com/KXWc0KJlV4SCz8a1uqJlIJ?s=cl&p=a&mlu=4&ilr=4" target="_blank" rel="noopener noreferrer" class="bg-[#25D366] text-black font-bold px-3.5 py-2 rounded-xs hover:bg-[#20ba59] transition-all flex items-center gap-1.5 cursor-pointer shadow-[0_0_15px_rgba(37,211,102,0.35)]">
+                        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+                        <span>Join WhatsApp Group</span>
+                    </a>
                     <button id="download-png-btn" class="bg-primary text-black font-bold px-3.5 py-2 rounded-xs hover:bg-primary-container transition-all flex items-center gap-1.5 cursor-pointer">
                         <span class="material-symbols-outlined text-sm">download</span> Save 4K Pass
                     </button>
-                    <button id="whatsapp-share-btn" class="bg-[#25D366] text-black font-bold px-3.5 py-2 rounded-xs hover:opacity-90 transition-all flex items-center gap-1.5 cursor-pointer">
-                        <span class="material-symbols-outlined text-sm">share</span> Share on WhatsApp
+                    <button id="whatsapp-share-btn" class="bg-surface-container-high text-white font-bold px-3.5 py-2 rounded-xs hover:text-primary transition-all flex items-center gap-1.5 cursor-pointer border border-outline-variant/40">
+                        <span class="material-symbols-outlined text-sm">share</span> Share Pass
                     </button>
                 </div>
                 <button id="print-pass-btn" class="text-outline hover:text-white px-3 py-2 transition-colors flex items-center gap-1 cursor-pointer">
@@ -813,7 +871,8 @@
             query,
             where,
             runTransaction, 
-            serverTimestamp 
+            serverTimestamp,
+            onSnapshot
         } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
         import {
             getStorage,
@@ -1384,6 +1443,7 @@
             }
 
             passModal.style.display = 'flex';
+            passModal.scrollTop = 0;
             SFX.success();
         }
 
@@ -1463,6 +1523,7 @@ ${isPaid ? '' : '* Call to Verify  : +91 73394 36468 (Coordinator)\n'}----------
 * Time      : 08:30 AM IST Sharp
 * Venue     : Department of ECE, Kongu Engineering College, Perundurai, Erode
 * Mandatory : Physical College ID Card & QR Admit Pass
+* Official Group : https://chat.whatsapp.com/KXWc0KJlV4SCz8a1uqJlIJ?s=cl&p=a&mlu=4&ilr=4
 
 Ready to innovate, engineer, and conquer the frontier! See you all on October 5th!
 
@@ -1497,6 +1558,11 @@ Ready to innovate, engineer, and conquer the frontier! See you all on October 5t
 
         let db = null;
         let storage = null;
+        let isRegistrationClosed = false;
+        const liveOpenBanner = document.getElementById('live-open-banner');
+        const regStoppedBanner = document.getElementById('registration-stopped-banner');
+        const regStoppedReason = document.getElementById('registration-stopped-reason');
+
         if (isFirebaseConfigured()) {
             try {
                 const app = initializeApp(firebaseConfig);
@@ -1504,6 +1570,38 @@ Ready to innovate, engineer, and conquer the frontier! See you all on October 5t
                 try {
                     storage = getStorage(app);
                 } catch (_) {}
+
+                // Live registration state listener from Organiser Terminal
+                const settingsRef = doc(db, 'metadata', 'settings');
+                onSnapshot(settingsRef, (snap) => {
+                    if (snap.exists() && snap.data().registrations_open === false) {
+                        isRegistrationClosed = true;
+                        const reason = snap.data().closed_reason || 'Registrations for VISION 2K26 have been paused or closed by the symposium coordinators. Thank you for your overwhelming interest!';
+                        if (regStoppedReason) regStoppedReason.textContent = reason;
+                        if (regStoppedBanner) regStoppedBanner.classList.remove('hidden');
+                        if (liveOpenBanner) liveOpenBanner.classList.add('hidden');
+
+                        if (submitBtn) {
+                            submitBtn.disabled = true;
+                            submitBtn.classList.remove('bg-primary', 'hover:bg-primary-container', 'text-black');
+                            submitBtn.classList.add('bg-zinc-800', 'text-zinc-500', 'cursor-not-allowed', 'border', 'border-zinc-700');
+                        }
+                        if (submitBtnLabel) submitBtnLabel.textContent = 'REGISTRATIONS CLOSED BY ORGANISERS';
+                    } else {
+                        isRegistrationClosed = false;
+                        if (regStoppedBanner) regStoppedBanner.classList.add('hidden');
+                        if (liveOpenBanner) liveOpenBanner.classList.remove('hidden');
+
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.classList.add('bg-primary', 'hover:bg-primary-container', 'text-black');
+                            submitBtn.classList.remove('bg-zinc-800', 'text-zinc-500', 'cursor-not-allowed', 'border', 'border-zinc-700');
+                        }
+                        if (submitBtnLabel) submitBtnLabel.textContent = 'CONFIRM REGISTRATION & GENERATE PASS';
+                    }
+                }, (err) => {
+                    console.warn('Registration settings listener notice:', err);
+                });
             } catch (err) {
                 console.error('Firebase init error:', err);
             }
@@ -1511,6 +1609,13 @@ Ready to innovate, engineer, and conquer the frontier! See you all on October 5t
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            if (isRegistrationClosed) {
+                formStatus.textContent = '// REGISTRATIONS ARE CURRENTLY CLOSED BY THE ORGANISERS.';
+                formStatus.classList.remove('hidden');
+                SFX.error();
+                return;
+            }
 
             if (honeypot && honeypot.value.trim() !== '') return;
 

@@ -129,12 +129,12 @@
                     <a class="text-on-surface-variant hover:text-primary transition-all relative group py-2" href="admin.html">ORGANIZER</a>
                 </nav>
             </div>
-            <div class="flex items-center gap-2 md:gap-3">
-                <div class="bg-white px-3 py-1.5 rounded-sm border-2 border-primary/60 flex items-center justify-center h-12 md:h-13 shadow-[0_0_12px_rgba(240,193,44,0.25)] hover:shadow-[0_0_18px_rgba(240,193,44,0.45)] transition-shadow">
-                    <img src="assets/kec-logo.png" alt="Kongu Engineering College" class="h-9 md:h-10 w-auto object-contain" />
+            <div class="flex items-center gap-2 sm:gap-3">
+                <div class="bg-white px-3 sm:px-5 py-2 rounded-sm border-2 border-primary flex items-center justify-center h-16 sm:h-18 md:h-20 shadow-[0_0_20px_rgba(240,193,44,0.45)] hover:shadow-[0_0_32px_rgba(240,193,44,0.75)] transition-all">
+                    <img src="assets/kec-logo.png" alt="Kongu Engineering College" class="h-12 sm:h-14 md:h-16 w-auto max-w-[150px] sm:max-w-[180px] md:max-w-[220px] object-contain block" />
                 </div>
-                <div class="bg-white px-3 py-1.5 rounded-sm border-2 border-primary/60 flex items-center justify-center h-12 md:h-13 shadow-[0_0_12px_rgba(240,193,44,0.25)] hover:shadow-[0_0_18px_rgba(240,193,44,0.45)] transition-shadow">
-                    <img src="assets/ieee-aps-logo.png" alt="IEEE AP-S" class="h-9 md:h-10 w-auto object-contain" />
+                <div class="bg-white px-3 sm:px-5 py-2 rounded-sm border-2 border-primary flex items-center justify-center h-16 sm:h-18 md:h-20 shadow-[0_0_20px_rgba(240,193,44,0.45)] hover:shadow-[0_0_32px_rgba(240,193,44,0.75)] transition-all">
+                    <img src="assets/ieee-aps-logo.png" alt="IEEE AP-S" class="h-12 sm:h-14 md:h-16 w-auto max-w-[150px] sm:max-w-[180px] md:max-w-[220px] object-contain block" />
                 </div>
                 <button class="lg:hidden text-primary p-2 cursor-pointer" id="mobile-menu-btn" aria-label="Toggle navigation menu">
                     <span class="material-symbols-outlined">menu</span>
@@ -546,6 +546,21 @@
                 </div>
             </div>
 
+            <div class="border-t border-outline-variant/20 pt-8 pb-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="bg-white px-4 py-2 rounded-sm border-2 border-primary flex items-center justify-center h-16 sm:h-18 shadow-[0_0_20px_rgba(240,193,44,0.4)] hover:shadow-[0_0_30px_rgba(240,193,44,0.65)] transition-all">
+                        <img src="assets/kec-logo.png" alt="Kongu Engineering College" class="h-12 sm:h-14 w-auto max-w-[180px] object-contain" />
+                    </div>
+                    <div class="bg-white px-4 py-2 rounded-sm border-2 border-primary flex items-center justify-center h-16 sm:h-18 shadow-[0_0_20px_rgba(240,193,44,0.4)] hover:shadow-[0_0_30px_rgba(240,193,44,0.65)] transition-all">
+                        <img src="assets/ieee-aps-logo.png" alt="IEEE AP-S" class="h-12 sm:h-14 w-auto max-w-[180px] object-contain" />
+                    </div>
+                </div>
+                <div class="font-mono text-xs text-zinc-400 text-center sm:text-right">
+                    <div class="text-white font-bold">KONGU ENGINEERING COLLEGE (AUTONOMOUS)</div>
+                    <div>IEEE ANTENNAS AND PROPAGATION SOCIETY (IEEE AP-S) STUDENT CHAPTER</div>
+                </div>
+            </div>
+
             <div class="border-t border-outline-variant/20 pt-6 flex flex-col md:flex-row justify-between items-center gap-3 font-mono text-[11px] text-zinc-500">
                 <div>© 2026 VISION 2K26 • IEEE ANTENNAS AND PROPAGATION SOCIETY (IEEE APS) KEC.</div>
                 <div class="flex gap-4">
@@ -645,8 +660,23 @@
                 const app = initializeApp(firebaseConfig);
                 const db = getFirestore(app);
                 const capacityDocRef = doc(db, 'metadata', 'capacity');
+                const settingsDocRef = doc(db, 'metadata', 'settings');
+                let isRegClosed = false;
+
+                onSnapshot(settingsDocRef, (snap) => {
+                    if (snap.exists() && snap.data().registrations_open === false) {
+                        isRegClosed = true;
+                        if (hudRegisteredCount) hudRegisteredCount.textContent = 'Closed';
+                    } else {
+                        isRegClosed = false;
+                    }
+                }, () => {});
 
                 onSnapshot(capacityDocRef, (docSnap) => {
+                    if (isRegClosed) {
+                        if (hudRegisteredCount) hudRegisteredCount.textContent = 'Closed';
+                        return;
+                    }
                     if (docSnap.exists()) {
                         const data = docSnap.data();
                         const reg = typeof data.registered_count === 'number' ? data.registered_count : 0;
@@ -656,7 +686,7 @@
                     }
                 }, (error) => {
                     console.warn('Firestore live listener notice:', error);
-                    if (hudRegisteredCount) hudRegisteredCount.textContent = 'Active';
+                    if (hudRegisteredCount && !isRegClosed) hudRegisteredCount.textContent = 'Active';
                 });
             } catch (err) {
                 console.error('Firebase initialization error:', err);

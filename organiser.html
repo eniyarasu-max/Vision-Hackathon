@@ -157,23 +157,36 @@
         <!-- Header -->
         <header class="bg-surface-container-lowest border-b border-primary/20 sticky top-0 z-40">
             <div class="max-w-7xl mx-auto px-4 md:px-8 h-20 flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                <div class="flex items-center gap-3 md:gap-4">
+                    <div class="flex items-center gap-2.5">
+                        <div class="bg-white px-3 py-1.5 rounded-sm border-2 border-primary flex items-center justify-center h-14 md:h-16 shadow-[0_0_16px_rgba(240,193,44,0.4)] hover:shadow-[0_0_28px_rgba(240,193,44,0.7)] transition-all">
+                            <img src="assets/kec-logo.png" alt="Kongu Engineering College" class="h-10 md:h-12 w-auto max-w-[140px] md:max-w-[170px] object-contain block" />
+                        </div>
+                        <div class="bg-white px-3 py-1.5 rounded-sm border-2 border-primary flex items-center justify-center h-14 md:h-16 shadow-[0_0_16px_rgba(240,193,44,0.4)] hover:shadow-[0_0_28px_rgba(240,193,44,0.7)] transition-all">
+                            <img src="assets/ieee-aps-logo.png" alt="IEEE AP-S" class="h-10 md:h-12 w-auto max-w-[140px] md:max-w-[170px] object-contain block" />
+                        </div>
+                    </div>
                     <div>
-                        <h1 class="font-orbitron text-lg md:text-xl font-black text-primary gold-glow tracking-wider uppercase">
+                        <h1 class="font-orbitron text-sm md:text-xl font-black text-primary gold-glow tracking-wider uppercase">
                             VISION 2K26 // ORGANISER TERMINAL
                         </h1>
-                        <div class="font-mono text-[10px] text-zinc-400">INTRA-COLLEGE SYMPOSIUM • 5 OCTOBER 2026 • KEC</div>
+                        <div class="font-mono text-[9px] md:text-[10px] text-zinc-400">INTRA-COLLEGE SYMPOSIUM • 5 OCTOBER 2026 • KEC</div>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+                    <!-- Registration Gate Control with Security -->
+                    <button id="toggle-reg-modal-btn" class="bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/50 font-mono font-bold text-xs uppercase px-3 py-2 rounded-xs transition-all flex items-center gap-1.5 cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.2)]" title="Manage Registrations Gate">
+                        <span class="material-symbols-outlined text-sm" id="header-reg-icon">pause_circle</span>
+                        <span id="header-reg-text" class="hidden sm:inline">Stop Registrations</span>
+                    </button>
+
                     <button id="open-clear-db-btn" class="bg-error-container/25 hover:bg-error-container text-error hover:text-white border border-error/50 font-mono font-bold text-xs uppercase px-3 py-2 rounded-xs transition-all flex items-center gap-1.5 cursor-pointer shadow-[0_0_15px_rgba(255,180,171,0.15)]" title="Purge/Clear Event Registrations">
                         <span class="material-symbols-outlined text-sm">delete_forever</span>
                         <span class="hidden sm:inline">Clear Database</span>
                     </button>
-                    <button id="open-scanner-btn" class="bg-primary hover:bg-primary-container text-black font-mono font-bold text-xs uppercase px-4 py-2 rounded-xs transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(240,193,44,0.3)] cursor-pointer">
-                        <span class="material-symbols-outlined text-sm">qr_code_scanner</span> On-Day Gate Scanner
+                    <button id="open-scanner-btn" class="bg-primary hover:bg-primary-container text-black font-mono font-bold text-xs uppercase px-3.5 sm:px-4 py-2 rounded-xs transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(240,193,44,0.3)] cursor-pointer">
+                        <span class="material-symbols-outlined text-sm">qr_code_scanner</span> <span class="hidden sm:inline">On-Day</span> Scanner
                     </button>
                     <button id="lock-terminal-btn" class="bg-surface-container hover:bg-surface-container-high text-outline hover:text-white border border-outline-variant/40 font-mono text-xs px-3 py-2 rounded-xs transition-colors flex items-center gap-1 cursor-pointer" title="Lock &amp; Exit Terminal">
                         <span class="material-symbols-outlined text-sm">lock</span>
@@ -266,9 +279,21 @@
                             <span class="material-symbols-outlined text-sm">verified_user</span> Admitted
                         </button>
                     </div>
-                    <button id="quick-clear-btn" class="mt-2.5 w-full bg-error-container/20 hover:bg-error-container text-error hover:text-white border border-error/40 px-2 py-1.5 rounded-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer font-bold font-mono text-xs" title="Clear all or selected event registrations">
-                        <span class="material-symbols-outlined text-sm">delete_forever</span> Clear Database
-                    </button>
+                    <div class="mt-2.5 pt-2 border-t border-outline-variant/30 flex items-center justify-between font-mono text-[11px]">
+                        <span class="text-zinc-400">REGISTRATION GATE:</span>
+                        <span id="quick-reg-status-badge" class="px-2 py-0.5 rounded font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px]">
+                            ● ACTIVE / OPEN
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mt-2">
+                        <button id="quick-toggle-reg-btn" class="bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/50 px-2 py-1.5 rounded-xs transition-colors flex items-center justify-center gap-1 cursor-pointer font-bold font-mono text-[11px]" title="Stop or Resume Registrations">
+                            <span class="material-symbols-outlined text-sm" id="quick-reg-icon">pause_circle</span>
+                            <span id="quick-toggle-reg-text">Stop Gate</span>
+                        </button>
+                        <button id="quick-clear-btn" class="bg-error-container/20 hover:bg-error-container text-error hover:text-white border border-error/40 px-2 py-1.5 rounded-xs transition-colors flex items-center justify-center gap-1 cursor-pointer font-bold font-mono text-[11px]" title="Clear all or selected event registrations">
+                            <span class="material-symbols-outlined text-sm">delete_forever</span> Clear DB
+                        </button>
+                    </div>
                 </div>
 
             </div>
@@ -644,6 +669,82 @@
         </div>
     </div>
 
+    <!-- ============ REGISTRATION ACCESS CONTROL MODAL ============ -->
+    <div id="reg-control-modal" style="display:none;" class="fixed inset-0 z-[999999] flex items-center justify-center bg-black/95 backdrop-blur-md p-4 overflow-y-auto">
+        <div class="bg-surface-container-low border-2 border-primary max-w-lg w-full p-6 rounded-xs relative shadow-[0_0_50px_rgba(240,193,44,0.3)] my-8 animate-fade-in-up space-y-5">
+            
+            <div class="flex items-center justify-between border-b border-primary/30 pb-3">
+                <div class="flex items-center gap-2 text-primary">
+                    <span class="material-symbols-outlined text-2xl" id="reg-modal-title-icon">pause_circle</span>
+                    <h3 class="font-orbitron text-sm sm:text-base font-bold uppercase tracking-wider" id="reg-modal-title">
+                        REGISTRATION ACCESS CONTROL
+                    </h3>
+                </div>
+                <button id="close-reg-control-btn" class="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white rounded cursor-pointer">
+                    <span class="material-symbols-outlined text-xl">close</span>
+                </button>
+            </div>
+
+            <!-- Current status badge -->
+            <div class="bg-surface-container p-4 rounded-xs border border-outline-variant/30 flex items-center justify-between font-mono text-xs">
+                <span class="text-zinc-400">CURRENT STATUS:</span>
+                <span id="modal-current-reg-badge" class="px-3 py-1 rounded font-bold text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                    ● REGISTRATIONS ACTIVE
+                </span>
+            </div>
+
+            <!-- Description -->
+            <div id="reg-control-desc" class="bg-primary/10 border border-primary/30 p-3.5 rounded-xs text-xs font-mono text-zinc-300 space-y-1.5">
+                <div class="font-bold text-primary flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm">security</span>
+                    MASTER SECURITY VERIFICATION REQUIRED
+                </div>
+                <p id="reg-control-prompt-text">
+                    Stopping registrations will immediately freeze the public registration portal. Delegates will see a closure banner with official WhatsApp group details and cannot register.
+                </p>
+            </div>
+
+            <!-- Custom Closed Reason (shown when stopping) -->
+            <div id="reg-reason-group" class="space-y-1.5 font-mono text-xs">
+                <label class="block text-zinc-300 font-bold uppercase">CUSTOM MESSAGE FOR PARTICIPANTS (OPTIONAL):</label>
+                <input 
+                    type="text" 
+                    id="reg-closed-reason-input" 
+                    placeholder="e.g. Registrations for VISION 2K26 are closed as venue capacity has been reached." 
+                    class="w-full bg-surface-container-lowest border border-outline-variant/60 focus:border-primary text-xs py-2.5 px-3 text-white outline-none rounded-xs font-mono"
+                />
+            </div>
+
+            <!-- Security Passcode Challenge -->
+            <div class="space-y-2 font-mono text-xs">
+                <label class="block text-zinc-300 font-bold uppercase flex items-center justify-between">
+                    <span>ENTER MASTER ADMIN PASSCODE:</span>
+                    <span class="text-amber-400 font-bold text-[10px] uppercase">SECURITY CHALLENGE</span>
+                </label>
+                <input 
+                    type="password" 
+                    id="reg-passcode-input" 
+                    placeholder="Enter Security Master Passcode" 
+                    class="w-full bg-surface-container-lowest border border-outline-variant/60 focus:border-primary text-xs py-2.5 px-3 text-white outline-none rounded-xs font-mono"
+                    autocomplete="current-password"
+                />
+            </div>
+
+            <div id="reg-control-status-msg" class="hidden text-xs font-mono text-center p-2 rounded-xs"></div>
+
+            <div class="flex items-center gap-3 pt-2">
+                <button id="cancel-reg-control-btn" class="flex-1 bg-surface-container hover:bg-surface-container-high text-zinc-300 border border-outline-variant/40 font-mono text-xs py-2.5 rounded-xs transition-colors cursor-pointer">
+                    Cancel
+                </button>
+                <button id="confirm-reg-control-btn" class="flex-1 bg-amber-500 hover:bg-amber-400 text-black font-mono font-bold text-xs py-2.5 rounded-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.3)]">
+                    <span class="material-symbols-outlined text-sm" id="confirm-reg-btn-icon">pause_circle</span>
+                    <span id="confirm-reg-btn-text">STOP REGISTRATIONS</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
     <!-- ============ CLEAR DATABASE CONFIRMATION MODAL ============ -->
     <div id="clear-db-modal" style="display:none;" class="fixed inset-0 z-[999999] flex items-center justify-center bg-black/95 backdrop-blur-md p-4 overflow-y-auto">
         <div class="bg-surface-container-low border-2 border-error max-w-lg w-full p-6 rounded-xs relative shadow-[0_0_50px_rgba(255,180,171,0.25)] my-8 animate-fade-in-up space-y-5">
@@ -838,6 +939,7 @@
             try {
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
+                initRegistrationSettingsListener();
 
                 // Attach one real-time listener PER EVENT subcollection
                 EVENTS.forEach(ev => {
@@ -2181,6 +2283,215 @@ Kongu Engineering College (IEEE AP-S)`;
                 if (selectAllCheckbox) selectAllCheckbox.checked = false;
                 updateBulkToolbar();
                 SFX.click();
+            });
+        }
+
+        /* =========================================================
+           REGISTRATION ACCESS CONTROL (STOP / RESUME GATE)
+           ========================================================= */
+        const regControlModal = document.getElementById('reg-control-modal');
+        const toggleRegModalBtn = document.getElementById('toggle-reg-modal-btn');
+        const quickToggleRegBtn = document.getElementById('quick-toggle-reg-btn');
+        const closeRegControlBtn = document.getElementById('close-reg-control-btn');
+        const cancelRegControlBtn = document.getElementById('cancel-reg-control-btn');
+        const confirmRegControlBtn = document.getElementById('confirm-reg-control-btn');
+        const confirmRegBtnText = document.getElementById('confirm-reg-btn-text');
+        const confirmRegBtnIcon = document.getElementById('confirm-reg-btn-icon');
+        const regPasscodeInput = document.getElementById('reg-passcode-input');
+        const regClosedReasonInput = document.getElementById('reg-closed-reason-input');
+        const regControlStatusMsg = document.getElementById('reg-control-status-msg');
+        const modalCurrentRegBadge = document.getElementById('modal-current-reg-badge');
+        const regControlPromptText = document.getElementById('reg-control-prompt-text');
+        const regReasonGroup = document.getElementById('reg-reason-group');
+        const headerRegIcon = document.getElementById('header-reg-icon');
+        const headerRegText = document.getElementById('header-reg-text');
+        const quickRegStatusBadge = document.getElementById('quick-reg-status-badge');
+        const quickToggleRegText = document.getElementById('quick-toggle-reg-text');
+        const quickRegIcon = document.getElementById('quick-reg-icon');
+
+        let isRegistrationsOpen = true;
+        let currentClosedReason = '';
+
+        function updateRegistrationUI(isOpen, reason) {
+            isRegistrationsOpen = isOpen;
+            currentClosedReason = reason || '';
+
+            if (isOpen) {
+                if (toggleRegModalBtn) {
+                    toggleRegModalBtn.className = 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/50 font-mono font-bold text-xs uppercase px-3 py-2 rounded-xs transition-all flex items-center gap-1.5 cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.2)]';
+                    if (headerRegIcon) headerRegIcon.textContent = 'pause_circle';
+                    if (headerRegText) headerRegText.textContent = 'Stop Registrations';
+                }
+                if (quickRegStatusBadge) {
+                    quickRegStatusBadge.className = 'px-2 py-0.5 rounded font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px]';
+                    quickRegStatusBadge.textContent = '● ACTIVE / OPEN';
+                }
+                if (quickToggleRegBtn) {
+                    quickToggleRegBtn.className = 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/50 px-2 py-1.5 rounded-xs transition-colors flex items-center justify-center gap-1 cursor-pointer font-bold font-mono text-[11px]';
+                    if (quickRegIcon) quickRegIcon.textContent = 'pause_circle';
+                    if (quickToggleRegText) quickToggleRegText.textContent = 'Stop Gate';
+                }
+            } else {
+                if (toggleRegModalBtn) {
+                    toggleRegModalBtn.className = 'bg-error-container/80 hover:bg-error-container text-white border border-error font-mono font-bold text-xs uppercase px-3 py-2 rounded-xs transition-all flex items-center gap-1.5 cursor-pointer shadow-[0_0_20px_rgba(255,180,171,0.35)] animate-pulse';
+                    if (headerRegIcon) headerRegIcon.textContent = 'lock_open';
+                    if (headerRegText) headerRegText.textContent = 'Resume Registrations';
+                }
+                if (quickRegStatusBadge) {
+                    quickRegStatusBadge.className = 'px-2 py-0.5 rounded font-bold bg-error-container/80 text-white border border-error text-[10px] animate-pulse';
+                    quickRegStatusBadge.textContent = '🔒 STOPPED / CLOSED';
+                }
+                if (quickToggleRegBtn) {
+                    quickToggleRegBtn.className = 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/50 px-2 py-1.5 rounded-xs transition-colors flex items-center justify-center gap-1 cursor-pointer font-bold font-mono text-[11px]';
+                    if (quickRegIcon) quickRegIcon.textContent = 'lock_open';
+                    if (quickToggleRegText) quickToggleRegText.textContent = 'Resume Gate';
+                }
+            }
+        }
+
+        function initRegistrationSettingsListener() {
+            if (!db) return;
+            try {
+                const settingsRef = doc(db, 'metadata', 'settings');
+                onSnapshot(settingsRef, (snap) => {
+                    if (snap.exists()) {
+                        const data = snap.data();
+                        const isOpen = data.registrations_open !== false;
+                        updateRegistrationUI(isOpen, data.closed_reason);
+                    } else {
+                        updateRegistrationUI(true, '');
+                    }
+                }, (err) => {
+                    console.warn('Settings live listener warning:', err);
+                });
+            } catch (e) {
+                console.warn('Settings listener init error:', e);
+            }
+        }
+
+        function openRegControlModal() {
+            if (!regControlModal) return;
+            regControlModal.style.display = 'flex';
+            regPasscodeInput.value = '';
+            regControlStatusMsg.classList.add('hidden');
+            confirmRegControlBtn.disabled = false;
+
+            if (isRegistrationsOpen) {
+                if (modalCurrentRegBadge) {
+                    modalCurrentRegBadge.className = 'px-3 py-1 rounded font-bold text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+                    modalCurrentRegBadge.textContent = '● REGISTRATIONS ACTIVE / OPEN';
+                }
+                if (regControlPromptText) {
+                    regControlPromptText.textContent = 'Stopping registrations will freeze the public registration portal. Prospective delegates will see a closure banner with official WhatsApp group info and cannot register.';
+                }
+                if (regReasonGroup) regReasonGroup.classList.remove('hidden');
+                if (confirmRegBtnText) confirmRegBtnText.textContent = 'STOP REGISTRATIONS NOW';
+                if (confirmRegBtnIcon) confirmRegBtnIcon.textContent = 'lock';
+                confirmRegControlBtn.className = 'flex-1 bg-error-container hover:bg-error text-white font-mono font-bold text-xs py-2.5 rounded-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-[0_0_15px_rgba(255,180,171,0.3)]';
+            } else {
+                if (modalCurrentRegBadge) {
+                    modalCurrentRegBadge.className = 'px-3 py-1 rounded font-bold text-xs bg-error-container/60 text-white border border-error';
+                    modalCurrentRegBadge.textContent = '🔒 REGISTRATIONS CURRENTLY STOPPED';
+                }
+                if (regControlPromptText) {
+                    regControlPromptText.textContent = 'Resuming registrations will immediately unlock the registration portal and allow squads to register across all events again.';
+                }
+                if (regReasonGroup) regReasonGroup.classList.add('hidden');
+                if (confirmRegBtnText) confirmRegBtnText.textContent = 'RESUME REGISTRATIONS NOW';
+                if (confirmRegBtnIcon) confirmRegBtnIcon.textContent = 'lock_open';
+                confirmRegControlBtn.className = 'flex-1 bg-emerald-500 hover:bg-emerald-400 text-black font-mono font-bold text-xs py-2.5 rounded-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.3)]';
+            }
+
+            setTimeout(() => regPasscodeInput.focus(), 100);
+        }
+
+        function closeRegControlModal() {
+            if (!regControlModal) return;
+            regControlModal.style.display = 'none';
+            regPasscodeInput.value = '';
+            regControlStatusMsg.classList.add('hidden');
+        }
+
+        if (toggleRegModalBtn) toggleRegModalBtn.addEventListener('click', openRegControlModal);
+        if (quickToggleRegBtn) quickToggleRegBtn.addEventListener('click', openRegControlModal);
+        if (closeRegControlBtn) closeRegControlBtn.addEventListener('click', closeRegControlModal);
+        if (cancelRegControlBtn) cancelRegControlBtn.addEventListener('click', closeRegControlModal);
+
+        if (regPasscodeInput) {
+            regPasscodeInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (confirmRegControlBtn) confirmRegControlBtn.click();
+                }
+            });
+        }
+
+        if (confirmRegControlBtn) {
+            confirmRegControlBtn.addEventListener('click', async () => {
+                if (!db) {
+                    regControlStatusMsg.className = 'text-xs font-mono text-center p-2 rounded-xs bg-error-container/40 border border-error/50 text-error font-bold block';
+                    regControlStatusMsg.textContent = 'ERROR: Database not connected. Please verify Firebase credentials.';
+                    return;
+                }
+
+                const entered = (regPasscodeInput.value || '').trim();
+                if (!entered) {
+                    regControlStatusMsg.className = 'text-xs font-mono text-center p-2 rounded-xs bg-error-container/40 border border-error/50 text-error font-bold block';
+                    regControlStatusMsg.textContent = 'ERROR: Master passcode is required to authorize registration state changes.';
+                    try { SFX.error(); } catch (_) {}
+                    return;
+                }
+
+                const hashedEntered = await computeSHA256(entered);
+                const isMatch = (hashedEntered !== null && hashedEntered === AUTH_HASH);
+                if (!isMatch) {
+                    regControlStatusMsg.className = 'text-xs font-mono text-center p-2 rounded-xs bg-error-container/40 border border-error/50 text-error font-bold block';
+                    regControlStatusMsg.textContent = 'ERROR: Invalid master passcode. Registration control authorization denied.';
+                    try { SFX.error(); } catch (_) {}
+                    return;
+                }
+
+                confirmRegControlBtn.disabled = true;
+                confirmRegBtnText.textContent = 'UPDATING GATE...';
+
+                try {
+                    const newTargetState = !isRegistrationsOpen;
+                    const customReason = regClosedReasonInput ? regClosedReasonInput.value.trim() : '';
+
+                    await setDoc(doc(db, 'metadata', 'settings'), {
+                        registrations_open: newTargetState,
+                        closed_reason: newTargetState ? '' : (customReason || 'Registrations for VISION 2K26 have been paused or closed by the symposium coordinators. Thank you for your overwhelming interest!'),
+                        updated_at: serverTimestamp(),
+                        updated_by: 'organizer_terminal'
+                    }, { merge: true });
+
+                    try {
+                        await setDoc(doc(db, 'metadata', 'capacity'), {
+                            registrations_open: newTargetState
+                        }, { merge: true });
+                    } catch (_) {}
+
+                    updateRegistrationUI(newTargetState, customReason);
+
+                    regControlStatusMsg.className = 'text-xs font-mono text-center p-2 rounded-xs bg-emerald-950/60 border border-emerald-500/50 text-emerald-300 font-bold block';
+                    regControlStatusMsg.textContent = newTargetState 
+                        ? '✓ REGISTRATIONS RESUMED! Portal is now accepting registrations.'
+                        : '✓ REGISTRATIONS STOPPED! Portal is now locked for participants.';
+                    confirmRegBtnText.textContent = 'UPDATED';
+                    try { SFX.success(); } catch (_) {}
+
+                    setTimeout(() => {
+                        closeRegControlModal();
+                    }, 1200);
+
+                } catch (err) {
+                    console.error('Settings update error:', err);
+                    regControlStatusMsg.className = 'text-xs font-mono text-center p-2 rounded-xs bg-error-container/40 border border-error/50 text-error font-bold block';
+                    regControlStatusMsg.textContent = `Update failed: ${err.message}`;
+                    confirmRegControlBtn.disabled = false;
+                    confirmRegBtnText.textContent = 'RETRY';
+                    try { SFX.error(); } catch (_) {}
+                }
             });
         }
 
