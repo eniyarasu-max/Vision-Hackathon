@@ -849,7 +849,8 @@
             getDocs,
             onSnapshot, 
             query,
-            writeBatch
+            writeBatch,
+            serverTimestamp
         } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
         // Load SFX non-critically — all features work even if sounds.js fails
         let SFX = { boot(){}, click(){}, success(){}, error(){}, startPermanentBGM(){}, injectMarvelHUD(){}, attachClickSounds(){} };
