@@ -306,21 +306,25 @@
                 <!-- Paper Presentation Title -->
                 <div id="paper-title-wrap" class="hidden space-y-1.5">
                     <label for="paper_title" class="font-mono text-xs text-zinc-300 font-bold block">
-                        <span class="text-primary">◈</span> PAPER PRESENTATION TOPIC / TITLE
-                        <span class="text-zinc-500 font-normal">(Optional)</span>
+                        <span class="text-primary">◈</span> PAPER PRESENTATION TOPIC / TITLE <span class="text-error font-bold">*</span>
                     </label>
-                    <input type="text" id="paper_title" placeholder="e.g. Autonomous Drone Navigation using Computer Vision"
+                    <input type="text" id="paper_title" placeholder="e.g. Autonomous Drone Navigation using Computer Vision" maxlength="120"
                         class="w-full bg-surface-container-lowest border border-outline-variant/50 focus:border-primary rounded-xs px-3.5 py-2.5 font-mono text-xs text-white outline-none transition-colors" />
+                    <div class="error-msg font-mono text-[10px] text-error" data-error-for="paper_title">
+                        // PAPER PRESENTATION TOPIC / TITLE IS MANDATORY (MIN 3 CHARACTERS)
+                    </div>
                 </div>
 
                 <!-- Project Presentation Title -->
                 <div id="project-title-wrap" class="hidden space-y-1.5">
                     <label for="project_title" class="font-mono text-xs text-zinc-300 font-bold block">
-                        <span class="text-primary">◈</span> PROJECT PRESENTATION TITLE
-                        <span class="text-zinc-500 font-normal">(Optional)</span>
+                        <span class="text-primary">◈</span> PROJECT PRESENTATION TITLE / DOMAIN <span class="text-error font-bold">*</span>
                     </label>
-                    <input type="text" id="project_title" placeholder="e.g. Smart Irrigation System using IoT"
+                    <input type="text" id="project_title" placeholder="e.g. Smart Irrigation System using IoT" maxlength="120"
                         class="w-full bg-surface-container-lowest border border-outline-variant/50 focus:border-primary rounded-xs px-3.5 py-2.5 font-mono text-xs text-white outline-none transition-colors" />
+                    <div class="error-msg font-mono text-[10px] text-error" data-error-for="project_title">
+                        // PROJECT PRESENTATION TITLE IS MANDATORY (MIN 3 CHARACTERS)
+                    </div>
                 </div>
             </div>
 
@@ -1159,6 +1163,9 @@
             if (paperWrap) paperWrap.classList.toggle('hidden', !hasPaper);
             if (projectWrap) projectWrap.classList.toggle('hidden', !hasProject);
 
+            if (!hasPaper) showFieldError('paper_title', false);
+            if (!hasProject) showFieldError('project_title', false);
+
             // Update payment summary
             updatePaymentSummary();
         }
@@ -1241,6 +1248,27 @@
             } else {
                 if (evErr) evErr.classList.add('hidden');
                 if (evLimitErr) evLimitErr.classList.add('hidden');
+            }
+
+            // Mandatory Topic/Title for Paper and Project Presentation if selected
+            const hasPaper = selectedEvents.includes('Paper Presentation');
+            const paperTitle = document.getElementById('paper_title')?.value.trim() || '';
+            if (hasPaper) {
+                const paperOk = paperTitle.length >= 3;
+                showFieldError('paper_title', !paperOk);
+                if (!paperOk) valid = false;
+            } else {
+                showFieldError('paper_title', false);
+            }
+
+            const hasProject = selectedEvents.includes('Project Presentation');
+            const projectTitle = document.getElementById('project_title')?.value.trim() || '';
+            if (hasProject) {
+                const projectOk = projectTitle.length >= 3;
+                showFieldError('project_title', !projectOk);
+                if (!projectOk) valid = false;
+            } else {
+                showFieldError('project_title', false);
             }
 
             // Team Name
@@ -1350,6 +1378,8 @@
                 const id = input.id;
                 const val = input.value.trim();
                 if (id === 'team_name' && REGEX.team_name.test(val)) showFieldError(id, false);
+                else if (id === 'paper_title' && val.length >= 3) showFieldError(id, false);
+                else if (id === 'project_title' && val.length >= 3) showFieldError(id, false);
                 else if (id.endsWith('_name') && REGEX.name.test(val)) showFieldError(id, false);
                 else if (id.endsWith('_email') && REGEX.email.test(val.toLowerCase())) showFieldError(id, false);
                 else if (id.endsWith('_mobile') && REGEX.mobile.test(val)) showFieldError(id, false);
