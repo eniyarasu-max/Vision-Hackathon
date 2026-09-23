@@ -14,3 +14,6 @@ Thumbs.db
 *.ntvs*
 *.njsproj
 *.sln
+
+# Firebase Hosting deploy cache (Vercel-only hosting)
+.firebase/
