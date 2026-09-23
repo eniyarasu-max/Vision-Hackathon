@@ -1554,11 +1554,37 @@ Kongu Engineering College (IEEE AP-S)`;
                 try {
                     html5Scanner = new Html5Qrcode("qr-reader");
                     await html5Scanner.start(
-                        { facingMode: "environment" },
+                        {
+                            facingMode: "environment",
+                            advanced: [{ focusMode: "continuous" }]
+                        },
                         { fps: 20, qrbox: 220 },
                         onQrScanned,
                         () => {}
                     );
+
+                    // Apply continuous autofocus after camera starts
+                    try {
+                        const videoEl = document.querySelector('#qr-reader video');
+                        if (videoEl && videoEl.srcObject) {
+                            const tracks = videoEl.srcObject.getVideoTracks();
+                            if (tracks.length > 0) {
+                                const track = tracks[0];
+                                const caps = track.getCapabilities ? track.getCapabilities() : {};
+                                // Apply continuous autofocus if supported
+                                if (caps.focusMode && caps.focusMode.includes('continuous')) {
+                                    await track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] });
+                                }
+                                // On some devices, torch-style zoom reset helps re-trigger focus
+                                if (caps.focusDistance !== undefined) {
+                                    await track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] });
+                                }
+                            }
+                        }
+                    } catch (focusErr) {
+                        console.info('Autofocus constraint not supported on this device:', focusErr.message);
+                    }
+
                 } catch (e) {
                     console.warn('Camera failed:', e);
                 }
