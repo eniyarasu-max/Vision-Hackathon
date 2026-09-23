@@ -243,23 +243,23 @@
                     <div class="relative bg-surface-container/90 backdrop-blur-xl border border-primary/40 p-5 rounded-xs">
                         <div class="flex items-center justify-between border-b border-primary/25 pb-2 mb-3">
                             <div class="flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                                <span class="font-mono text-xs font-bold text-emerald-400 tracking-wider uppercase">PORTAL ACTIVE</span>
+                                <span id="hud-status-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                                <span id="hud-status-badge" class="font-mono text-xs font-bold text-emerald-400 tracking-wider uppercase">PORTAL ACTIVE</span>
                             </div>
-                            <span class="font-mono text-[10px] text-zinc-400 uppercase">LIVE SYNC</span>
+                            <span class="font-mono text-[10px] text-zinc-400 uppercase">OFFICIAL SYMPOSIUM</span>
                         </div>
                         <div class="flex items-baseline justify-between mb-2">
-                            <div class="font-mono text-xs text-zinc-300">TOTAL SQUADS REGISTERED</div>
-                            <div class="font-orbitron text-2xl font-black text-primary gold-glow" id="hud-registered-count">
-                                --
+                            <div class="font-mono text-xs text-zinc-300">ADMISSIONS STATUS</div>
+                            <div class="font-orbitron text-xl sm:text-2xl font-black text-primary gold-glow" id="hud-portal-status">
+                                OPEN ENTRY
                             </div>
                         </div>
                         <div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden mb-2">
                             <div class="bg-gradient-to-r from-amber-500 to-primary h-full w-full animate-pulse"></div>
                         </div>
                         <div class="flex items-center justify-between font-mono text-[10px] text-zinc-400">
-                            <span>Status: Open to All KEC Students</span>
-                            <span class="text-primary font-bold">NO SQUAD LIMIT</span>
+                            <span>Open to All KEC Students</span>
+                            <span class="text-primary font-bold">5 SIGNATURE TRACKS</span>
                         </div>
                     </div>
                 </div>
@@ -652,48 +652,49 @@
             });
         }
 
-        /* ---------- Live Registration Ticker (Firestore) ---------- */
-        const hudRegisteredCount = document.getElementById('hud-registered-count');
+        /* ---------- Live Registration Status Indicator (Firestore) ---------- */
+        const hudPortalStatus = document.getElementById('hud-portal-status');
+        const hudStatusBadge = document.getElementById('hud-status-badge');
+        const hudStatusDot = document.getElementById('hud-status-dot');
 
         if (isFirebaseConfigured()) {
             try {
                 const app = initializeApp(firebaseConfig);
                 const db = getFirestore(app);
-                const capacityDocRef = doc(db, 'metadata', 'capacity');
                 const settingsDocRef = doc(db, 'metadata', 'settings');
-                let isRegClosed = false;
 
                 onSnapshot(settingsDocRef, (snap) => {
                     if (snap.exists() && snap.data().registrations_open === false) {
-                        isRegClosed = true;
-                        if (hudRegisteredCount) hudRegisteredCount.textContent = 'Closed';
+                        if (hudPortalStatus) {
+                            hudPortalStatus.textContent = 'REGISTRATIONS PAUSED';
+                            hudPortalStatus.className = 'font-orbitron text-lg sm:text-xl font-black text-error';
+                        }
+                        if (hudStatusBadge) {
+                            hudStatusBadge.textContent = 'PORTAL LOCKED';
+                            hudStatusBadge.className = 'font-mono text-xs font-bold text-error tracking-wider uppercase';
+                        }
+                        if (hudStatusDot) {
+                            hudStatusDot.className = 'w-2 h-2 rounded-full bg-error animate-pulse';
+                        }
                     } else {
-                        isRegClosed = false;
-                    }
-                }, () => {});
-
-                onSnapshot(capacityDocRef, (docSnap) => {
-                    if (isRegClosed) {
-                        if (hudRegisteredCount) hudRegisteredCount.textContent = 'Closed';
-                        return;
-                    }
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        const reg = typeof data.registered_count === 'number' ? data.registered_count : 0;
-                        if (hudRegisteredCount) hudRegisteredCount.textContent = `${reg} Squads`;
-                    } else {
-                        if (hudRegisteredCount) hudRegisteredCount.textContent = 'Active';
+                        if (hudPortalStatus) {
+                            hudPortalStatus.textContent = 'OPEN ENTRY';
+                            hudPortalStatus.className = 'font-orbitron text-xl sm:text-2xl font-black text-primary gold-glow';
+                        }
+                        if (hudStatusBadge) {
+                            hudStatusBadge.textContent = 'PORTAL ACTIVE';
+                            hudStatusBadge.className = 'font-mono text-xs font-bold text-emerald-400 tracking-wider uppercase';
+                        }
+                        if (hudStatusDot) {
+                            hudStatusDot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-ping';
+                        }
                     }
                 }, (error) => {
-                    console.warn('Firestore live listener notice:', error);
-                    if (hudRegisteredCount && !isRegClosed) hudRegisteredCount.textContent = 'Active';
+                    console.warn('Firestore settings listener notice:', error);
                 });
             } catch (err) {
                 console.error('Firebase initialization error:', err);
-                if (hudRegisteredCount) hudRegisteredCount.textContent = 'Active';
             }
-        } else {
-            if (hudRegisteredCount) hudRegisteredCount.textContent = 'Active';
         }
 
         /* ---------- Brochure Modal Popup Logic ---------- */
