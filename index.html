@@ -118,7 +118,7 @@
                     <span class="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-primary animate-pulse"></span>
                     <span class="font-orbitron text-base sm:text-xl md:text-2xl font-black tracking-wider sm:tracking-[0.2em] text-primary gold-glow uppercase">Vision 2K26</span>
                 </a>
-                <nav class="hidden lg:flex items-center gap-8 font-mono text-xs tracking-wider">
+                <nav class="hidden lg:flex items-center gap-7 font-mono text-xs tracking-wider">
                     <a class="transition-all relative group py-2 text-primary border-b border-primary font-bold" href="#home">HOME</a>
                     <a class="text-on-surface-variant hover:text-primary transition-all relative group py-2" href="#events">5 EVENTS</a>
                     <a class="text-on-surface-variant hover:text-primary transition-all relative group py-2" href="#about">GUIDELINES</a>
@@ -126,6 +126,9 @@
                         BROCHURE
                     </button>
                     <a class="text-on-surface-variant hover:text-primary transition-all relative group py-2" href="register.html">REGISTER</a>
+                    <a class="text-amber-300 hover:text-primary transition-all relative group py-2 font-bold flex items-center gap-1" href="register.html?action=find-pass" title="Retrieve previously registered Admit Pass">
+                        <span class="material-symbols-outlined text-sm">confirmation_number</span> FIND PASS
+                    </a>
                     <a class="text-on-surface-variant hover:text-primary transition-all relative group py-2" href="admin.html">ORGANIZER</a>
                 </nav>
             </div>
@@ -147,6 +150,9 @@
             <a class="text-on-surface-variant hover:text-primary" href="#about">GUIDELINES</a>
             <button type="button" id="mobile-brochure-btn" class="text-left text-on-surface-variant hover:text-primary cursor-pointer">BROCHURE</button>
             <a class="text-on-surface-variant hover:text-primary" href="register.html">REGISTER</a>
+            <a class="text-amber-300 font-bold flex items-center gap-2" href="register.html?action=find-pass">
+                <span class="material-symbols-outlined text-base">confirmation_number</span> FIND MY ADMIT PASS
+            </a>
             <a class="text-on-surface-variant hover:text-primary" href="admin.html">ORGANIZER TERMINAL</a>
         </nav>
     </header>
@@ -183,13 +189,16 @@
 
                     <!-- Key Event Badges -->
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-w-xl font-mono text-xs">
-                        <div class="bg-surface-container border border-primary/30 p-2.5 rounded-xs flex items-center gap-2">
-                            <span class="material-symbols-outlined text-primary text-lg">calendar_today</span>
-                            <div>
-                                <div class="text-[10px] text-zinc-400 uppercase">DATE</div>
-                                <div class="text-white font-bold">5 OCT 2026</div>
+                        <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=VISION+2K26+%E2%80%94+IEEE+AP-S+Intra-College+Symposium+(KEC)&dates=20261005T030000Z/20261005T113000Z&details=VISION+2K26+Intra-College+Technical+Symposium+organized+by+IEEE+AP-S+at+Kongu+Engineering+College.+5+Signature+Events:+Paper+Presentation,+Project+Presentation,+AI+Sprint,+ElectroBid,+Line+Following+Robot.&location=Department+of+ECE,+Kongu+Engineering+College,+Perundurai,+Erode+-+638060" target="_blank" rel="noopener noreferrer" class="bg-surface-container hover:bg-surface-container-high border border-primary/40 hover:border-primary p-2.5 rounded-xs flex items-center justify-between gap-2 transition-all group shadow-sm" title="Click to Add 5 OCT 2026 to Google Calendar">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary text-lg group-hover:scale-110 transition-transform">event</span>
+                                <div>
+                                    <div class="text-[10px] text-zinc-400 uppercase">DATE</div>
+                                    <div class="text-white font-bold">5 OCT 2026</div>
+                                </div>
                             </div>
-                        </div>
+                            <span class="material-symbols-outlined text-xs text-primary/60 group-hover:text-primary transition-colors" title="Add to Calendar">calendar_add_on</span>
+                        </a>
                         <div class="bg-surface-container border border-primary/30 p-2.5 rounded-xs flex items-center gap-2">
                             <span class="material-symbols-outlined text-primary text-lg">group</span>
                             <div>
@@ -206,15 +215,47 @@
                         </div>
                     </div>
 
+                    <!-- Live Symposium Countdown Timer -->
+                    <div class="bg-surface-container/90 border border-primary/40 rounded-xs p-3.5 max-w-xl shadow-[0_0_20px_rgba(240,193,44,0.12)]">
+                        <div class="flex items-center justify-between border-b border-primary/20 pb-2 mb-2.5">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-primary animate-ping"></span>
+                                <span class="font-mono text-[10.5px] sm:text-xs font-bold text-primary tracking-widest uppercase">SYMPOSIUM COUNTDOWN</span>
+                            </div>
+                            <span class="font-mono text-[9px] text-zinc-400 uppercase">5 OCT 2026 • 08:30 AM IST</span>
+                        </div>
+                        <div class="grid grid-cols-4 gap-2 text-center" id="countdown-timer">
+                            <div class="bg-black/70 border border-primary/30 rounded-xs py-2 px-1">
+                                <div class="font-orbitron text-xl sm:text-2xl font-black text-white gold-glow" id="cd-days">--</div>
+                                <div class="font-mono text-[8.5px] sm:text-[9px] text-zinc-400 uppercase tracking-wider">DAYS</div>
+                            </div>
+                            <div class="bg-black/70 border border-primary/30 rounded-xs py-2 px-1">
+                                <div class="font-orbitron text-xl sm:text-2xl font-black text-primary gold-glow" id="cd-hours">--</div>
+                                <div class="font-mono text-[8.5px] sm:text-[9px] text-zinc-400 uppercase tracking-wider">HOURS</div>
+                            </div>
+                            <div class="bg-black/70 border border-primary/30 rounded-xs py-2 px-1">
+                                <div class="font-orbitron text-xl sm:text-2xl font-black text-white gold-glow" id="cd-mins">--</div>
+                                <div class="font-mono text-[8.5px] sm:text-[9px] text-zinc-400 uppercase tracking-wider">MINS</div>
+                            </div>
+                            <div class="bg-black/70 border border-primary/30 rounded-xs py-2 px-1">
+                                <div class="font-orbitron text-xl sm:text-2xl font-black text-primary gold-glow" id="cd-secs">--</div>
+                                <div class="font-mono text-[8.5px] sm:text-[9px] text-zinc-400 uppercase tracking-wider">SECS</div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- CTA Buttons -->
-                    <div class="flex flex-wrap items-center gap-4 mt-2">
+                    <div class="flex flex-wrap items-center gap-3 sm:gap-4 mt-1">
                         <a href="register.html" class="relative group bg-primary text-on-primary font-mono text-xs tracking-widest px-7 py-3.5 uppercase border border-primary overflow-hidden transition-all duration-300 hover:shadow-[0_0_25px_rgba(240,193,44,0.5)] inline-block font-bold">
                             <span class="relative z-10 flex items-center gap-2">
                                 <span class="material-symbols-outlined text-base">how_to_reg</span> Register Squad
                             </span>
                         </a>
-                        <a href="#events" class="border border-primary/60 hover:border-primary bg-primary/10 hover:bg-primary/20 text-primary font-mono text-xs px-6 py-3.5 uppercase tracking-widest transition-all duration-300 flex items-center gap-2 font-bold">
-                            <span class="material-symbols-outlined text-base">apps</span> Explore 5 Events
+                        <a href="register.html?action=find-pass" class="border border-amber-400/50 hover:border-primary bg-amber-400/10 hover:bg-amber-400/20 text-amber-300 hover:text-primary font-mono text-xs px-5 py-3.5 uppercase tracking-wider transition-all duration-300 flex items-center gap-2 font-bold shadow-sm">
+                            <span class="material-symbols-outlined text-base">confirmation_number</span> Find My Pass
+                        </a>
+                        <a href="#events" class="border border-primary/60 hover:border-primary bg-primary/10 hover:bg-primary/20 text-primary font-mono text-xs px-5 py-3.5 uppercase tracking-widest transition-all duration-300 flex items-center gap-2 font-bold">
+                            <span class="material-symbols-outlined text-base">apps</span> 5 Events
                         </a>
                         <button type="button" id="hero-brochure-btn" class="text-outline hover:text-primary font-mono text-xs tracking-widest uppercase transition-colors flex items-center gap-1.5 py-2 cursor-pointer font-bold">
                             <span class="material-symbols-outlined text-sm">open_in_new</span> Official Flyer
@@ -747,6 +788,29 @@
         } else {
             setTimeout(window.openBrochureModal, 300);
         }
+
+        /* ---------- Live Symposium Countdown Timer ---------- */
+        const symposiumTarget = new Date('2026-10-05T08:30:00+05:30').getTime();
+        const cdDays = document.getElementById('cd-days');
+        const cdHours = document.getElementById('cd-hours');
+        const cdMins = document.getElementById('cd-mins');
+        const cdSecs = document.getElementById('cd-secs');
+
+        function updateCountdown() {
+            const now = Date.now();
+            const diff = Math.max(0, symposiumTarget - now);
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const m = Math.floor((diff / (1000 * 60)) % 60);
+            const s = Math.floor((diff / 1000) % 60);
+
+            if (cdDays) cdDays.textContent = String(d).padStart(2, '0');
+            if (cdHours) cdHours.textContent = String(h).padStart(2, '0');
+            if (cdMins) cdMins.textContent = String(m).padStart(2, '0');
+            if (cdSecs) cdSecs.textContent = String(s).padStart(2, '0');
+        }
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
 
         // Initialize background audio & sounds
         document.addEventListener('DOMContentLoaded', () => {

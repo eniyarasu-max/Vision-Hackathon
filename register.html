@@ -125,6 +125,9 @@
                     <a class="text-on-surface-variant hover:text-primary transition-all relative group py-2" href="index.html#events">5 EVENTS</a>
                     <a class="text-on-surface-variant hover:text-primary transition-all relative group py-2" href="brochure.html" target="_blank">FLYER</a>
                     <a class="text-primary font-bold transition-all relative group py-2 border-b border-primary" href="register.html">REGISTER</a>
+                    <button type="button" id="nav-find-pass-btn" class="text-amber-300 hover:text-white transition-all py-1.5 px-3 rounded-xs border border-primary/40 bg-primary/10 hover:bg-primary hover:text-black font-bold flex items-center gap-1.5 cursor-pointer shadow-sm">
+                        <span class="material-symbols-outlined text-sm">confirmation_number</span> FIND PASS
+                    </button>
                     <a class="text-on-surface-variant hover:text-primary transition-all relative group py-2" href="admin.html">ORGANIZER</a>
                 </nav>
             </div>
@@ -145,6 +148,9 @@
             <a class="text-on-surface-variant hover:text-primary" href="index.html#events">5 EVENTS</a>
             <a class="text-on-surface-variant hover:text-primary" href="brochure.html" target="_blank">FLYER</a>
             <a class="text-primary font-bold" href="register.html">REGISTER SQUAD</a>
+            <button type="button" id="mobile-find-pass-btn" class="text-left text-amber-300 hover:text-white font-bold py-1 flex items-center gap-2 cursor-pointer">
+                <span class="material-symbols-outlined text-sm">confirmation_number</span> FIND / RE-DOWNLOAD PASS
+            </button>
             <a class="text-on-surface-variant hover:text-primary" href="admin.html">ORGANIZER TERMINAL</a>
         </nav>
     </header>
@@ -162,12 +168,15 @@
                 </div>
             </div>
             <div class="flex items-center gap-2.5 flex-wrap">
+                <button type="button" id="open-pass-lookup-btn" class="bg-surface-container-high hover:bg-primary hover:text-black text-amber-300 border border-primary/50 px-3 py-1.5 rounded-xs font-mono text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-[0_0_15px_rgba(240,193,44,0.2)]">
+                    <span class="material-symbols-outlined text-sm">confirmation_number</span> Find My Pass
+                </button>
                 <button type="button" id="open-guidelines-btn" class="bg-primary/20 hover:bg-primary hover:text-black text-primary border border-primary/40 px-3 py-1.5 rounded-xs font-mono text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-[0_0_15px_rgba(240,193,44,0.15)]">
-                    <span class="material-symbols-outlined text-sm">info</span> View Guidelines
+                    <span class="material-symbols-outlined text-sm">info</span> Guidelines
                 </button>
                 <div class="flex items-center gap-2 bg-black/60 px-3.5 py-1.5 rounded-xs border border-primary/30 font-mono text-xs">
-                    <span class="text-zinc-400">TEAM LIMIT:</span>
-                    <span class="text-primary font-bold">MAX 3 MEMBERS</span>
+                    <span class="text-zinc-400">TEAM:</span>
+                    <span class="text-primary font-bold">MAX 3</span>
                 </div>
             </div>
         </div>
@@ -834,10 +843,75 @@
                     <button id="whatsapp-share-btn" class="bg-surface-container-high text-white font-bold px-3.5 py-2 rounded-xs hover:text-primary transition-all flex items-center gap-1.5 cursor-pointer border border-outline-variant/40">
                         <span class="material-symbols-outlined text-sm">share</span> Share Pass
                     </button>
+                    <button id="cal-pass-btn" class="bg-surface-container-high text-amber-300 hover:bg-primary hover:text-black font-bold px-3.5 py-2 rounded-xs transition-all flex items-center gap-1.5 cursor-pointer border border-primary/40 shadow-sm" title="Add Vision 2K26 to your Google Calendar">
+                        <span class="material-symbols-outlined text-sm">calendar_add_on</span> Add to Calendar
+                    </button>
                 </div>
                 <button id="print-pass-btn" class="text-outline hover:text-white px-3 py-2 transition-colors flex items-center gap-1 cursor-pointer">
                     <span class="material-symbols-outlined text-sm">print</span> Print
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ PASS LOOKUP MODAL (TICKET RECOVERY) ============ -->
+    <div id="pass-lookup-modal" style="display:none;" class="fixed inset-0 z-[99998] flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-4 overflow-y-auto">
+        <div class="relative w-full max-w-lg bg-surface-container-lowest border-2 border-primary/70 rounded-xs shadow-[0_0_60px_rgba(240,193,44,0.4)] flex flex-col overflow-hidden animate-fade-in-up my-auto">
+            
+            <!-- Modal Header -->
+            <div class="p-3.5 sm:p-4 bg-surface-container border-b border-primary/30 flex items-center justify-between z-10">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-xl">confirmation_number</span>
+                    <span class="font-orbitron text-xs sm:text-sm font-bold tracking-widest text-primary uppercase">FIND / RE-DOWNLOAD ADMIT PASS</span>
+                </div>
+                <button id="close-lookup-modal-btn" class="w-8 h-8 flex items-center justify-center text-outline hover:text-primary rounded cursor-pointer" title="Close">
+                    <span class="material-symbols-outlined text-xl">close</span>
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div class="p-5 space-y-4">
+                <p class="font-mono text-xs text-zinc-300 leading-relaxed">
+                    Forgot to save your 4K Admit Pass? Enter your <strong class="text-white">Registered Mobile Number</strong>, <strong class="text-white">College Email ID</strong>, or <strong class="text-white">UPI Transaction ID</strong> below to retrieve your official pass instantly.
+                </p>
+
+                <div class="space-y-2">
+                    <label for="pass-lookup-input" class="block font-mono text-xs text-amber-300 font-bold uppercase tracking-wider">
+                        Search Identifier
+                    </label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-lg">search</span>
+                        <input 
+                            type="text" 
+                            id="pass-lookup-input" 
+                            placeholder="e.g. 7339436468 or user@kongu.edu or TXN12345" 
+                            class="w-full bg-surface-container-high border border-outline-variant/60 focus:border-primary pl-10 pr-4 py-2.5 rounded-xs font-mono text-xs text-white placeholder-zinc-500 outline-none transition-all"
+                            autocomplete="off"
+                        />
+                    </div>
+                </div>
+
+                <!-- Status / Error message container -->
+                <div id="pass-lookup-status" class="hidden p-3 rounded-xs font-mono text-xs leading-relaxed"></div>
+
+                <!-- Results container if multiple matches -->
+                <div id="pass-lookup-results" class="hidden space-y-2 max-h-60 overflow-y-auto pr-1"></div>
+
+                <!-- Action Buttons -->
+                <div class="pt-2 flex items-center justify-end gap-3">
+                    <button type="button" id="cancel-lookup-btn" class="px-4 py-2 font-mono text-xs text-zinc-400 hover:text-white transition-colors cursor-pointer">
+                        Cancel
+                    </button>
+                    <button type="button" id="pass-lookup-submit-btn" class="bg-primary hover:bg-primary-container text-black font-mono font-bold text-xs uppercase tracking-wider px-5 py-2.5 rounded-xs transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(240,193,44,0.3)] cursor-pointer">
+                        <span class="material-symbols-outlined text-sm">search</span>
+                        <span id="pass-lookup-btn-text">Search Pass</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="px-5 py-3 bg-surface-container/60 border-t border-outline-variant/20 font-mono text-[11px] text-zinc-400 flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-xs text-primary">verified_user</span>
+                <span>Matches any registered squad member's mobile number, email, or UPI ref.</span>
             </div>
         </div>
     </div>
@@ -1577,6 +1651,183 @@ Ready to innovate, engineer, and conquer the frontier! See you all on October 5t
                 SFX.click();
                 window.print();
             });
+        }
+
+        /* ---------- Google Calendar Button (from Admit Pass Modal) ---------- */
+        const calPassBtn = document.getElementById('cal-pass-btn');
+        if (calPassBtn) {
+            calPassBtn.addEventListener('click', () => {
+                if (!currentPassData) return;
+                SFX.click();
+                const evName = encodeURIComponent(currentPassData.event_name || 'VISION 2K26');
+                const title = encodeURIComponent(`VISION 2K26 — IEEE AP-S Intra-College Symposium (KEC) | ${currentPassData.event_name || ''}`);
+                const details = encodeURIComponent(
+                    `Squad: ${currentPassData.team_name || 'Your Squad'}\n` +
+                    `Event: ${currentPassData.event_name || ''}\n` +
+                    `Pass ID: ${modalPassId ? modalPassId.textContent : ''}\n\n` +
+                    `Organized by IEEE AP-S Student Branch at Kongu Engineering College.\n` +
+                    `Mandatory: Physical College ID Card + QR Admit Pass.\n` +
+                    `Join WhatsApp Group: https://chat.whatsapp.com/KXWc0KJlV4SCz8a1uqJlIJ`
+                );
+                const location = encodeURIComponent('Department of ECE, Kongu Engineering College, Perundurai, Erode - 638060');
+                const calUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=20261005T030000Z/20261005T113000Z&details=${details}&location=${location}`;
+                window.open(calUrl, '_blank', 'noopener,noreferrer');
+            });
+        }
+
+        /* ---------- Pass Lookup Modal (Ticket Recovery) ---------- */
+        const passLookupModal = document.getElementById('pass-lookup-modal');
+        const closeLookupModalBtn = document.getElementById('close-lookup-modal-btn');
+        const cancelLookupBtn = document.getElementById('cancel-lookup-btn');
+        const passLookupInput = document.getElementById('pass-lookup-input');
+        const passLookupSubmitBtn = document.getElementById('pass-lookup-submit-btn');
+        const passLookupBtnText = document.getElementById('pass-lookup-btn-text');
+        const passLookupStatus = document.getElementById('pass-lookup-status');
+        const passLookupResults = document.getElementById('pass-lookup-results');
+
+        const ALL_EVENT_IDS = ['paper-presentation', 'project-presentation', 'ai-sprint', 'electrobid', 'line-following-robot'];
+
+        function openPassLookup() {
+            if (!passLookupModal) return;
+            passLookupModal.style.display = 'flex';
+            if (passLookupInput) { passLookupInput.value = ''; passLookupInput.focus(); }
+            if (passLookupStatus) { passLookupStatus.className = 'hidden'; passLookupStatus.textContent = ''; }
+            if (passLookupResults) { passLookupResults.className = 'hidden'; passLookupResults.innerHTML = ''; }
+            if (passLookupBtnText) passLookupBtnText.textContent = 'Search Pass';
+            document.body.style.overflow = 'hidden';
+            if (window._SFX) window._SFX.click();
+        }
+
+        function closePassLookup() {
+            if (!passLookupModal) return;
+            passLookupModal.style.display = 'none';
+            document.body.style.overflow = '';
+            if (window._SFX) window._SFX.click();
+        }
+
+        function showLookupStatus(msg, isError = false) {
+            if (!passLookupStatus) return;
+            passLookupStatus.className = `p-3 rounded-xs font-mono text-xs leading-relaxed ${isError ? 'bg-error-container/30 border border-error text-error' : 'bg-amber-400/10 border border-amber-400/30 text-amber-300'}`;
+            passLookupStatus.textContent = msg;
+        }
+
+        function showLookupResult(matches) {
+            if (!passLookupResults || !passLookupStatus) return;
+            if (matches.length === 1) {
+                // Single match — show pass directly
+                closePassLookup();
+                showAdmitPass(matches[0]);
+                return;
+            }
+            // Multiple matches — show selection list
+            passLookupResults.innerHTML = '';
+            passLookupResults.className = 'space-y-2 max-h-60 overflow-y-auto pr-1';
+            passLookupStatus.className = 'p-3 rounded-xs font-mono text-xs leading-relaxed bg-emerald-400/10 border border-emerald-400/30 text-emerald-300';
+            passLookupStatus.textContent = `✓ Found ${matches.length} registrations. Select one to view your pass:`;
+            matches.forEach((m, idx) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'w-full text-left bg-surface-container-high border border-primary/30 hover:border-primary px-3.5 py-2.5 rounded-xs font-mono text-xs text-white transition-all cursor-pointer space-y-0.5';
+                btn.innerHTML = `
+                    <div class="font-bold text-primary">${(m.team_name || 'Squad').toUpperCase()}</div>
+                    <div class="text-zinc-400">${m.event_name || ''} ${m.paper_title ? '· ' + m.paper_title : ''}</div>
+                `;
+                btn.addEventListener('click', () => {
+                    closePassLookup();
+                    showAdmitPass(m);
+                });
+                passLookupResults.appendChild(btn);
+            });
+        }
+
+        async function runPassLookup() {
+            const inputVal = (passLookupInput?.value || '').trim();
+            if (!inputVal) {
+                showLookupStatus('// Please enter your mobile number, email, or UPI Transaction ID.', true);
+                return;
+            }
+            if (!db) {
+                showLookupStatus('// Database not connected. Please check your internet connection.', true);
+                return;
+            }
+
+            // Loading state
+            if (passLookupSubmitBtn) passLookupSubmitBtn.disabled = true;
+            if (passLookupBtnText) passLookupBtnText.textContent = 'Searching...';
+            if (passLookupStatus) { passLookupStatus.className = 'hidden'; passLookupStatus.textContent = ''; }
+            if (passLookupResults) { passLookupResults.className = 'hidden'; passLookupResults.innerHTML = ''; }
+
+            const inputLower = inputVal.toLowerCase();
+            const foundMatches = [];
+            const seenIds = new Set();
+
+            try {
+                for (const evId of ALL_EVENT_IDS) {
+                    const colRef = collection(db, 'events', evId, 'registrations');
+                    const snap = await getDocs(colRef);
+                    snap.forEach(docSnap => {
+                        const d = docSnap.data();
+                        const members = d.members || [];
+                        // Check mobile/email match across all squad members
+                        const memberMatch = members.some(m =>
+                            (m.mobile && m.mobile === inputVal) ||
+                            (m.email && m.email.toLowerCase() === inputLower)
+                        );
+                        // Check transaction ID match
+                        const txnMatch = d.transaction_id && d.transaction_id.toLowerCase() === inputLower;
+
+                        if ((memberMatch || txnMatch) && !seenIds.has(docSnap.id)) {
+                            seenIds.add(docSnap.id);
+                            foundMatches.push({ ...d, id: docSnap.id });
+                        }
+                    });
+                }
+
+                if (foundMatches.length === 0) {
+                    showLookupStatus(
+                        `// No registration found for "${inputVal}". Please check that you entered the exact mobile number, college email, or UPI Transaction ID used during registration.`,
+                        true
+                    );
+                } else {
+                    showLookupResult(foundMatches);
+                }
+            } catch (err) {
+                console.error('Pass lookup error:', err);
+                showLookupStatus('// Search failed. Please check your connection and try again.', true);
+            } finally {
+                if (passLookupSubmitBtn) passLookupSubmitBtn.disabled = false;
+                if (passLookupBtnText) passLookupBtnText.textContent = 'Search Pass';
+            }
+        }
+
+        // Wire up open buttons
+        ['open-pass-lookup-btn', 'nav-find-pass-btn', 'mobile-find-pass-btn'].forEach(id => {
+            const btn = document.getElementById(id);
+            if (btn) btn.addEventListener('click', openPassLookup);
+        });
+
+        // Close buttons
+        if (closeLookupModalBtn) closeLookupModalBtn.addEventListener('click', closePassLookup);
+        if (cancelLookupBtn) cancelLookupBtn.addEventListener('click', closePassLookup);
+        if (passLookupModal) {
+            passLookupModal.addEventListener('click', (e) => { if (e.target === passLookupModal) closePassLookup(); });
+        }
+
+        // Enter key submits lookup
+        if (passLookupInput) {
+            passLookupInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') runPassLookup(); });
+        }
+
+        // Search button
+        if (passLookupSubmitBtn) passLookupSubmitBtn.addEventListener('click', runPassLookup);
+
+        // Auto-open if ?action=find-pass in URL
+        if (typeof URLSearchParams !== 'undefined') {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('action') === 'find-pass') {
+                // Wait for modal to be fully rendered
+                setTimeout(openPassLookup, 400);
+            }
         }
 
         /* ---------- Form Submission (Firestore Sync) ---------- */
