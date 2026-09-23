@@ -1553,40 +1553,38 @@ Kongu Engineering College (IEEE AP-S)`;
             if (window.Html5Qrcode) {
                 try {
                     html5Scanner = new Html5Qrcode("qr-reader");
+                    // Use plain facingMode only — advanced constraints here cause black screen on some browsers
                     await html5Scanner.start(
-                        {
-                            facingMode: "environment",
-                            advanced: [{ focusMode: "continuous" }]
-                        },
+                        { facingMode: "environment" },
                         { fps: 20, qrbox: 220 },
                         onQrScanned,
                         () => {}
                     );
 
-                    // Apply continuous autofocus after camera starts
-                    try {
-                        const videoEl = document.querySelector('#qr-reader video');
-                        if (videoEl && videoEl.srcObject) {
-                            const tracks = videoEl.srcObject.getVideoTracks();
-                            if (tracks.length > 0) {
-                                const track = tracks[0];
-                                const caps = track.getCapabilities ? track.getCapabilities() : {};
-                                // Apply continuous autofocus if supported
-                                if (caps.focusMode && caps.focusMode.includes('continuous')) {
-                                    await track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] });
-                                }
-                                // On some devices, torch-style zoom reset helps re-trigger focus
-                                if (caps.focusDistance !== undefined) {
-                                    await track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] });
+                    // Apply continuous autofocus AFTER stream is running (500ms delay for video init)
+                    setTimeout(async () => {
+                        try {
+                            const videoEl = document.querySelector('#qr-reader video');
+                            const srcObj = videoEl && (videoEl.srcObject || videoEl.mozSrcObject);
+                            if (srcObj) {
+                                const tracks = srcObj.getVideoTracks();
+                                if (tracks.length > 0) {
+                                    const track = tracks[0];
+                                    const caps = track.getCapabilities ? track.getCapabilities() : {};
+                                    if (caps.focusMode && caps.focusMode.includes('continuous')) {
+                                        await track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] });
+                                        console.info('Continuous autofocus applied.');
+                                    }
                                 }
                             }
+                        } catch (focusErr) {
+                            // Non-fatal: device doesn't support focusMode constraint
+                            console.info('Autofocus not supported:', focusErr.message);
                         }
-                    } catch (focusErr) {
-                        console.info('Autofocus constraint not supported on this device:', focusErr.message);
-                    }
+                    }, 500);
 
                 } catch (e) {
-                    console.warn('Camera failed:', e);
+                    console.warn('Camera failed to start:', e);
                 }
             }
         }
