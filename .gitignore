@@ -10,6 +10,7 @@ Thumbs.db
 # IDE & Editor files
 .vscode/
 .idea/
+.claude/
 *.suo
 *.ntvs*
 *.njsproj
