@@ -4,7 +4,7 @@ Guidance for working in this repository.
 
 ## What this is
 
-**Vision 2K26** — the website for an intra-college technical symposium hosted by **IEEE AP-S** (Antennas and Propagation Society) at **Kongu Engineering College**, event date **17 October 2026**. It handles marketing, squad registration, and on-day gate check-in for 5 events: **Paper Presentation, Project Presentation, AI Sprint, ElectroBid, Line Following Robot**.
+**Vision 2K26** — the website for an intra-college technical symposium hosted by **IEEE AP-S** (Antennas and Propagation Society) at **Kongu Engineering College**, event date **16 October 2026**. It handles marketing, squad registration, and on-day gate check-in for 5 events: **Paper Presentation, Project Presentation, AI Sprint, ElectroBid, Line Following Robot**.
 
 ## Tech stack
 
