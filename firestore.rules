@@ -45,10 +45,8 @@ service cloud.firestore {
                        request.resource.data.members.size() <= 3 &&
                        isValidMember(request.resource.data.members[0]);
 
-      // Organizer terminal check-in status updates & verification:
-      // Protect core identity: team_name and transaction_id cannot be tampered with or modified on update!
-      allow update: if request.resource.data.team_name == resource.data.team_name &&
-                       request.resource.data.transaction_id == resource.data.transaction_id;
+      // Organizer terminal check-in status updates, edits (member names, event track, titles):
+      allow update: if true;
 
       // Organizer terminal deletion / purge operations
       allow delete: if true;

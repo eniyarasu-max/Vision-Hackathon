@@ -713,6 +713,9 @@
                     <button id="scan-checkin-btn" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xs flex items-center justify-center gap-1.5 cursor-pointer">
                         <span class="material-symbols-outlined text-base">how_to_reg</span> Admit Entry &amp; Check-In
                     </button>
+                    <button id="scan-edit-btn" class="bg-surface-container hover:bg-surface-container-high border border-primary/50 text-primary font-bold py-2 px-3 rounded-xs flex items-center justify-center gap-1 cursor-pointer text-xs transition-colors" title="Edit Squad &amp; Event Details">
+                        <span class="material-symbols-outlined text-sm">edit_note</span> Edit
+                    </button>
                     <button id="scan-print-badge-btn" class="bg-surface-container border border-primary/50 text-primary hover:bg-primary/10 px-3 py-2 rounded-xs flex items-center gap-1 cursor-pointer">
                         <span class="material-symbols-outlined text-base">badge</span> Badge
                     </button>
@@ -795,11 +798,191 @@
                     <span class="material-symbols-outlined text-sm">content_copy</span> Copy Txn ID
                 </button>
                 <div class="flex items-center gap-2">
+                    <button type="button" id="receipt-modal-edit-btn" class="font-mono text-xs font-bold text-amber-300 hover:text-white bg-amber-500/20 hover:bg-amber-500/30 px-3 py-2 rounded-xs border border-amber-500/50 flex items-center gap-1 cursor-pointer transition-colors" title="Edit Squad & Event Details">
+                        <span class="material-symbols-outlined text-sm">edit</span> Edit Squad
+                    </button>
                     <button type="button" id="receipt-modal-toggle-btn" class="font-mono text-xs font-bold px-4 py-2 rounded-xs border cursor-pointer transition-all flex items-center gap-1.5">
                         <span class="material-symbols-outlined text-sm">verified</span> Verify Payment
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- ============ EDIT SQUAD & EVENT DETAILS MODAL ============ -->
+    <div id="edit-squad-modal" style="display:none;" class="fixed inset-0 z-[999999] flex items-center justify-center bg-black/90 backdrop-blur-md p-3 sm:p-4 overflow-y-auto">
+        <div class="relative w-full max-w-2xl bg-surface-container-lowest border-2 border-primary/70 rounded-xs shadow-[0_0_50px_rgba(240,193,44,0.35)] flex flex-col overflow-hidden animate-fade-in-up my-auto">
+            
+            <!-- Modal Header -->
+            <div class="p-4 bg-surface-container border-b border-primary/30 flex items-center justify-between z-10">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-xl">edit_note</span>
+                    <div>
+                        <div class="font-orbitron text-xs sm:text-sm font-bold tracking-wider text-primary uppercase">EDIT SQUAD &amp; EVENT DETAILS</div>
+                        <div class="font-mono text-[10px] text-zinc-400" id="edit-modal-subtitle">Modify member names, contact details, and event track</div>
+                    </div>
+                </div>
+                <button id="close-edit-modal-btn" type="button" class="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-primary rounded cursor-pointer transition-colors" title="Close">
+                    <span class="material-symbols-outlined text-xl">close</span>
+                </button>
+            </div>
+
+            <!-- Modal Form -->
+            <form id="edit-squad-form" class="p-4 space-y-4 max-h-[78vh] overflow-y-auto font-mono text-xs">
+                <input type="hidden" id="edit-squad-id" />
+                <input type="hidden" id="edit-squad-old-col" />
+
+                <!-- Event Details Section -->
+                <div class="bg-surface-container/60 p-3.5 rounded-xs border border-primary/30 space-y-3">
+                    <div class="font-orbitron text-xs font-bold text-amber-300 flex items-center gap-1.5 uppercase">
+                        <span class="material-symbols-outlined text-sm">event</span> Event Track &amp; Topic Details
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-zinc-300 font-bold mb-1">EVENT TRACK:</label>
+                            <select id="edit-event-select" class="w-full bg-surface-container-lowest border border-outline-variant/60 focus:border-primary text-xs py-2 px-2.5 text-white outline-none rounded-xs cursor-pointer">
+                                <option value="paper-presentation">Paper Presentation</option>
+                                <option value="project-presentation">Project Presentation</option>
+                                <option value="ai-sprint">AI Sprint</option>
+                                <option value="electrobid">ElectroBid</option>
+                                <option value="line-following-robot">Line Following Robot</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-zinc-300 font-bold mb-1">SQUAD / TEAM NAME:</label>
+                            <input type="text" id="edit-team-name" required class="w-full bg-surface-container-lowest border border-outline-variant/60 focus:border-primary text-xs py-2 px-2.5 text-white outline-none rounded-xs font-bold" />
+                        </div>
+                    </div>
+
+                    <!-- Topic / Paper / Project Title -->
+                    <div id="edit-topic-group">
+                        <label class="block text-zinc-300 font-bold mb-1" id="edit-topic-label">PAPER / PROJECT TITLE (IF APPLICABLE):</label>
+                        <input type="text" id="edit-topic-title" placeholder="e.g. Next-Gen Antenna Array Design using AI" class="w-full bg-surface-container-lowest border border-outline-variant/60 focus:border-primary text-xs py-2 px-2.5 text-white outline-none rounded-xs" />
+                    </div>
+                </div>
+
+                <!-- Squad Members Section -->
+                <div class="bg-surface-container/60 p-3.5 rounded-xs border border-primary/30 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="font-orbitron text-xs font-bold text-primary flex items-center gap-1.5 uppercase">
+                            <span class="material-symbols-outlined text-sm">groups</span> Squad Members (1 to 3 Delegates)
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button type="button" id="edit-add-member-btn" class="bg-primary/20 hover:bg-primary hover:text-black text-primary border border-primary/50 text-[10px] font-bold px-2 py-1 rounded-xs flex items-center gap-1 cursor-pointer">
+                                <span class="material-symbols-outlined text-[12px]">add</span> Add Member
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Member 1 (Leader) -->
+                    <div class="bg-surface-container-lowest p-3 rounded-xs border border-outline-variant/40 space-y-2">
+                        <div class="flex items-center justify-between text-amber-300 font-bold text-[11px]">
+                            <span>MEMBER 1 (SQUAD LEADER) *</span>
+                            <span class="text-[9px] uppercase px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30">Primary</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <div>
+                                <label class="text-[10px] text-zinc-400 block mb-0.5">Full Name *</label>
+                                <input type="text" id="edit-m1-name" required class="w-full bg-surface-container border border-outline-variant/50 focus:border-primary text-xs py-1.5 px-2 text-white outline-none rounded-xs font-medium" />
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-zinc-400 block mb-0.5">Mobile Number</label>
+                                <input type="text" id="edit-m1-mobile" class="w-full bg-surface-container border border-outline-variant/50 focus:border-primary text-xs py-1.5 px-2 text-white outline-none rounded-xs" />
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-zinc-400 block mb-0.5">Email Address</label>
+                                <input type="email" id="edit-m1-email" class="w-full bg-surface-container border border-outline-variant/50 focus:border-primary text-xs py-1.5 px-2 text-white outline-none rounded-xs" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Member 2 -->
+                    <div id="edit-m2-card" class="bg-surface-container-lowest p-3 rounded-xs border border-outline-variant/40 space-y-2">
+                        <div class="flex items-center justify-between text-zinc-300 font-bold text-[11px]">
+                            <span>MEMBER 2</span>
+                            <button type="button" id="edit-remove-m2-btn" class="text-zinc-500 hover:text-error text-[10px] flex items-center gap-0.5 cursor-pointer">
+                                <span class="material-symbols-outlined text-xs">close</span> Remove
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <div>
+                                <label class="text-[10px] text-zinc-400 block mb-0.5">Full Name</label>
+                                <input type="text" id="edit-m2-name" class="w-full bg-surface-container border border-outline-variant/50 focus:border-primary text-xs py-1.5 px-2 text-white outline-none rounded-xs font-medium" />
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-zinc-400 block mb-0.5">Mobile Number</label>
+                                <input type="text" id="edit-m2-mobile" class="w-full bg-surface-container border border-outline-variant/50 focus:border-primary text-xs py-1.5 px-2 text-white outline-none rounded-xs" />
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-zinc-400 block mb-0.5">Email Address</label>
+                                <input type="email" id="edit-m2-email" class="w-full bg-surface-container border border-outline-variant/50 focus:border-primary text-xs py-1.5 px-2 text-white outline-none rounded-xs" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Member 3 -->
+                    <div id="edit-m3-card" class="bg-surface-container-lowest p-3 rounded-xs border border-outline-variant/40 space-y-2">
+                        <div class="flex items-center justify-between text-zinc-300 font-bold text-[11px]">
+                            <span>MEMBER 3</span>
+                            <button type="button" id="edit-remove-m3-btn" class="text-zinc-500 hover:text-error text-[10px] flex items-center gap-0.5 cursor-pointer">
+                                <span class="material-symbols-outlined text-xs">close</span> Remove
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <div>
+                                <label class="text-[10px] text-zinc-400 block mb-0.5">Full Name</label>
+                                <input type="text" id="edit-m3-name" class="w-full bg-surface-container border border-outline-variant/50 focus:border-primary text-xs py-1.5 px-2 text-white outline-none rounded-xs font-medium" />
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-zinc-400 block mb-0.5">Mobile Number</label>
+                                <input type="text" id="edit-m3-mobile" class="w-full bg-surface-container border border-outline-variant/50 focus:border-primary text-xs py-1.5 px-2 text-white outline-none rounded-xs" />
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-zinc-400 block mb-0.5">Email Address</label>
+                                <input type="email" id="edit-m3-email" class="w-full bg-surface-container border border-outline-variant/50 focus:border-primary text-xs py-1.5 px-2 text-white outline-none rounded-xs" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transaction ID & Status Section -->
+                <div class="bg-surface-container/60 p-3.5 rounded-xs border border-primary/30 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-zinc-300 font-bold mb-1">UPI TRANSACTION ID:</label>
+                        <input type="text" id="edit-transaction-id" class="w-full bg-surface-container-lowest border border-outline-variant/60 focus:border-primary text-xs py-2 px-2.5 text-amber-300 font-bold outline-none rounded-xs" />
+                    </div>
+                    <div>
+                        <label class="block text-zinc-300 font-bold mb-1">PAYMENT STATUS:</label>
+                        <select id="edit-payment-status" class="w-full bg-surface-container-lowest border border-outline-variant/60 focus:border-primary text-xs py-2 px-2.5 text-white outline-none rounded-xs cursor-pointer">
+                            <option value="pending">Pending</option>
+                            <option value="verified">Verified</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-zinc-300 font-bold mb-1">GATE CHECK-IN:</label>
+                        <select id="edit-checkin-status" class="w-full bg-surface-container-lowest border border-outline-variant/60 focus:border-primary text-xs py-2 px-2.5 text-white outline-none rounded-xs cursor-pointer">
+                            <option value="false">Pending (Not Admitted)</option>
+                            <option value="true">Admitted (Checked In)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Error / Status Feedback message -->
+                <div id="edit-modal-feedback" style="display:none;" class="p-2.5 rounded-xs text-xs font-mono text-center"></div>
+
+                <!-- Modal Actions -->
+                <div class="pt-2 flex items-center justify-end gap-2 border-t border-primary/20">
+                    <button type="button" id="edit-cancel-btn" class="px-4 py-2 rounded-xs border border-outline-variant/60 hover:bg-surface-container-high text-zinc-300 cursor-pointer font-bold">
+                        CANCEL
+                    </button>
+                    <button type="submit" id="edit-save-btn" class="px-5 py-2 rounded-xs bg-primary hover:bg-primary-hover text-black font-bold font-orbitron tracking-wider flex items-center gap-1.5 cursor-pointer shadow-[0_0_15px_rgba(240,193,44,0.3)]">
+                        <span class="material-symbols-outlined text-sm">save</span>
+                        <span id="edit-save-btn-text">SAVE CHANGES</span>
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -1373,6 +1556,9 @@
                     <td class="py-3 px-3 text-center">${checkinBadge}</td>
                     <td class="py-3 px-3 text-center">
                         <div class="flex items-center justify-center gap-1.5">
+                            <button onclick="openEditSquadModal('${t.id}')" class="p-1 rounded text-amber-300 hover:bg-amber-500/15 transition-colors cursor-pointer" title="Edit Squad &amp; Event Details">
+                                <span class="material-symbols-outlined text-base">edit_note</span>
+                            </button>
                             <button onclick="printLanyardBadge('${t.id}')" class="p-1 rounded text-primary hover:bg-primary/15 transition-colors cursor-pointer" title="Print Lanyard Badge">
                                 <span class="material-symbols-outlined text-base">badge</span>
                             </button>
@@ -2157,6 +2343,341 @@ Kongu Engineering College (IEEE AP-S)`;
                 const currentVer = (activeReceiptTeam.payment_status === 'verified' || activeReceiptTeam.status === 'verified');
                 await togglePaymentStatus(activeReceiptTeam.id, currentVer);
                 if (receiptModal) receiptModal.style.display = 'none';
+            });
+        }
+
+        /* =========================================================
+           EDIT SQUAD & EVENT DETAILS MODAL LOGIC
+           Allows organizers to edit team member names, contact info,
+           squad callsign, paper/project titles, and switch event tracks.
+           ========================================================= */
+        const editSquadModal = document.getElementById('edit-squad-modal');
+        const editSquadForm = document.getElementById('edit-squad-form');
+        const closeEditModalBtn = document.getElementById('close-edit-modal-btn');
+        const editCancelBtn = document.getElementById('edit-cancel-btn');
+        const editSquadIdInput = document.getElementById('edit-squad-id');
+        const editSquadOldColInput = document.getElementById('edit-squad-old-col');
+        const editEventSelect = document.getElementById('edit-event-select');
+        const editTeamNameInput = document.getElementById('edit-team-name');
+        const editTopicTitleInput = document.getElementById('edit-topic-title');
+        const editTopicLabel = document.getElementById('edit-topic-label');
+
+        const editM1Name = document.getElementById('edit-m1-name');
+        const editM1Mobile = document.getElementById('edit-m1-mobile');
+        const editM1Email = document.getElementById('edit-m1-email');
+
+        const editM2Card = document.getElementById('edit-m2-card');
+        const editM2Name = document.getElementById('edit-m2-name');
+        const editM2Mobile = document.getElementById('edit-m2-mobile');
+        const editM2Email = document.getElementById('edit-m2-email');
+        const editRemoveM2Btn = document.getElementById('edit-remove-m2-btn');
+
+        const editM3Card = document.getElementById('edit-m3-card');
+        const editM3Name = document.getElementById('edit-m3-name');
+        const editM3Mobile = document.getElementById('edit-m3-mobile');
+        const editM3Email = document.getElementById('edit-m3-email');
+        const editRemoveM3Btn = document.getElementById('edit-remove-m3-btn');
+
+        const editAddMemberBtn = document.getElementById('edit-add-member-btn');
+        const editTransactionId = document.getElementById('edit-transaction-id');
+        const editPaymentStatus = document.getElementById('edit-payment-status');
+        const editCheckinStatus = document.getElementById('edit-checkin-status');
+        const editModalFeedback = document.getElementById('edit-modal-feedback');
+        const editSaveBtn = document.getElementById('edit-save-btn');
+        const editSaveBtnText = document.getElementById('edit-save-btn-text');
+
+        function updateEditTopicLabel() {
+            if (!editEventSelect || !editTopicLabel || !editTopicTitleInput) return;
+            const ev = editEventSelect.value;
+            if (ev === 'paper-presentation') {
+                editTopicLabel.textContent = 'PAPER TITLE:';
+                editTopicTitleInput.placeholder = 'e.g. Next-Gen Antenna Array Design using AI';
+            } else if (ev === 'project-presentation') {
+                editTopicLabel.textContent = 'PROJECT TITLE:';
+                editTopicTitleInput.placeholder = 'e.g. Automated Smart Irrigation System';
+            } else {
+                editTopicLabel.textContent = 'TOPIC / PROJECT TITLE (OPTIONAL):';
+                editTopicTitleInput.placeholder = 'e.g. Robot Specification / Project Description';
+            }
+        }
+
+        if (editEventSelect) {
+            editEventSelect.addEventListener('change', updateEditTopicLabel);
+        }
+
+        if (editAddMemberBtn) {
+            editAddMemberBtn.addEventListener('click', () => {
+                if (editM2Card && editM2Card.style.display === 'none') {
+                    editM2Card.style.display = 'block';
+                    if (editM2Name) editM2Name.focus();
+                } else if (editM3Card && editM3Card.style.display === 'none') {
+                    editM3Card.style.display = 'block';
+                    if (editM3Name) editM3Name.focus();
+                } else {
+                    alert('Squad limit reached: maximum 3 members per squad.');
+                }
+            });
+        }
+
+        if (editRemoveM2Btn) {
+            editRemoveM2Btn.addEventListener('click', () => {
+                // If member 3 exists, move member 3 into member 2
+                if (editM3Card && editM3Card.style.display !== 'none') {
+                    editM2Name.value = editM3Name.value;
+                    editM2Mobile.value = editM3Mobile.value;
+                    editM2Email.value = editM3Email.value;
+                    editM3Name.value = '';
+                    editM3Mobile.value = '';
+                    editM3Email.value = '';
+                    editM3Card.style.display = 'none';
+                } else {
+                    editM2Name.value = '';
+                    editM2Mobile.value = '';
+                    editM2Email.value = '';
+                    if (editM2Card) editM2Card.style.display = 'none';
+                }
+            });
+        }
+
+        if (editRemoveM3Btn) {
+            editRemoveM3Btn.addEventListener('click', () => {
+                editM3Name.value = '';
+                editM3Mobile.value = '';
+                editM3Email.value = '';
+                if (editM3Card) editM3Card.style.display = 'none';
+            });
+        }
+
+        window.openEditSquadModal = function(docId) {
+            const team = registeredTeams.find(t => t.id === docId);
+            if (!team) return alert('Squad record not found.');
+
+            editSquadIdInput.value = team.id;
+            const currentCol = team._colId || 'paper-presentation';
+            editSquadOldColInput.value = currentCol;
+
+            if (editEventSelect) editEventSelect.value = currentCol;
+            updateEditTopicLabel();
+
+            if (editTeamNameInput) editTeamNameInput.value = team.team_name || '';
+            if (editTopicTitleInput) editTopicTitleInput.value = team.paper_title || team.project_title || '';
+            if (editTransactionId) editTransactionId.value = team.transaction_id || '';
+
+            const isPayVer = (team.payment_status === 'verified' || team.status === 'verified');
+            if (editPaymentStatus) editPaymentStatus.value = isPayVer ? 'verified' : 'pending';
+            if (editCheckinStatus) editCheckinStatus.value = team.checked_in === true ? 'true' : 'false';
+
+            const members = Array.isArray(team.members) ? team.members : [];
+            const m1 = members[0] || {};
+            const m2 = members[1] || null;
+            const m3 = members[2] || null;
+
+            if (editM1Name) editM1Name.value = m1.name || team.leader_name || team.m1_name || '';
+            if (editM1Mobile) editM1Mobile.value = m1.mobile || team.leader_mobile || '';
+            if (editM1Email) editM1Email.value = m1.email || team.leader_email || '';
+
+            if (m2 && (m2.name || m2.mobile)) {
+                if (editM2Card) editM2Card.style.display = 'block';
+                if (editM2Name) editM2Name.value = m2.name || team.member2_name || '';
+                if (editM2Mobile) editM2Mobile.value = m2.mobile || team.member2_mobile || '';
+                if (editM2Email) editM2Email.value = m2.email || team.member2_email || '';
+            } else if (team.member2_name || team.m2_name) {
+                if (editM2Card) editM2Card.style.display = 'block';
+                if (editM2Name) editM2Name.value = team.member2_name || team.m2_name || '';
+                if (editM2Mobile) editM2Mobile.value = team.member2_mobile || '';
+                if (editM2Email) editM2Email.value = team.member2_email || '';
+            } else {
+                if (editM2Card) editM2Card.style.display = 'none';
+                if (editM2Name) editM2Name.value = '';
+                if (editM2Mobile) editM2Mobile.value = '';
+                if (editM2Email) editM2Email.value = '';
+            }
+
+            if (m3 && (m3.name || m3.mobile)) {
+                if (editM3Card) editM3Card.style.display = 'block';
+                if (editM3Name) editM3Name.value = m3.name || team.member3_name || '';
+                if (editM3Mobile) editM3Mobile.value = m3.mobile || team.member3_mobile || '';
+                if (editM3Email) editM3Email.value = m3.email || team.member3_email || '';
+            } else if (team.member3_name || team.m3_name) {
+                if (editM3Card) editM3Card.style.display = 'block';
+                if (editM3Name) editM3Name.value = team.member3_name || team.m3_name || '';
+                if (editM3Mobile) editM3Mobile.value = team.member3_mobile || '';
+                if (editM3Email) editM3Email.value = team.member3_email || '';
+            } else {
+                if (editM3Card) editM3Card.style.display = 'none';
+                if (editM3Name) editM3Name.value = '';
+                if (editM3Mobile) editM3Mobile.value = '';
+                if (editM3Email) editM3Email.value = '';
+            }
+
+            if (editModalFeedback) {
+                editModalFeedback.style.display = 'none';
+                editModalFeedback.textContent = '';
+            }
+
+            if (editSquadModal) {
+                editSquadModal.style.display = 'flex';
+                SFX.click();
+            }
+        };
+
+        function closeEditSquadModal() {
+            if (editSquadModal) editSquadModal.style.display = 'none';
+            if (editModalFeedback) editModalFeedback.style.display = 'none';
+            SFX.click();
+        }
+
+        if (closeEditModalBtn) closeEditModalBtn.addEventListener('click', closeEditSquadModal);
+        if (editCancelBtn) editCancelBtn.addEventListener('click', closeEditSquadModal);
+
+        if (editSquadModal) {
+            editSquadModal.addEventListener('click', (e) => {
+                if (e.target === editSquadModal) closeEditSquadModal();
+            });
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && editSquadModal && editSquadModal.style.display !== 'none') {
+                closeEditSquadModal();
+            }
+        });
+
+        // Wire receipt modal edit button
+        const receiptModalEditBtn = document.getElementById('receipt-modal-edit-btn');
+        if (receiptModalEditBtn) {
+            receiptModalEditBtn.addEventListener('click', () => {
+                if (!activeReceiptTeam) return;
+                const docId = activeReceiptTeam.id;
+                if (receiptModal) receiptModal.style.display = 'none';
+                openEditSquadModal(docId);
+            });
+        }
+
+        // Wire scanner result edit button
+        const scanEditBtn = document.getElementById('scan-edit-btn');
+        if (scanEditBtn) {
+            scanEditBtn.addEventListener('click', () => {
+                if (!activeScannedTeam) return;
+                const docId = activeScannedTeam.id;
+                openEditSquadModal(docId);
+            });
+        }
+
+        // Form submit handler
+        if (editSquadForm) {
+            editSquadForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!db) return alert('Database connection not initialized.');
+
+                const docId = editSquadIdInput.value;
+                const oldColId = editSquadOldColInput.value;
+                const newColId = editEventSelect.value;
+                const newTeamName = editTeamNameInput.value.trim();
+                const m1NameVal = editM1Name.value.trim();
+
+                if (!m1NameVal) {
+                    alert('Leader / Member 1 name is required.');
+                    editM1Name.focus();
+                    return;
+                }
+
+                const team = registeredTeams.find(t => t.id === docId);
+                if (!team) return alert('Squad record not found.');
+
+                const members = [
+                    {
+                        name: m1NameVal,
+                        mobile: (editM1Mobile.value || '').trim(),
+                        email: (editM1Email.value || '').trim()
+                    }
+                ];
+
+                if (editM2Card && editM2Card.style.display !== 'none' && editM2Name.value.trim()) {
+                    members.push({
+                        name: editM2Name.value.trim(),
+                        mobile: (editM2Mobile.value || '').trim(),
+                        email: (editM2Email.value || '').trim()
+                    });
+                }
+
+                if (editM3Card && editM3Card.style.display !== 'none' && editM3Name.value.trim()) {
+                    members.push({
+                        name: editM3Name.value.trim(),
+                        mobile: (editM3Mobile.value || '').trim(),
+                        email: (editM3Email.value || '').trim()
+                    });
+                }
+
+                const newEventObj = EVENTS.find(ev => ev.id === newColId);
+                const newEventLabel = newEventObj ? newEventObj.label : 'Event';
+                const topicVal = editTopicTitleInput.value.trim();
+
+                const updatePayload = {
+                    team_name: newTeamName,
+                    team_name_key: newTeamName.toLowerCase().replace(/\s+/g, ''),
+                    event_name: newEventLabel,
+                    transaction_id: (editTransactionId.value || '').trim(),
+                    payment_status: editPaymentStatus.value,
+                    status: editPaymentStatus.value,
+                    checked_in: editCheckinStatus.value === 'true',
+                    check_in_timestamp: editCheckinStatus.value === 'true' ? (team.check_in_timestamp || new Date().toISOString()) : null,
+                    members: members,
+                    member_count: members.length,
+                    paper_title: newColId === 'paper-presentation' ? topicVal : (team.paper_title || ''),
+                    project_title: newColId === 'project-presentation' ? topicVal : (team.project_title || ''),
+                    updated_at: new Date().toISOString(),
+                    updated_by_organiser: true
+                };
+
+                // Disable submit button during write
+                editSaveBtn.disabled = true;
+                editSaveBtnText.textContent = 'SAVING...';
+                if (editModalFeedback) {
+                    editModalFeedback.className = 'p-2.5 rounded-xs text-xs font-mono text-center block bg-surface-container border border-outline-variant/40 text-zinc-300';
+                    editModalFeedback.textContent = 'Saving changes to Firestore...';
+                    editModalFeedback.style.display = 'block';
+                }
+
+                try {
+                    if (newColId === oldColId) {
+                        // Same event track: simple update
+                        await updateDoc(doc(db, 'events', oldColId, 'registrations', docId), updatePayload);
+                    } else {
+                        // Switched event track: atomic batch move (write new doc, delete old doc)
+                        const batch = writeBatch(db);
+                        const oldRef = doc(db, 'events', oldColId, 'registrations', docId);
+                        const newRef = doc(db, 'events', newColId, 'registrations', docId);
+                        batch.set(newRef, {
+                            ...team,
+                            ...updatePayload,
+                            _colId: newColId
+                        });
+                        batch.delete(oldRef);
+                        await batch.commit();
+                    }
+
+                    if (editModalFeedback) {
+                        editModalFeedback.className = 'p-2.5 rounded-xs text-xs font-mono text-center block bg-emerald-950/60 border border-emerald-500/50 text-emerald-300 font-bold';
+                        editModalFeedback.textContent = '✓ Squad details & event track updated successfully!';
+                    }
+                    SFX.success();
+
+                    setTimeout(() => {
+                        closeEditSquadModal();
+                        editSaveBtn.disabled = false;
+                        editSaveBtnText.textContent = 'SAVE CHANGES';
+                    }, 800);
+
+                } catch (err) {
+                    console.error('Update squad error:', err);
+                    if (editModalFeedback) {
+                        editModalFeedback.className = 'p-2.5 rounded-xs text-xs font-mono text-center block bg-error-container/40 border border-error/50 text-error font-bold';
+                        editModalFeedback.textContent = 'Error saving changes: ' + err.message;
+                    }
+                    editSaveBtn.disabled = false;
+                    editSaveBtnText.textContent = 'RETRY SAVE';
+                    SFX.error();
+                }
             });
         }
 
