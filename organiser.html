@@ -2740,10 +2740,31 @@ Kongu Engineering College (IEEE AP-S)`;
             return [t.team_name ? String(t.team_name).trim() : 'MEMBER 1'];
         }
 
-        function createAttendanceWorksheet(teams, eventLabel, panelName = '') {
+        // Returns an array of phone numbers matching each member in getTeamMemberList order
+        function getTeamMemberPhones(t) {
+            if (!t) return [''];
+            if (Array.isArray(t.members) && t.members.length > 0) {
+                const phones = t.members
+                    .filter(m => m && m.name && String(m.name).trim())
+                    .map(m => (m && m.mobile ? String(m.mobile).trim() : ''));
+                if (phones.length > 0) return phones;
+            }
+            const fallback = [];
+            const hasM1 = t.leader_name || t.m1_name;
+            if (hasM1) fallback.push(String(t.leader_mobile || t.m1_mobile || '').trim());
+            const hasM2 = t.member2_name || t.m2_name;
+            if (hasM2) fallback.push(String(t.member2_mobile || t.m2_mobile || '').trim());
+            const hasM3 = t.member3_name || t.m3_name;
+            if (hasM3) fallback.push(String(t.member3_mobile || t.m3_mobile || '').trim());
+            if (fallback.length > 0) return fallback;
+            return [''];
+        }
+
+        function createAttendanceWorksheet(teams, eventLabel, panelName = '', eventColId = '') {
             const ws = {};
             const merges = [];
             const rows = [];
+            const TOTAL_COLS = 5; // S.No | Team name | Team members | Phone | Signature
 
             const BORDER_ALL = {
                 top:    { style: 'thin', color: { rgb: '000000' } },
@@ -2801,6 +2822,11 @@ Kongu Engineering College (IEEE AP-S)`;
                 alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
                 border: BORDER_ALL
             };
+            const STYLE_CELL_PHONE = {
+                font: { name: 'Arial', sz: 9.5, bold: false, color: { rgb: '000000' } },
+                alignment: { horizontal: 'center', vertical: 'center' },
+                border: BORDER_ALL
+            };
             const STYLE_CELL_SIG = {
                 font: { name: 'Arial', sz: 9.5, color: { rgb: '000000' } },
                 alignment: { horizontal: 'center', vertical: 'center' },
@@ -2812,42 +2838,42 @@ Kongu Engineering College (IEEE AP-S)`;
                 ws[ref] = { v: v ?? '', t: typeof v === 'number' ? 'n' : 's', s: s || {} };
             }
 
-            // Row 0: College Header
-            setCell(0, 0, 'KONGU ENGINEERING COLLEGE (AUTONOMOUS), PERUNDURAI, ERODE - 638060', STYLE_INST_TITLE);
-            merges.push({ s: { r: 0, c: 0 }, e: { r: 0, c: 3 } });
+            const lastCol = TOTAL_COLS - 1; // col index 4
 
-            // Row 1: IEEE AP-S Student Chapter
+            // Row 0: College Header (spans all 5 cols)
+            setCell(0, 0, 'KONGU ENGINEERING COLLEGE (AUTONOMOUS), PERUNDURAI, ERODE - 638060', STYLE_INST_TITLE);
+            merges.push({ s: { r: 0, c: 0 }, e: { r: 0, c: lastCol } });
+
+            // Row 1: IEEE AP-S Student Chapter (spans all 5 cols)
             setCell(1, 0, 'IEEE ANTENNAS AND PROPAGATION SOCIETY (AP-S) STUDENT BRANCH CHAPTER', STYLE_INST_SUB);
-            merges.push({ s: { r: 1, c: 0 }, e: { r: 1, c: 3 } });
+            merges.push({ s: { r: 1, c: 0 }, e: { r: 1, c: lastCol } });
 
             // Row 2: Blank spacing
             setCell(2, 0, '', {});
 
-            // Row 3: VISION 2K26 (Cols A-C) & DATE (Col D)
+            // Row 3: VISION 2K26 (Cols A-D) & DATE (Col E)
             setCell(3, 0, 'VISION 2K26', STYLE_MAIN_TITLE);
-            merges.push({ s: { r: 3, c: 0 }, e: { r: 3, c: 2 } });
-            setCell(3, 3, 'DATE : 16.10.2026', STYLE_META);
+            merges.push({ s: { r: 3, c: 0 }, e: { r: 3, c: 3 } });
+            setCell(3, 4, 'DATE : 16.10.2026', STYLE_META);
 
-            // Row 4: Event Title (Cols A-C) & TIME (Col D)
+            // Row 4: Event Title (Cols A-D) & TIME (Col E)
             setCell(4, 0, String(eventLabel || 'EVENT').toUpperCase(), STYLE_EVENT_TITLE);
-            merges.push({ s: { r: 4, c: 0 }, e: { r: 4, c: 2 } });
-            setCell(4, 3, 'TIME : 8:45 AM to 4:15 PM', STYLE_META);
+            merges.push({ s: { r: 4, c: 0 }, e: { r: 4, c: 3 } });
+            setCell(4, 4, 'TIME : 8:45 AM to 4:15 PM', STYLE_META);
 
             let currRow = 5;
 
             // Optional Panel Row if provided
             if (panelName && panelName.trim()) {
                 setCell(currRow, 0, panelName.trim().toUpperCase(), STYLE_PANEL_TITLE);
-                merges.push({ s: { r: currRow, c: 0 }, e: { r: currRow, c: 2 } });
-                setCell(currRow, 3, '', {});
+                merges.push({ s: { r: currRow, c: 0 }, e: { r: currRow, c: lastCol } });
                 rows[currRow] = { hpt: 20 };
                 currRow++;
             }
 
             // ATTENDANCE SHEET Row
             setCell(currRow, 0, 'ATTENDANCE SHEET', STYLE_SHEET_TITLE);
-            merges.push({ s: { r: currRow, c: 0 }, e: { r: currRow, c: 2 } });
-            setCell(currRow, 3, '', {});
+            merges.push({ s: { r: currRow, c: 0 }, e: { r: currRow, c: lastCol } });
             rows[currRow] = { hpt: 22 };
             currRow++;
 
@@ -2856,12 +2882,13 @@ Kongu Engineering College (IEEE AP-S)`;
             rows[currRow] = { hpt: 10 };
             currRow++;
 
-            // Table Header Row
+            // Table Header Row: S.No | Team name | Team members | Phone | Signature
             const headerRow = currRow;
             setCell(headerRow, 0, 'S.No', STYLE_TH);
             setCell(headerRow, 1, 'Team name', STYLE_TH);
             setCell(headerRow, 2, 'Team members', STYLE_TH);
-            setCell(headerRow, 3, 'Signature', STYLE_TH);
+            setCell(headerRow, 3, 'Phone', STYLE_TH);
+            setCell(headerRow, 4, 'Signature', STYLE_TH);
             rows[headerRow] = { hpt: 26 };
             currRow++;
 
@@ -2871,50 +2898,107 @@ Kongu Engineering College (IEEE AP-S)`;
             rows[3] = { hpt: 24 };
             rows[4] = { hpt: 22 };
 
+            const isPaperEvent   = eventColId === 'paper-presentation';
+            const isProjectEvent = eventColId === 'project-presentation';
+
             if (!teams || teams.length === 0) {
                 setCell(currRow, 0, 1, STYLE_CELL_SNO);
                 setCell(currRow, 1, 'NO TEAMS', STYLE_CELL_TEAM);
                 setCell(currRow, 2, 'NO REGISTRATIONS RECORDED YET', STYLE_CELL_MEMBER);
-                setCell(currRow, 3, '--', STYLE_CELL_SIG);
+                setCell(currRow, 3, '', STYLE_CELL_PHONE);
+                setCell(currRow, 4, '--', STYLE_CELL_SIG);
                 rows[currRow] = { hpt: 26 };
                 currRow++;
             } else {
                 teams.forEach((t, i) => {
-                    const memberNames = getTeamMemberList(t);
-                    const startRow = currRow;
-                    const endRow = currRow + memberNames.length - 1;
+                    const memberNames  = getTeamMemberList(t);
+                    const memberPhones = getTeamMemberPhones(t);
 
-                    memberNames.forEach((mName, mIdx) => {
-                        const r = startRow + mIdx;
-                        rows[r] = { hpt: 26 };
+                    // For Paper/Project Presentation: add a title sub-row above members
+                    if (isPaperEvent || isProjectEvent) {
+                        const titleLabel = isPaperEvent ? 'Paper Title' : 'Project Title';
+                        const titleValue = isPaperEvent
+                            ? (t.paper_title   || t.project_title || '—')
+                            : (t.project_title || t.paper_title   || '—');
+                        const STYLE_TITLE_LABEL = {
+                            font: { name: 'Arial', sz: 9, bold: true, italic: true, color: { rgb: '374151' } },
+                            alignment: { horizontal: 'right', vertical: 'center' },
+                            fill: { fgColor: { rgb: 'F9FAFB' } },
+                            border: BORDER_ALL
+                        };
+                        const STYLE_TITLE_VAL = {
+                            font: { name: 'Arial', sz: 9, bold: false, italic: true, color: { rgb: '1F2937' } },
+                            alignment: { horizontal: 'left', vertical: 'center', wrapText: true },
+                            fill: { fgColor: { rgb: 'F9FAFB' } },
+                            border: BORDER_ALL
+                        };
+                        setCell(currRow, 0, i + 1, STYLE_CELL_SNO);
+                        setCell(currRow, 1, (t.team_name || 'TEAM ' + (i + 1)).toUpperCase(), STYLE_CELL_TEAM);
+                        setCell(currRow, 2, titleLabel + ':', STYLE_TITLE_LABEL);
+                        setCell(currRow, 3, titleValue, STYLE_TITLE_VAL);
+                        merges.push({ s: { r: currRow, c: 3 }, e: { r: currRow, c: 4 } });
+                        rows[currRow] = { hpt: 20 };
+                        const titleRow = currRow;
+                        currRow++;
 
-                        // S.No (merged across squad)
-                        setCell(r, 0, mIdx === 0 ? (i + 1) : '', STYLE_CELL_SNO);
-                        // Team name (merged across squad)
-                        setCell(r, 1, mIdx === 0 ? (t.team_name || 'TEAM ' + (i + 1)).toUpperCase() : '', STYLE_CELL_TEAM);
-                        // Team member (1 row per member)
-                        setCell(r, 2, mName.toUpperCase(), STYLE_CELL_MEMBER);
-                        // Signature (blank box for physical pen signature)
-                        setCell(r, 3, '', STYLE_CELL_SIG);
-                    });
+                        const startRow = currRow;
+                        const endRow   = currRow + memberNames.length - 1;
 
-                    if (memberNames.length > 1) {
-                        merges.push({ s: { r: startRow, c: 0 }, e: { r: endRow, c: 0 } });
-                        merges.push({ s: { r: startRow, c: 1 }, e: { r: endRow, c: 1 } });
+                        memberNames.forEach((mName, mIdx) => {
+                            const r = startRow + mIdx;
+                            rows[r] = { hpt: 26 };
+                            setCell(r, 0, '', STYLE_CELL_SNO);   // blank — merged below with titleRow
+                            setCell(r, 1, mIdx === 0 ? '' : '', STYLE_CELL_TEAM); // blank — merged below
+                            setCell(r, 2, mName.toUpperCase(), STYLE_CELL_MEMBER);
+                            setCell(r, 3, memberPhones[mIdx] || '', STYLE_CELL_PHONE);
+                            setCell(r, 4, '', STYLE_CELL_SIG);
+                        });
+
+                        // Merge S.No across title row + member rows
+                        merges.push({ s: { r: titleRow, c: 0 }, e: { r: endRow, c: 0 } });
+                        // Merge Team name across title row + member rows
+                        merges.push({ s: { r: titleRow, c: 1 }, e: { r: endRow, c: 1 } });
+
+                        currRow = endRow + 1;
+                    } else {
+                        // Standard event: no title row
+                        const startRow = currRow;
+                        const endRow   = currRow + memberNames.length - 1;
+
+                        memberNames.forEach((mName, mIdx) => {
+                            const r = startRow + mIdx;
+                            rows[r] = { hpt: 26 };
+                            // S.No (merged across squad)
+                            setCell(r, 0, mIdx === 0 ? (i + 1) : '', STYLE_CELL_SNO);
+                            // Team name (merged across squad)
+                            setCell(r, 1, mIdx === 0 ? (t.team_name || 'TEAM ' + (i + 1)).toUpperCase() : '', STYLE_CELL_TEAM);
+                            // Team member (1 row per member)
+                            setCell(r, 2, mName.toUpperCase(), STYLE_CELL_MEMBER);
+                            // Phone number
+                            setCell(r, 3, memberPhones[mIdx] || '', STYLE_CELL_PHONE);
+                            // Signature (blank box for physical pen signature)
+                            setCell(r, 4, '', STYLE_CELL_SIG);
+                        });
+
+                        if (memberNames.length > 1) {
+                            merges.push({ s: { r: startRow, c: 0 }, e: { r: endRow, c: 0 } });
+                            merges.push({ s: { r: startRow, c: 1 }, e: { r: endRow, c: 1 } });
+                        }
+
+                        currRow = endRow + 1;
                     }
-
-                    currRow = endRow + 1;
                 });
             }
 
-            ws['!ref'] = XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: currRow - 1, c: 3 } });
+            ws['!ref'] = XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: currRow - 1, c: lastCol } });
             ws['!merges'] = merges;
             ws['!rows'] = rows;
             ws['!cols'] = [
                 { wch: 8 },   // S.No
-                { wch: 30 },  // Team name
-                { wch: 34 },  // Team members
-                { wch: 24 }   // Signature
+                { wch: 28 },  // Team name
+                { wch: 32 },  // Team members
+                { wch: 16 },  // Phone
+                { wch: 20 }   // Signature
             ];
 
             return ws;
@@ -2926,7 +3010,7 @@ Kongu Engineering College (IEEE AP-S)`;
             if (teams.length === 0) return alert(`No registrations found for ${eventLabel}.`);
             try {
                 const wb = XLSX.utils.book_new();
-                const ws = createAttendanceWorksheet(teams, eventLabel);
+                const ws = createAttendanceWorksheet(teams, eventLabel, '', eventColId);
                 const sheetName = eventLabel.replace(/[\\/:*?[\]]/g, '').substring(0, 31);
                 XLSX.utils.book_append_sheet(wb, ws, sheetName);
                 const safeName = eventColId.replace(/[^a-zA-Z0-9_-]/g, '_');
@@ -2946,7 +3030,7 @@ Kongu Engineering College (IEEE AP-S)`;
                 const wb = XLSX.utils.book_new();
                 EVENTS.forEach(ev => {
                     const teams = teamsByEvent[ev.id] || [];
-                    const ws = createAttendanceWorksheet(teams, ev.label);
+                    const ws = createAttendanceWorksheet(teams, ev.label, '', ev.id);
                     const sheetName = ev.label.replace(/[\\/:*?[\]]/g, '').substring(0, 31);
                     XLSX.utils.book_append_sheet(wb, ws, sheetName);
                 });
@@ -3009,6 +3093,9 @@ Kongu Engineering College (IEEE AP-S)`;
                 const pageBreakClass = (idx < eventsToPrint.length - 1) ? 'page-break' : '';
                 let tableRows = '';
 
+                const isPaperPrint   = ev.id === 'paper-presentation';
+                const isProjectPrint = ev.id === 'project-presentation';
+
                 if (ev.teams.length === 0) {
                     tableRows = `
                         <tr>
@@ -3016,20 +3103,39 @@ Kongu Engineering College (IEEE AP-S)`;
                             <td style="text-align:center; padding: 12px; border: 1px solid #000; font-weight: bold;">--</td>
                             <td style="text-align:center; padding: 12px; border: 1px solid #000;">NO REGISTRATIONS RECORDED</td>
                             <td style="text-align:center; padding: 12px; border: 1px solid #000;">--</td>
+                            <td style="text-align:center; padding: 12px; border: 1px solid #000;">--</td>
                         </tr>
                     `;
                 } else {
                     ev.teams.forEach((t, tIdx) => {
                         const members = getTeamMemberList(t);
+                        const phones  = getTeamMemberPhones(t);
                         const teamName = (t.team_name || 'TEAM ' + (tIdx + 1)).toUpperCase();
+                        const totalRowspan = members.length + (isPaperPrint || isProjectPrint ? 1 : 0);
+
+                        // Paper/Project Presentation: add a title sub-row
+                        if (isPaperPrint || isProjectPrint) {
+                            const titleLabel = isPaperPrint ? 'Paper Title' : 'Project Title';
+                            const titleValue = isPaperPrint
+                                ? (t.paper_title   || t.project_title || '—')
+                                : (t.project_title || t.paper_title   || '—');
+                            tableRows += `<tr>`;
+                            tableRows += `<td rowspan="${totalRowspan}" style="text-align:center; vertical-align:middle; border:1px solid #000; font-weight:bold; width:45px; padding:6px;">${tIdx + 1}</td>`;
+                            tableRows += `<td rowspan="${totalRowspan}" style="text-align:center; vertical-align:middle; border:1px solid #000; font-weight:bold; width:180px; padding:6px; word-break:break-word;">${escapeHtml(teamName)}</td>`;
+                            tableRows += `<td style="text-align:right; vertical-align:middle; border:1px solid #000; padding:4px 6px; font-style:italic; font-size:8.5pt; background:#f9fafb;"><em>${escapeHtml(titleLabel)}:</em></td>`;
+                            tableRows += `<td colspan="2" style="text-align:left; vertical-align:middle; border:1px solid #000; padding:4px 6px; font-style:italic; font-size:8.5pt; background:#f9fafb;">${escapeHtml(titleValue)}</td>`;
+                            tableRows += `</tr>`;
+                        }
+
                         members.forEach((mName, mIdx) => {
                             tableRows += '<tr>';
-                            if (mIdx === 0) {
-                                tableRows += `<td rowspan="${members.length}" style="text-align:center; vertical-align:middle; border:1px solid #000; font-weight:bold; width: 45px; padding: 6px;">${tIdx + 1}</td>`;
-                                tableRows += `<td rowspan="${members.length}" style="text-align:center; vertical-align:middle; border:1px solid #000; font-weight:bold; width: 220px; padding: 6px; word-break: break-word;">${escapeHtml(teamName)}</td>`;
+                            if (mIdx === 0 && !(isPaperPrint || isProjectPrint)) {
+                                tableRows += `<td rowspan="${members.length}" style="text-align:center; vertical-align:middle; border:1px solid #000; font-weight:bold; width:45px; padding:6px;">${tIdx + 1}</td>`;
+                                tableRows += `<td rowspan="${members.length}" style="text-align:center; vertical-align:middle; border:1px solid #000; font-weight:bold; width:180px; padding:6px; word-break:break-word;">${escapeHtml(teamName)}</td>`;
                             }
-                            tableRows += `<td style="text-align:center; vertical-align:middle; border:1px solid #000; padding: 8px 6px; width: 240px; font-weight: 500;">${escapeHtml(mName.toUpperCase())}</td>`;
-                            tableRows += `<td style="border:1px solid #000; width: 140px; height: 32px;"></td>`;
+                            tableRows += `<td style="text-align:center; vertical-align:middle; border:1px solid #000; padding:8px 6px; width:200px; font-weight:500;">${escapeHtml(mName.toUpperCase())}</td>`;
+                            tableRows += `<td style="text-align:center; vertical-align:middle; border:1px solid #000; padding:6px; width:110px; font-family:'Courier New',monospace; font-size:8.5pt;">${escapeHtml(phones[mIdx] || '')}</td>`;
+                            tableRows += `<td style="border:1px solid #000; width:110px; height:32px;"></td>`;
                             tableRows += '</tr>';
                         });
                     });
@@ -3062,10 +3168,11 @@ Kongu Engineering College (IEEE AP-S)`;
                         <table class="roster-table">
                             <thead>
                                 <tr>
-                                    <th style="width: 45px;">S.No</th>
-                                    <th style="width: 220px;">Team name</th>
-                                    <th style="width: 240px;">Team members</th>
-                                    <th style="width: 140px;">Signature</th>
+                                    <th style="width:45px;">S.No</th>
+                                    <th style="width:180px;">Team name</th>
+                                    <th style="width:200px;">Team members</th>
+                                    <th style="width:110px;">Phone</th>
+                                    <th style="width:110px;">Signature</th>
                                 </tr>
                             </thead>
                             <tbody>
