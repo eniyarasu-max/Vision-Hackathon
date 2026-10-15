@@ -221,8 +221,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
 
-    <!-- External SheetJS & Html5Qrcode -->
-    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <!-- External Styled XLSX (xlsx-js-style) & Html5Qrcode -->
+    <script src="assets/xlsx.bundle.js"></script>
+    <script>
+        if (typeof XLSX === 'undefined') {
+            document.write('<script src="https://unpkg.com/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"><\/script>');
+        }
+    </script>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 </head>
 
@@ -476,31 +481,73 @@
 
             </div>
 
-            <!-- Per-Event Excel Download Row -->
-            <div class="bg-surface-container border border-primary/20 p-4 rounded-xs">
-                <div class="flex items-center gap-2 mb-3">
-                    <span class="material-symbols-outlined text-primary text-base">table_chart</span>
-                    <span class="font-orbitron text-xs font-bold text-primary uppercase tracking-wider">Download Registrations by Event</span>
+            <!-- Per-Event Attendance Sheet & Excel Download Section -->
+            <div class="bg-surface-container border border-primary/20 p-4 rounded-xs space-y-3">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-outline-variant/20 pb-2.5">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-base">fact_check</span>
+                        <div>
+                            <span class="font-orbitron text-xs font-bold text-primary uppercase tracking-wider">Attendance Sheets &amp; Event Rosters</span>
+                            <div class="text-[11px] text-zinc-400 font-mono">Official attendance sheet with merged Team names, Member roster &amp; Signature boxes</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 font-mono text-[11px]">
+                        <span class="text-zinc-500">FORMAT:</span>
+                        <span class="text-amber-300 font-bold bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded">S.No • Team name • Team members • Signature</span>
+                    </div>
                 </div>
-                <div class="flex flex-wrap gap-2 font-mono text-xs">
-                    <button onclick="exportEventExcel('paper-presentation','Paper Presentation')"    class="bg-surface-container-high hover:bg-primary hover:text-black text-white border border-outline-variant/40 px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-bold">
-                        <span class="material-symbols-outlined text-sm">download</span> Paper Presentation
-                    </button>
-                    <button onclick="exportEventExcel('project-presentation','Project Presentation')" class="bg-surface-container-high hover:bg-primary hover:text-black text-white border border-outline-variant/40 px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-bold">
-                        <span class="material-symbols-outlined text-sm">download</span> Project Presentation
-                    </button>
-                    <button onclick="exportEventExcel('ai-sprint','AI Sprint')"                     class="bg-surface-container-high hover:bg-primary hover:text-black text-white border border-outline-variant/40 px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-bold">
-                        <span class="material-symbols-outlined text-sm">download</span> AI Sprint
-                    </button>
-                    <button onclick="exportEventExcel('electrobid','ElectroBid')"                   class="bg-surface-container-high hover:bg-primary hover:text-black text-white border border-outline-variant/40 px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-bold">
-                        <span class="material-symbols-outlined text-sm">download</span> ElectroBid
-                    </button>
-                    <button onclick="exportEventExcel('line-following-robot','Line Following Robot')" class="bg-surface-container-high hover:bg-primary hover:text-black text-white border border-outline-variant/40 px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-bold">
-                        <span class="material-symbols-outlined text-sm">download</span> Line Following Robot
-                    </button>
-                    <button onclick="exportAllExcelSheets()" class="bg-primary/15 hover:bg-primary hover:text-black text-primary border border-primary/50 px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-bold">
-                        <span class="material-symbols-outlined text-sm">table_chart</span> All Events (Multi-Sheet)
-                    </button>
+
+                <!-- Primary: Attendance Sheet Excel Exports -->
+                <div>
+                    <div class="text-[10px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[13px] text-primary">download</span>
+                        <span>Download Attendance Sheet (Excel .xlsx):</span>
+                    </div>
+                    <div class="flex flex-wrap gap-2 font-mono text-xs">
+                        <button onclick="exportEventExcel('paper-presentation','Paper Presentation')"    class="bg-surface-container-high hover:bg-primary hover:text-black text-white border border-outline-variant/40 px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-bold shadow-sm" title="Download Paper Presentation Attendance Sheet">
+                            <span class="material-symbols-outlined text-sm">assignment_turned_in</span> Paper Presentation
+                        </button>
+                        <button onclick="exportEventExcel('project-presentation','Project Presentation')" class="bg-surface-container-high hover:bg-primary hover:text-black text-white border border-outline-variant/40 px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-bold shadow-sm" title="Download Project Presentation Attendance Sheet">
+                            <span class="material-symbols-outlined text-sm">assignment_turned_in</span> Project Presentation
+                        </button>
+                        <button onclick="exportEventExcel('ai-sprint','AI Sprint')"                     class="bg-surface-container-high hover:bg-primary hover:text-black text-white border border-outline-variant/40 px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-bold shadow-sm" title="Download AI Sprint Attendance Sheet">
+                            <span class="material-symbols-outlined text-sm">assignment_turned_in</span> AI Sprint
+                        </button>
+                        <button onclick="exportEventExcel('electrobid','ElectroBid')"                   class="bg-surface-container-high hover:bg-primary hover:text-black text-white border border-outline-variant/40 px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-bold shadow-sm" title="Download ElectroBid Attendance Sheet">
+                            <span class="material-symbols-outlined text-sm">assignment_turned_in</span> ElectroBid
+                        </button>
+                        <button onclick="exportEventExcel('line-following-robot','Line Following Robot')" class="bg-surface-container-high hover:bg-primary hover:text-black text-white border border-outline-variant/40 px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-bold shadow-sm" title="Download Line Following Robot Attendance Sheet">
+                            <span class="material-symbols-outlined text-sm">assignment_turned_in</span> Line Following Robot
+                        </button>
+                        <button onclick="exportAllExcelSheets()" class="bg-primary/20 hover:bg-primary hover:text-black text-primary border border-primary/60 px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-bold shadow-sm" title="Download Multi-Sheet Excel Workbook for All Events">
+                            <span class="material-symbols-outlined text-sm">table_chart</span> All Events (Multi-Sheet)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Secondary: Instant Print / PDF & Raw Contact Export -->
+                <div class="pt-2 border-t border-outline-variant/10 flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono">
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                        <span class="text-zinc-500">PRINT DIRECTLY:</span>
+                        <button onclick="printAttendanceSheet('paper-presentation','Paper Presentation')" class="text-zinc-300 hover:text-primary underline cursor-pointer">Paper</button>
+                        <span class="text-zinc-600">•</span>
+                        <button onclick="printAttendanceSheet('project-presentation','Project Presentation')" class="text-zinc-300 hover:text-primary underline cursor-pointer">Project</button>
+                        <span class="text-zinc-600">•</span>
+                        <button onclick="printAttendanceSheet('ai-sprint','AI Sprint')" class="text-zinc-300 hover:text-primary underline cursor-pointer">AI Sprint</button>
+                        <span class="text-zinc-600">•</span>
+                        <button onclick="printAttendanceSheet('electrobid','ElectroBid')" class="text-zinc-300 hover:text-primary underline cursor-pointer">ElectroBid</button>
+                        <span class="text-zinc-600">•</span>
+                        <button onclick="printAttendanceSheet('line-following-robot','Line Following Robot')" class="text-zinc-300 hover:text-primary underline cursor-pointer">Robot</button>
+                        <span class="text-zinc-600">•</span>
+                        <button onclick="printAttendanceSheet('all','All Events')" class="text-amber-300 hover:text-white font-bold underline cursor-pointer flex items-center gap-0.5">
+                            <span class="material-symbols-outlined text-xs">print</span> Print All
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <span class="text-zinc-500">RAW DATA:</span>
+                        <button onclick="exportAllRawExcel()" class="text-zinc-400 hover:text-primary underline cursor-pointer" title="Export flat raw dataset with UPI IDs, phone numbers & emails">Full Contacts Excel</button>
+                    </div>
                 </div>
             </div>
 
@@ -2148,31 +2195,409 @@ Kongu Engineering College (IEEE AP-S)`;
             };
         }
 
-        // Export a SINGLE event's registrations as Excel
+        /* =========================================================
+           ATTENDANCE SHEET BUILDER (EXACT SAMPLE PDF FORMAT)
+           Format: S.No (merged) | Team name (merged) | Team members | Signature
+           ========================================================= */
+
+        function getTeamMemberList(t) {
+            if (!t) return ['MEMBER 1'];
+            if (Array.isArray(t.members) && t.members.length > 0) {
+                const names = t.members
+                    .map(m => (m && m.name ? String(m.name).trim() : ''))
+                    .filter(Boolean);
+                if (names.length > 0) return names;
+            }
+            const fallback = [];
+            if (t.leader_name) fallback.push(String(t.leader_name).trim());
+            else if (t.m1_name) fallback.push(String(t.m1_name).trim());
+            if (t.member2_name) fallback.push(String(t.member2_name).trim());
+            else if (t.m2_name) fallback.push(String(t.m2_name).trim());
+            if (t.member3_name) fallback.push(String(t.member3_name).trim());
+            else if (t.m3_name) fallback.push(String(t.m3_name).trim());
+            if (fallback.length > 0) return fallback;
+            return [t.team_name ? String(t.team_name).trim() : 'MEMBER 1'];
+        }
+
+        function createAttendanceWorksheet(teams, eventLabel, panelName = '') {
+            const ws = {};
+            const merges = [];
+            const rows = [];
+
+            const BORDER_ALL = {
+                top:    { style: 'thin', color: { rgb: '000000' } },
+                bottom: { style: 'thin', color: { rgb: '000000' } },
+                left:   { style: 'thin', color: { rgb: '000000' } },
+                right:  { style: 'thin', color: { rgb: '000000' } }
+            };
+
+            const STYLE_INST_TITLE = {
+                font: { name: 'Arial', sz: 12, bold: true, color: { rgb: '111827' } },
+                alignment: { horizontal: 'center', vertical: 'center' }
+            };
+            const STYLE_INST_SUB = {
+                font: { name: 'Arial', sz: 9.5, bold: true, color: { rgb: '374151' } },
+                alignment: { horizontal: 'center', vertical: 'center' }
+            };
+            const STYLE_MAIN_TITLE = {
+                font: { name: 'Arial', sz: 15, bold: true, color: { rgb: '000000' } },
+                alignment: { horizontal: 'center', vertical: 'center' }
+            };
+            const STYLE_EVENT_TITLE = {
+                font: { name: 'Arial', sz: 13, bold: true, color: { rgb: '000000' } },
+                alignment: { horizontal: 'center', vertical: 'center' }
+            };
+            const STYLE_PANEL_TITLE = {
+                font: { name: 'Arial', sz: 11, bold: true, color: { rgb: '000000' } },
+                alignment: { horizontal: 'center', vertical: 'center' }
+            };
+            const STYLE_SHEET_TITLE = {
+                font: { name: 'Arial', sz: 11, bold: true, color: { rgb: '000000' } },
+                alignment: { horizontal: 'center', vertical: 'center' }
+            };
+            const STYLE_META = {
+                font: { name: 'Arial', sz: 9.5, bold: true, color: { rgb: '000000' } },
+                alignment: { horizontal: 'right', vertical: 'center' }
+            };
+            const STYLE_TH = {
+                font: { name: 'Arial', sz: 11, bold: true, color: { rgb: '000000' } },
+                alignment: { horizontal: 'center', vertical: 'center' },
+                fill: { fgColor: { rgb: 'F3F4F6' } },
+                border: BORDER_ALL
+            };
+            const STYLE_CELL_SNO = {
+                font: { name: 'Arial', sz: 10, bold: true, color: { rgb: '000000' } },
+                alignment: { horizontal: 'center', vertical: 'center' },
+                border: BORDER_ALL
+            };
+            const STYLE_CELL_TEAM = {
+                font: { name: 'Arial', sz: 10, bold: true, color: { rgb: '000000' } },
+                alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+                border: BORDER_ALL
+            };
+            const STYLE_CELL_MEMBER = {
+                font: { name: 'Arial', sz: 9.5, bold: false, color: { rgb: '000000' } },
+                alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+                border: BORDER_ALL
+            };
+            const STYLE_CELL_SIG = {
+                font: { name: 'Arial', sz: 9.5, color: { rgb: '000000' } },
+                alignment: { horizontal: 'center', vertical: 'center' },
+                border: BORDER_ALL
+            };
+
+            function setCell(r, c, v, s) {
+                const ref = XLSX.utils.encode_cell({ r, c });
+                ws[ref] = { v: v ?? '', t: typeof v === 'number' ? 'n' : 's', s: s || {} };
+            }
+
+            // Row 0: College Header
+            setCell(0, 0, 'KONGU ENGINEERING COLLEGE (AUTONOMOUS), PERUNDURAI, ERODE - 638060', STYLE_INST_TITLE);
+            merges.push({ s: { r: 0, c: 0 }, e: { r: 0, c: 3 } });
+
+            // Row 1: IEEE AP-S Student Chapter
+            setCell(1, 0, 'IEEE ANTENNAS AND PROPAGATION SOCIETY (AP-S) STUDENT BRANCH CHAPTER', STYLE_INST_SUB);
+            merges.push({ s: { r: 1, c: 0 }, e: { r: 1, c: 3 } });
+
+            // Row 2: Blank spacing
+            setCell(2, 0, '', {});
+
+            // Row 3: VISION 2K26 (Cols A-C) & DATE (Col D)
+            setCell(3, 0, 'VISION 2K26', STYLE_MAIN_TITLE);
+            merges.push({ s: { r: 3, c: 0 }, e: { r: 3, c: 2 } });
+            setCell(3, 3, 'DATE : 16.10.2026', STYLE_META);
+
+            // Row 4: Event Title (Cols A-C) & TIME (Col D)
+            setCell(4, 0, String(eventLabel || 'EVENT').toUpperCase(), STYLE_EVENT_TITLE);
+            merges.push({ s: { r: 4, c: 0 }, e: { r: 4, c: 2 } });
+            setCell(4, 3, 'TIME : 8:45 AM to 4:15 PM', STYLE_META);
+
+            let currRow = 5;
+
+            // Optional Panel Row if provided
+            if (panelName && panelName.trim()) {
+                setCell(currRow, 0, panelName.trim().toUpperCase(), STYLE_PANEL_TITLE);
+                merges.push({ s: { r: currRow, c: 0 }, e: { r: currRow, c: 2 } });
+                setCell(currRow, 3, '', {});
+                rows[currRow] = { hpt: 20 };
+                currRow++;
+            }
+
+            // ATTENDANCE SHEET Row
+            setCell(currRow, 0, 'ATTENDANCE SHEET', STYLE_SHEET_TITLE);
+            merges.push({ s: { r: currRow, c: 0 }, e: { r: currRow, c: 2 } });
+            setCell(currRow, 3, '', {});
+            rows[currRow] = { hpt: 22 };
+            currRow++;
+
+            // Spacing row
+            setCell(currRow, 0, '', {});
+            rows[currRow] = { hpt: 10 };
+            currRow++;
+
+            // Table Header Row
+            const headerRow = currRow;
+            setCell(headerRow, 0, 'S.No', STYLE_TH);
+            setCell(headerRow, 1, 'Team name', STYLE_TH);
+            setCell(headerRow, 2, 'Team members', STYLE_TH);
+            setCell(headerRow, 3, 'Signature', STYLE_TH);
+            rows[headerRow] = { hpt: 26 };
+            currRow++;
+
+            rows[0] = { hpt: 22 };
+            rows[1] = { hpt: 18 };
+            rows[2] = { hpt: 8 };
+            rows[3] = { hpt: 24 };
+            rows[4] = { hpt: 22 };
+
+            if (!teams || teams.length === 0) {
+                setCell(currRow, 0, 1, STYLE_CELL_SNO);
+                setCell(currRow, 1, 'NO TEAMS', STYLE_CELL_TEAM);
+                setCell(currRow, 2, 'NO REGISTRATIONS RECORDED YET', STYLE_CELL_MEMBER);
+                setCell(currRow, 3, '--', STYLE_CELL_SIG);
+                rows[currRow] = { hpt: 26 };
+                currRow++;
+            } else {
+                teams.forEach((t, i) => {
+                    const memberNames = getTeamMemberList(t);
+                    const startRow = currRow;
+                    const endRow = currRow + memberNames.length - 1;
+
+                    memberNames.forEach((mName, mIdx) => {
+                        const r = startRow + mIdx;
+                        rows[r] = { hpt: 26 };
+
+                        // S.No (merged across squad)
+                        setCell(r, 0, mIdx === 0 ? (i + 1) : '', STYLE_CELL_SNO);
+                        // Team name (merged across squad)
+                        setCell(r, 1, mIdx === 0 ? (t.team_name || 'TEAM ' + (i + 1)).toUpperCase() : '', STYLE_CELL_TEAM);
+                        // Team member (1 row per member)
+                        setCell(r, 2, mName.toUpperCase(), STYLE_CELL_MEMBER);
+                        // Signature (blank box for physical pen signature)
+                        setCell(r, 3, '', STYLE_CELL_SIG);
+                    });
+
+                    if (memberNames.length > 1) {
+                        merges.push({ s: { r: startRow, c: 0 }, e: { r: endRow, c: 0 } });
+                        merges.push({ s: { r: startRow, c: 1 }, e: { r: endRow, c: 1 } });
+                    }
+
+                    currRow = endRow + 1;
+                });
+            }
+
+            ws['!ref'] = XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: currRow - 1, c: 3 } });
+            ws['!merges'] = merges;
+            ws['!rows'] = rows;
+            ws['!cols'] = [
+                { wch: 8 },   // S.No
+                { wch: 30 },  // Team name
+                { wch: 34 },  // Team members
+                { wch: 24 }   // Signature
+            ];
+
+            return ws;
+        }
+
+        // Export a SINGLE event's attendance sheet as Excel
         window.exportEventExcel = function(eventColId, eventLabel) {
             const teams = teamsByEvent[eventColId] || [];
             if (teams.length === 0) return alert(`No registrations found for ${eventLabel}.`);
-            const rows = teams.map((t, i) => buildRow(t, i));
-            const ws = XLSX.utils.json_to_sheet(rows);
-            const wb = XLSX.utils.book_new();
-            const sheetName = eventLabel.replace(/[\\/:*?[\]]/g, '').substring(0, 31);
-            XLSX.utils.book_append_sheet(wb, ws, sheetName);
-            const filename = `Vision2K26_${eventColId}_${new Date().toISOString().slice(0, 10)}.xlsx`;
-            XLSX.writeFile(wb, filename);
+            try {
+                const wb = XLSX.utils.book_new();
+                const ws = createAttendanceWorksheet(teams, eventLabel);
+                const sheetName = eventLabel.replace(/[\\/:*?[\]]/g, '').substring(0, 31);
+                XLSX.utils.book_append_sheet(wb, ws, sheetName);
+                const safeName = eventColId.replace(/[^a-zA-Z0-9_-]/g, '_');
+                const filename = `Vision2K26_Attendance_${safeName}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+                XLSX.writeFile(wb, filename);
+                if (window.SFX && typeof SFX.success === 'function') SFX.success();
+            } catch (err) {
+                console.error('Export Event Attendance Sheet failed:', err);
+                alert('Failed to generate Attendance Sheet: ' + err.message);
+            }
         };
 
-        // Export ALL events as a multi-sheet Excel workbook (one sheet per event)
+        // Export ALL events as a multi-sheet Excel workbook (one attendance sheet per event)
         window.exportAllExcelSheets = function() {
             if (registeredTeams.length === 0) return alert('No registrations to export.');
-            const wb = XLSX.utils.book_new();
-            EVENTS.forEach(ev => {
-                const teams = teamsByEvent[ev.id] || [];
-                const rows = teams.map((t, i) => buildRow(t, i));
-                const ws = XLSX.utils.json_to_sheet(rows.length > 0 ? rows : [{ 'Note': 'No registrations yet' }]);
-                const sheetName = ev.label.replace(/[\\/:*?[\]]/g, '').substring(0, 31);
-                XLSX.utils.book_append_sheet(wb, ws, sheetName);
+            try {
+                const wb = XLSX.utils.book_new();
+                EVENTS.forEach(ev => {
+                    const teams = teamsByEvent[ev.id] || [];
+                    const ws = createAttendanceWorksheet(teams, ev.label);
+                    const sheetName = ev.label.replace(/[\\/:*?[\]]/g, '').substring(0, 31);
+                    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+                });
+                const filename = `Vision2K26_Attendance_All_Events_${new Date().toISOString().slice(0, 10)}.xlsx`;
+                XLSX.writeFile(wb, filename);
+                if (window.SFX && typeof SFX.success === 'function') SFX.success();
+            } catch (err) {
+                console.error('Export All Attendance Sheets failed:', err);
+                alert('Failed to generate multi-sheet Attendance Sheets: ' + err.message);
+            }
+        };
+
+        // Export ALL events raw registration dataset (with full contacts & UPI IDs)
+        window.exportAllRawExcel = function() {
+            if (registeredTeams.length === 0) return alert('No registrations to export.');
+            try {
+                const wb = XLSX.utils.book_new();
+                EVENTS.forEach(ev => {
+                    const teams = teamsByEvent[ev.id] || [];
+                    const rows = teams.map((t, i) => buildRow(t, i));
+                    const ws = XLSX.utils.json_to_sheet(rows.length > 0 ? rows : [{ 'Note': 'No registrations yet' }]);
+                    const sheetName = ev.label.replace(/[\\/:*?[\]]/g, '').substring(0, 31);
+                    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+                });
+                const filename = `Vision2K26_Raw_Registrations_All_${new Date().toISOString().slice(0, 10)}.xlsx`;
+                XLSX.writeFile(wb, filename);
+                if (window.SFX && typeof SFX.success === 'function') SFX.success();
+            } catch (err) {
+                console.error('Export Raw Excel failed:', err);
+                alert('Failed to generate Raw Registrations Excel: ' + err.message);
+            }
+        };
+
+        // Instant Printable Attendance Sheet Generator (matching sample PDF layout)
+        window.printAttendanceSheet = function(eventColId, eventLabel) {
+            let eventsToPrint = [];
+            if (eventColId === 'all') {
+                eventsToPrint = EVENTS.map(ev => ({ id: ev.id, label: ev.label, teams: teamsByEvent[ev.id] || [] }));
+            } else {
+                eventsToPrint = [{ id: eventColId, label: eventLabel, teams: teamsByEvent[eventColId] || [] }];
+            }
+
+            const totalTeams = eventsToPrint.reduce((acc, ev) => acc + ev.teams.length, 0);
+            if (totalTeams === 0) return alert('No registered squads to print.');
+
+            const printFrame = document.createElement('iframe');
+            printFrame.style.position = 'fixed';
+            printFrame.style.right = '0';
+            printFrame.style.bottom = '0';
+            printFrame.style.width = '0';
+            printFrame.style.height = '0';
+            printFrame.style.border = '0';
+            document.body.appendChild(printFrame);
+
+            const doc = printFrame.contentWindow.document;
+            doc.open();
+
+            let sheetsHtml = '';
+            eventsToPrint.forEach((ev, idx) => {
+                const pageBreakClass = (idx < eventsToPrint.length - 1) ? 'page-break' : '';
+                let tableRows = '';
+
+                if (ev.teams.length === 0) {
+                    tableRows = `
+                        <tr>
+                            <td style="text-align:center; padding: 12px; border: 1px solid #000;">1</td>
+                            <td style="text-align:center; padding: 12px; border: 1px solid #000; font-weight: bold;">--</td>
+                            <td style="text-align:center; padding: 12px; border: 1px solid #000;">NO REGISTRATIONS RECORDED</td>
+                            <td style="text-align:center; padding: 12px; border: 1px solid #000;">--</td>
+                        </tr>
+                    `;
+                } else {
+                    ev.teams.forEach((t, tIdx) => {
+                        const members = getTeamMemberList(t);
+                        const teamName = (t.team_name || 'TEAM ' + (tIdx + 1)).toUpperCase();
+                        members.forEach((mName, mIdx) => {
+                            tableRows += '<tr>';
+                            if (mIdx === 0) {
+                                tableRows += `<td rowspan="${members.length}" style="text-align:center; vertical-align:middle; border:1px solid #000; font-weight:bold; width: 45px; padding: 6px;">${tIdx + 1}</td>`;
+                                tableRows += `<td rowspan="${members.length}" style="text-align:center; vertical-align:middle; border:1px solid #000; font-weight:bold; width: 220px; padding: 6px; word-break: break-word;">${escapeHtml(teamName)}</td>`;
+                            }
+                            tableRows += `<td style="text-align:center; vertical-align:middle; border:1px solid #000; padding: 8px 6px; width: 240px; font-weight: 500;">${escapeHtml(mName.toUpperCase())}</td>`;
+                            tableRows += `<td style="border:1px solid #000; width: 140px; height: 32px;"></td>`;
+                            tableRows += '</tr>';
+                        });
+                    });
+                }
+
+                sheetsHtml += `
+                    <div class="sheet-container ${pageBreakClass}">
+                        <div class="header-banner">
+                            <div class="logo-box"><img src="assets/kec-logo.png" alt="KEC" style="height: 52px; object-fit: contain;" /></div>
+                            <div class="header-text">
+                                <div class="inst-name">KONGU ENGINEERING COLLEGE (AUTONOMOUS)</div>
+                                <div class="inst-sub">PERUNDURAI, ERODE - 638060</div>
+                                <div class="society-name">IEEE ANTENNAS AND PROPAGATION SOCIETY (AP-S) STUDENT BRANCH CHAPTER</div>
+                            </div>
+                            <div class="logo-box text-right"><img src="assets/ieee-aps-logo.png" alt="IEEE AP-S" style="height: 52px; object-fit: contain;" /></div>
+                        </div>
+
+                        <div class="event-meta-box">
+                            <div class="event-titles">
+                                <div class="symp-title">VISION 2K26</div>
+                                <div class="event-title">${escapeHtml(ev.label.toUpperCase())}</div>
+                                <div class="sheet-title">ATTENDANCE SHEET</div>
+                            </div>
+                            <div class="meta-right">
+                                <div><strong>DATE :</strong> 16.10.2026</div>
+                                <div><strong>TIME :</strong> 8:45 AM to 4:15 PM</div>
+                            </div>
+                        </div>
+
+                        <table class="roster-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 45px;">S.No</th>
+                                    <th style="width: 220px;">Team name</th>
+                                    <th style="width: 240px;">Team members</th>
+                                    <th style="width: 140px;">Signature</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${tableRows}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
             });
-            XLSX.writeFile(wb, `Vision2K26_ALL_Events_${new Date().toISOString().slice(0, 10)}.xlsx`);
+
+            const printHtml = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Vision 2K26 — Attendance Sheet</title>
+                    <style>
+                        @page { size: A4 portrait; margin: 12mm 10mm; }
+                        * { box-sizing: border-box; }
+                        body { margin: 0; padding: 0; font-family: Arial, sans-serif; color: #000; background: #fff; }
+                        .sheet-container { width: 100%; max-width: 800px; margin: 0 auto; padding-bottom: 20px; }
+                        .page-break { page-break-after: always; }
+                        .header-banner { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 10px; }
+                        .header-text { text-align: center; flex: 1; padding: 0 10px; }
+                        .inst-name { font-size: 13pt; font-weight: bold; letter-spacing: 0.5px; }
+                        .inst-sub { font-size: 8.5pt; color: #333; margin-top: 1px; }
+                        .society-name { font-size: 9.5pt; font-weight: bold; margin-top: 2px; }
+                        .event-meta-box { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 12px; }
+                        .event-titles { text-align: center; flex: 1; }
+                        .symp-title { font-size: 15pt; font-weight: bold; letter-spacing: 1px; }
+                        .event-title { font-size: 13pt; font-weight: bold; margin-top: 2px; text-decoration: underline; }
+                        .sheet-title { font-size: 11pt; font-weight: bold; margin-top: 2px; letter-spacing: 1.5px; }
+                        .meta-right { font-size: 9pt; font-family: 'Courier New', monospace; font-weight: bold; text-align: right; line-height: 1.4; }
+                        .roster-table { width: 100%; border-collapse: collapse; border: 1.5px solid #000; font-size: 9.5pt; }
+                        .roster-table th { border: 1.5px solid #000; padding: 7px 4px; background: #f3f4f6; text-align: center; font-weight: bold; font-size: 10pt; }
+                        .roster-table td { border: 1px solid #000; }
+                    </style>
+                </head>
+                <body>
+                    ${sheetsHtml}
+                </body>
+                </html>
+            `;
+
+            doc.write(printHtml);
+            doc.close();
+
+            setTimeout(() => {
+                printFrame.contentWindow.focus();
+                printFrame.contentWindow.print();
+                setTimeout(() => {
+                    if (printFrame.parentNode) document.body.removeChild(printFrame);
+                }, 2000);
+            }, 400);
         };
 
         // Combined "All Events" single-sheet Excel (via the KPI card button)

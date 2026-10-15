@@ -12,7 +12,7 @@ Guidance for working in this repository.
 - **Tailwind CSS via CDN** (`cdn.tailwindcss.com`). The Tailwind theme config is **inlined in a `<script id="tailwind-config">` block in every page** — there is no shared config file, so a theme change must be repeated per page.
 - **Firebase Firestore** (client SDK v10.13.0, imported as ESM from `https://www.gstatic.com/firebasejs/...`). Firebase project: `vision-9a49b`. Config lives in [firebase-config.js](firebase-config.js) (public client keys — normal for Firebase web).
 - **Hosted on Vercel** ([vercel.json](vercel.json)). Firebase Hosting was dropped (see recent commits); Firestore is still used.
-- **CDN libraries:** html2canvas + qrcodejs (pass export in register), SheetJS/`xlsx` + html5-qrcode (export + QR scanner in organiser/admin).
+- **CDN libraries:** html2canvas + qrcodejs (pass export in register), xlsx-js-style/`xlsx` (styled attendance sheet & Excel export in organiser), html5-qrcode (QR scanner in organiser).
 - Fonts: Orbitron, Space Grotesk, JetBrains Mono, Material Symbols (Google Fonts).
 
 ## Pages
