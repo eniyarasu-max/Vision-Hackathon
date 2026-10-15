@@ -551,7 +551,63 @@
                 </div>
             </div>
 
+            <!-- Per-Event Evaluation Sheet Excel Download Section -->
+            <div class="bg-surface-container border border-emerald-500/20 p-4 rounded-xs space-y-3">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-outline-variant/20 pb-2.5">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-emerald-400 text-base">grading</span>
+                        <div>
+                            <span class="font-orbitron text-xs font-bold text-emerald-400 uppercase tracking-wider">Evaluation Sheets (Jury Scoring)</span>
+                            <div class="text-[11px] text-zinc-400 font-mono">Professional evaluation sheet · 5 criteria × 20 marks · Auto-SUM · Jury signature row</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 font-mono text-[11px]">
+                        <span class="text-zinc-500">FORMAT:</span>
+                        <span class="text-emerald-300 font-bold bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded">S.No • Team • Title • 5 Criteria • Total (100)</span>
+                    </div>
+                </div>
+
+                <!-- Evaluation Sheet Excel Exports -->
+                <div>
+                    <div class="text-[10px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[13px] text-emerald-400">download</span>
+                        <span>Download Evaluation Sheet (Excel .xlsx):</span>
+                    </div>
+                    <div class="flex flex-wrap gap-2 font-mono text-xs">
+                        <button onclick="exportEvaluationExcel('paper-presentation','Paper Presentation')"    class="bg-surface-container-high hover:bg-emerald-500 hover:text-black text-white border border-emerald-500/40 px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-bold shadow-sm" title="Download Paper Presentation Evaluation Sheet">
+                            <span class="material-symbols-outlined text-sm">description</span> Paper Presentation
+                        </button>
+                        <button onclick="exportEvaluationExcel('project-presentation','Project Presentation')" class="bg-surface-container-high hover:bg-emerald-500 hover:text-black text-white border border-emerald-500/40 px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-bold shadow-sm" title="Download Project Presentation Evaluation Sheet">
+                            <span class="material-symbols-outlined text-sm">description</span> Project Presentation
+                        </button>
+                        <button onclick="exportEvaluationExcel('ai-sprint','AI Sprint')"                     class="bg-surface-container-high hover:bg-emerald-500 hover:text-black text-white border border-emerald-500/40 px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-bold shadow-sm" title="Download AI Sprint Evaluation Sheet">
+                            <span class="material-symbols-outlined text-sm">description</span> AI Sprint
+                        </button>
+                        <button onclick="exportEvaluationExcel('electrobid','ElectroBid')"                   class="bg-surface-container-high hover:bg-emerald-500 hover:text-black text-white border border-emerald-500/40 px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-bold shadow-sm" title="Download ElectroBid Evaluation Sheet">
+                            <span class="material-symbols-outlined text-sm">description</span> ElectroBid
+                        </button>
+                        <button onclick="exportEvaluationExcel('line-following-robot','Line Following Robot')" class="bg-surface-container-high hover:bg-emerald-500 hover:text-black text-white border border-emerald-500/40 px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-bold shadow-sm" title="Download Line Following Robot Evaluation Sheet">
+                            <span class="material-symbols-outlined text-sm">description</span> Line Following Robot
+                        </button>
+                        <button onclick="exportAllEvaluationSheets()" class="bg-emerald-500/20 hover:bg-emerald-500 hover:text-black text-emerald-300 border border-emerald-500/60 px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-bold shadow-sm" title="Download All Events Evaluation Sheets (Multi-Sheet Workbook)">
+                            <span class="material-symbols-outlined text-sm">table_chart</span> All Events (Multi-Sheet)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Criteria quick-reference -->
+                <div class="pt-2 border-t border-outline-variant/10 text-[10px] font-mono text-zinc-500 space-y-0.5">
+                    <div class="text-zinc-400 font-bold uppercase tracking-wider mb-1">Criteria per Event (5 × 20 marks = 100):</div>
+                    <div><span class="text-emerald-400">Paper:</span> Literature Review · Technical Depth · Results & Validation · Originality · Presentation & Q&A</div>
+                    <div><span class="text-emerald-400">Project:</span> Problem Identification · Innovation · Implementation · SDG Impact · Presentation & Q&A</div>
+                    <div><span class="text-emerald-400">AI Sprint:</span> Problem Definition · Model Architecture · Code Quality · Performance & Metrics · Demo & Defence</div>
+                    <div><span class="text-emerald-400">ElectroBid:</span> Auction Strategy · Circuit Theory · Hardware Assembly · Output Verification · Technical Viva</div>
+                    <div><span class="text-emerald-400">Robot:</span> Track Completion · Lap Time · Sensor Calibration · Chassis Quality · Engineering Viva</div>
+                </div>
+            </div>
+
             <!-- Toolbar: Search, Filters & Bulk Actions -->
+
             <div class="bg-surface-container border border-primary/30 p-5 rounded-xs space-y-4">
                 <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
                     <div>
@@ -3003,6 +3059,343 @@ Kongu Engineering College (IEEE AP-S)`;
 
             return ws;
         }
+
+        /* =========================================================
+           EVALUATION SHEET BUILDER — Professional Jury Scoring Format
+           Format: S.No | Team & Leader | Title/Topic | 5 Criteria (20 each) | Total (100)
+           ========================================================= */
+
+        const EVALUATION_CONFIG = {
+            'paper-presentation': {
+                sheetTitle: 'VISION 2K26 — PAPER PRESENTATION — EVALUATION SHEET',
+                titleColName: 'Paper Title',
+                criteria: [
+                    { name: 'Literature Review &\nProblem Definition', marks: 20 },
+                    { name: 'Technical Depth &\nMethodology', marks: 20 },
+                    { name: 'Results, Analysis &\nValidation', marks: 20 },
+                    { name: 'Originality &\nResearch Relevance', marks: 20 },
+                    { name: 'Presentation, Defence\n& Q&A', marks: 20 }
+                ]
+            },
+            'project-presentation': {
+                sheetTitle: 'VISION 2K26 — PROJECT PRESENTATION — EVALUATION SHEET',
+                titleColName: 'Project Title',
+                criteria: [
+                    { name: 'Problem Identification\n& Relevance', marks: 20 },
+                    { name: 'Innovation &\nTechnical Approach', marks: 20 },
+                    { name: 'Implementation &\nFeasibility', marks: 20 },
+                    { name: 'SDG Goal &\nSocial Impact', marks: 20 },
+                    { name: 'Presentation &\nQ&A', marks: 20 }
+                ]
+            },
+            'ai-sprint': {
+                sheetTitle: 'VISION 2K26 — AI SPRINT (HACKATHON) — EVALUATION SHEET',
+                titleColName: 'Problem Statement & Domain',
+                criteria: [
+                    { name: 'Problem Definition\n& Data Approach', marks: 20 },
+                    { name: 'Model Architecture\n& Algorithmic Novelty', marks: 20 },
+                    { name: 'Implementation Pipeline\n& Code Quality', marks: 20 },
+                    { name: 'Performance, Metrics\n& Accuracy', marks: 20 },
+                    { name: 'Working Demo, Usability\n& Defence', marks: 20 }
+                ]
+            },
+            'electrobid': {
+                sheetTitle: 'VISION 2K26 — ELECTROBID (CIRCUIT AUCTION) — EVALUATION SHEET',
+                titleColName: 'Circuit & Problem Assigned',
+                criteria: [
+                    { name: 'Auction Strategy\n& Budget Optimization', marks: 20 },
+                    { name: 'Circuit Theory\n& Schematic Design', marks: 20 },
+                    { name: 'Hardware Assembly\n& Breadboard Debugging', marks: 20 },
+                    { name: 'Output Verification\n& Execution Speed', marks: 20 },
+                    { name: 'Technical Viva &\nConceptual Q&A', marks: 20 }
+                ]
+            },
+            'line-following-robot': {
+                sheetTitle: 'VISION 2K26 — LINE FOLLOWING ROBOT — EVALUATION SHEET',
+                titleColName: 'Bot Specification & Design',
+                criteria: [
+                    { name: 'Track Completion\n& Path Accuracy', marks: 20 },
+                    { name: 'Lap Time & Speed\nOptimization', marks: 20 },
+                    { name: 'Sensor Calibration\n& PID Algorithm', marks: 20 },
+                    { name: 'Mechanical Chassis\n& Build Quality', marks: 20 },
+                    { name: 'Engineering Viva\n& Technical Q&A', marks: 20 }
+                ]
+            }
+        };
+
+        function createEvaluationWorksheet(teams, eventColId, eventLabel, panelName = '') {
+            const ws = {};
+            const merges = [];
+            const rows = [];
+            const TOTAL_COLS = 9; // S.No | Team & Leader | Title | Crit1-5 | Total
+
+            const config = EVALUATION_CONFIG[eventColId] || EVALUATION_CONFIG['project-presentation'];
+
+            const BORDER_ALL = {
+                top:    { style: 'thin', color: { rgb: '000000' } },
+                bottom: { style: 'thin', color: { rgb: '000000' } },
+                left:   { style: 'thin', color: { rgb: '000000' } },
+                right:  { style: 'thin', color: { rgb: '000000' } }
+            };
+            const BORDER_MEDIUM = {
+                top:    { style: 'medium', color: { rgb: '000000' } },
+                bottom: { style: 'medium', color: { rgb: '000000' } },
+                left:   { style: 'medium', color: { rgb: '000000' } },
+                right:  { style: 'medium', color: { rgb: '000000' } }
+            };
+
+            const STYLE_INST_TITLE = {
+                font: { name: 'Arial', sz: 12, bold: true, color: { rgb: '111827' } },
+                alignment: { horizontal: 'center', vertical: 'center' }
+            };
+            const STYLE_INST_SUB = {
+                font: { name: 'Arial', sz: 9.5, bold: true, color: { rgb: '374151' } },
+                alignment: { horizontal: 'center', vertical: 'center' }
+            };
+            const STYLE_MAIN_TITLE = {
+                font: { name: 'Arial', sz: 15, bold: true, color: { rgb: '000000' } },
+                alignment: { horizontal: 'center', vertical: 'center' }
+            };
+            const STYLE_SHEET_TITLE = {
+                font: { name: 'Arial', sz: 11, bold: true, color: { rgb: '000000' } },
+                alignment: { horizontal: 'center', vertical: 'center' }
+            };
+            const STYLE_META = {
+                font: { name: 'Arial', sz: 9.5, bold: true, color: { rgb: '000000' } },
+                alignment: { horizontal: 'right', vertical: 'center' }
+            };
+            const STYLE_PANEL = {
+                font: { name: 'Arial', sz: 10.5, bold: true, color: { rgb: '000000' } },
+                alignment: { horizontal: 'center', vertical: 'center' }
+            };
+            const STYLE_TH = {
+                font: { name: 'Arial', sz: 10, bold: true, color: { rgb: '000000' } },
+                alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+                fill: { fgColor: { rgb: 'E5E7EB' } },
+                border: BORDER_ALL
+            };
+            const STYLE_TH_CRITERIA = {
+                font: { name: 'Arial', sz: 9.5, bold: true, color: { rgb: '000000' } },
+                alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+                fill: { fgColor: { rgb: 'DBEAFE' } },
+                border: BORDER_ALL
+            };
+            const STYLE_TH_TOTAL = {
+                font: { name: 'Arial', sz: 10.5, bold: true, color: { rgb: '000000' } },
+                alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+                fill: { fgColor: { rgb: 'FEF3C7' } },
+                border: BORDER_MEDIUM
+            };
+            const STYLE_CELL_SNO = {
+                font: { name: 'Arial', sz: 10, bold: true, color: { rgb: '000000' } },
+                alignment: { horizontal: 'center', vertical: 'center' },
+                border: BORDER_ALL
+            };
+            const STYLE_CELL_TEAM = {
+                font: { name: 'Arial', sz: 9.5, bold: true, color: { rgb: '000000' } },
+                alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+                border: BORDER_ALL
+            };
+            const STYLE_CELL_TITLE = {
+                font: { name: 'Arial', sz: 9, italic: true, color: { rgb: '1F2937' } },
+                alignment: { horizontal: 'left', vertical: 'center', wrapText: true },
+                border: BORDER_ALL
+            };
+            const STYLE_CELL_SCORE = {
+                font: { name: 'Arial', sz: 10.5, color: { rgb: '000000' } },
+                alignment: { horizontal: 'center', vertical: 'center' },
+                border: BORDER_ALL
+            };
+            const STYLE_CELL_TOTAL = {
+                font: { name: 'Arial', sz: 11, bold: true, color: { rgb: '000000' } },
+                alignment: { horizontal: 'center', vertical: 'center' },
+                fill: { fgColor: { rgb: 'FFFBEB' } },
+                border: BORDER_MEDIUM
+            };
+            const STYLE_SIG_LABEL = {
+                font: { name: 'Arial', sz: 9.5, bold: true, color: { rgb: '000000' } },
+                alignment: { horizontal: 'right', vertical: 'center' }
+            };
+            const STYLE_SIG_LINE = {
+                font: { name: 'Arial', sz: 9.5, italic: true, color: { rgb: '374151' } },
+                alignment: { horizontal: 'left', vertical: 'center' }
+            };
+
+            function setCell(r, c, v, s, f) {
+                const ref = XLSX.utils.encode_cell({ r, c });
+                const cell = { v: v ?? '', t: typeof v === 'number' ? 'n' : 's', s: s || {} };
+                if (f) cell.f = f;
+                ws[ref] = cell;
+            }
+
+            const lastCol = TOTAL_COLS - 1; // 8
+
+            // Row 0: College Header
+            setCell(0, 0, 'KONGU ENGINEERING COLLEGE (AUTONOMOUS), PERUNDURAI, ERODE - 638060', STYLE_INST_TITLE);
+            merges.push({ s: { r: 0, c: 0 }, e: { r: 0, c: lastCol } });
+            rows[0] = { hpt: 20 };
+
+            // Row 1: IEEE AP-S Chapter
+            setCell(1, 0, 'IEEE ANTENNAS AND PROPAGATION SOCIETY (AP-S) STUDENT BRANCH CHAPTER', STYLE_INST_SUB);
+            merges.push({ s: { r: 1, c: 0 }, e: { r: 1, c: lastCol } });
+            rows[1] = { hpt: 16 };
+
+            // Row 2: Blank spacer
+            rows[2] = { hpt: 6 };
+
+            // Row 3: VISION 2K26 (left) + Date (right)
+            setCell(3, 0, 'VISION 2K26', STYLE_MAIN_TITLE);
+            merges.push({ s: { r: 3, c: 0 }, e: { r: 3, c: 5 } });
+            setCell(3, 6, 'Date: 16.10.2026', STYLE_META);
+            merges.push({ s: { r: 3, c: 6 }, e: { r: 3, c: lastCol } });
+            rows[3] = { hpt: 24 };
+
+            // Row 4: Evaluation Sheet Title (full width)
+            setCell(4, 0, config.sheetTitle, STYLE_SHEET_TITLE);
+            merges.push({ s: { r: 4, c: 0 }, e: { r: 4, c: lastCol } });
+            rows[4] = { hpt: 20 };
+
+            let currRow = 5;
+
+            // Optional Panel Row
+            if (panelName && panelName.trim()) {
+                setCell(currRow, 0, panelName.trim().toUpperCase(), STYLE_PANEL);
+                merges.push({ s: { r: currRow, c: 0 }, e: { r: currRow, c: lastCol } });
+                rows[currRow] = { hpt: 18 };
+                currRow++;
+            }
+
+            // Spacer before table
+            rows[currRow] = { hpt: 8 };
+            currRow++;
+
+            // Table Header Row
+            const headerRow = currRow;
+            setCell(headerRow, 0, 'S.No', STYLE_TH);
+            setCell(headerRow, 1, 'Team Name &\nTeam Leader Name', STYLE_TH);
+            setCell(headerRow, 2, config.titleColName, STYLE_TH);
+            config.criteria.forEach((crit, ci) => {
+                setCell(headerRow, 3 + ci, `${crit.name}\n(${crit.marks})`, STYLE_TH_CRITERIA);
+            });
+            setCell(headerRow, 8, 'Total\n(100)', STYLE_TH_TOTAL);
+            rows[headerRow] = { hpt: 36 };
+            currRow++;
+
+            // Team data rows — minimum 12 blank rows for judge to fill even if no registrations
+            const safeTeams = Array.isArray(teams) ? teams : [];
+            const minRows = Math.max(12, safeTeams.length + 3);
+
+            for (let i = 0; i < minRows; i++) {
+                const t = safeTeams[i];
+                const r = currRow;
+                rows[r] = { hpt: 32 };
+
+                if (t) {
+                    const leaderName = (
+                        (Array.isArray(t.members) && t.members[0]?.name) ||
+                        t.leader_name || t.m1_name || ''
+                    ).trim().toUpperCase();
+                    const teamDisplay = (t.team_name || `TEAM ${i + 1}`).toUpperCase() +
+                        (leaderName ? `\nLeader: ${leaderName}` : '');
+                    const titleVal = (
+                        eventColId === 'paper-presentation'   ? (t.paper_title || t.project_title) :
+                        eventColId === 'project-presentation' ? (t.project_title || t.paper_title) :
+                        (t.project_title || t.paper_title || '')
+                    ) || '—';
+                    setCell(r, 0, i + 1, STYLE_CELL_SNO);
+                    setCell(r, 1, teamDisplay, STYLE_CELL_TEAM);
+                    setCell(r, 2, titleVal, STYLE_CELL_TITLE);
+                } else {
+                    setCell(r, 0, i + 1, STYLE_CELL_SNO);
+                    setCell(r, 1, '', STYLE_CELL_TEAM);
+                    setCell(r, 2, '', STYLE_CELL_TITLE);
+                }
+
+                // Blank score boxes for each criterion
+                for (let c = 3; c <= 7; c++) {
+                    setCell(r, c, '', STYLE_CELL_SCORE);
+                }
+
+                // Total formula =SUM(D{row}:H{row})
+                const excelRow = r + 1;
+                setCell(r, 8, '', STYLE_CELL_TOTAL, `SUM(D${excelRow}:H${excelRow})`);
+
+                currRow++;
+            }
+
+            // Spacer after table
+            rows[currRow] = { hpt: 16 };
+            currRow++;
+
+            // Jury Signature Section
+            setCell(currRow, 0, 'Jury Name: _________________________________________', STYLE_SIG_LINE);
+            merges.push({ s: { r: currRow, c: 0 }, e: { r: currRow, c: 4 } });
+            setCell(currRow, 5, "Jury's Signature (with name)", STYLE_SIG_LABEL);
+            merges.push({ s: { r: currRow, c: 5 }, e: { r: currRow, c: lastCol } });
+            rows[currRow] = { hpt: 26 };
+            currRow++;
+
+            setCell(currRow, 0, 'Designation / Affiliation: _________________________', STYLE_SIG_LINE);
+            merges.push({ s: { r: currRow, c: 0 }, e: { r: currRow, c: 4 } });
+            setCell(currRow, 5, 'Signature: _______________________________', STYLE_SIG_LABEL);
+            merges.push({ s: { r: currRow, c: 5 }, e: { r: currRow, c: lastCol } });
+            rows[currRow] = { hpt: 24 };
+            currRow++;
+
+            ws['!ref']    = XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: currRow - 1, c: lastCol } });
+            ws['!merges'] = merges;
+            ws['!rows']   = rows;
+            ws['!cols']   = [
+                { wch: 6  },  // S.No
+                { wch: 26 },  // Team & Leader
+                { wch: 30 },  // Title
+                { wch: 20 },  // Criteria 1
+                { wch: 20 },  // Criteria 2
+                { wch: 20 },  // Criteria 3
+                { wch: 20 },  // Criteria 4
+                { wch: 20 },  // Criteria 5
+                { wch: 12 }   // Total
+            ];
+
+            return ws;
+        }
+
+        // Export a SINGLE event's evaluation sheet as Excel
+        window.exportEvaluationExcel = function(eventColId, eventLabel) {
+            try {
+                const teams  = teamsByEvent[eventColId] || [];
+                const wb     = XLSX.utils.book_new();
+                const ws     = createEvaluationWorksheet(teams, eventColId, eventLabel);
+                const safeName = eventLabel.replace(/[\\/:*?[\]]/g, '').replace(/\s+/g, '_');
+                const sheetName = eventLabel.replace(/[\\/:*?[\]]/g, '').substring(0, 31);
+                XLSX.utils.book_append_sheet(wb, ws, sheetName);
+                const filename = `Vision2K26_Evaluation_${safeName}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+                XLSX.writeFile(wb, filename);
+                if (window.SFX && typeof SFX.success === 'function') SFX.success();
+            } catch (err) {
+                console.error('Export Evaluation Sheet failed:', err);
+                alert('Failed to generate Evaluation Sheet: ' + err.message);
+            }
+        };
+
+        // Export ALL events' evaluation sheets as a multi-sheet workbook
+        window.exportAllEvaluationSheets = function() {
+            try {
+                const wb = XLSX.utils.book_new();
+                EVENTS.forEach(ev => {
+                    const teams = teamsByEvent[ev.id] || [];
+                    const ws    = createEvaluationWorksheet(teams, ev.id, ev.label);
+                    const sheetName = ev.label.replace(/[\\/:*?[\]]/g, '').substring(0, 31);
+                    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+                });
+                const filename = `Vision2K26_Evaluation_All_Events_${new Date().toISOString().slice(0, 10)}.xlsx`;
+                XLSX.writeFile(wb, filename);
+                if (window.SFX && typeof SFX.success === 'function') SFX.success();
+            } catch (err) {
+                console.error('Export All Evaluation Sheets failed:', err);
+                alert('Failed to generate Evaluation Sheets: ' + err.message);
+            }
+        };
 
         // Export a SINGLE event's attendance sheet as Excel
         window.exportEventExcel = function(eventColId, eventLabel) {
